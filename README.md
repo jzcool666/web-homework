@@ -17,12 +17,13 @@
 - [实施计划](docs/design/实施计划.md)
 - [Spec 索引](docs/specs/README.md)
 - [测试计划与追溯](docs/testing/需求追溯与测试计划.md)
+- [任务书功能覆盖矩阵](docs/testing/任务书功能覆盖矩阵.md)
 - [设计检查记录](docs/checkpoints/checkpoint-1.md)
 - [SPEC-000 执行报告](docs/testing/SPEC-000-执行报告.md)
 
 ## 技术和目录约定
 
-前端 Vue 3、Vite、Vue Router、Pinia、Element Plus、ECharts；后端 Flask、SQLAlchemy、Alembic；数据库统一 SQLite；统计与算法 NumPy、Pandas、scikit-learn、SciPy。不得引入 PyTorch、TensorFlow 或大模型权重。依赖精确版本在工程阶段完成兼容性检查后锁定。
+前端 Vue 3、Vite、Vue Router、Pinia、Element Plus、ECharts；后端 Flask、SQLAlchemy、Alembic；数据库统一 SQLite；统计与算法 NumPy、Pandas、scikit-learn、SciPy，识别辅助使用 OpenCV/Pillow，知识图谱用标准库与 NumPy 在 knowledge_edges 上遍历。不得引入 PyTorch、TensorFlow 或大模型权重。依赖精确版本在工程阶段完成兼容性检查后锁定。
 
 ```text
 frontend/                 前端工程（SPEC-000 已建立骨架）

@@ -4,7 +4,7 @@
 
 ## ADR-001 单课程模块化单体
 
-采用 Vue 3 单页前端和 Flask REST API，后端以应用工厂和 Blueprint 划分 auth、attendance、content、assessment、experiment、analytics、intelligence。应用工厂便于独立测试配置，参考 [Flask 官方说明](https://flask.palletsprojects.com/en/stable/patterns/appfactories/)。接口层负责校验和权限，服务层负责状态转换，模型层负责约束。模块共用一份 SQLite 数据。
+采用 Vue 3 单页前端和 Flask REST API，后端以应用工厂和 Blueprint 划分 auth、attendance、content、assessment、experiment、analytics、intelligence、graph、recognition。图谱与识别各自独立 Blueprint，不并入业务蓝图以避免耦合。应用工厂便于独立测试配置，参考 [Flask 官方说明](https://flask.palletsprojects.com/en/stable/patterns/appfactories/)。接口层负责校验和权限，服务层负责状态转换，模型层负责约束。模块共用一份 SQLite 数据。
 
 课堂规模较小，课程要求固定 Flask/SQLite，选择单体可减少启动和部署步骤。本期不引入微服务、消息队列或 Redis；代价是只能承诺经负载测试确认的单实例课堂规模。
 
@@ -15,7 +15,7 @@ flowchart LR
   V -->|同源 API 与会话| F[Flask 权限与业务服务]
   F --> D[(SQLite)]
   F --> U[本地资源文件]
-  F --> A[统计 检索 组卷 推荐]
+  F --> A[统计 检索 组卷 推荐 图谱 识别]
 ```
 
 ## ADR-002 教师课堂优先
@@ -42,12 +42,14 @@ flowchart LR
 
 教师动作使用 expected_version，过期返回 409，客户端重新获取后由教师决定重试，不能自动覆盖新的演示状态。
 
-## ADR-007 四项轻量算法
+## ADR-007 六项轻量算法
 
 1. 问答：scikit-learn TF-IDF，字符 2—4 gram，余弦检索，最多 3 条来源。参考 [TfidfVectorizer](https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html)。不接收费外部服务；相似度不当作正确概率。
 2. 组卷：NumPy 建立覆盖与难度矩阵，SciPy `milp` 进行二元约束选题。候选最多 500，题量最多 30，求解限时 2 秒；超时和数学无解必须区分，参考 [SciPy milp](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.milp.html)。相比简单随机抽题增加一个求解步骤，换取约束可检验性。
 3. 预警：Pandas 聚合，NumPy 加权评分，数据充分时用 scikit-learn KMeans 补充班级分组描述；不把无监督分组当作挂科预测。冷启动仅提供规则评分或样本不足。
 4. 推荐：按错题、进度和实验表现计算内容排序，输出原因与对应知识点；无需训练复杂模型。
+5. 知识图谱：在 knowledge_edges 先修关系上做图遍历（BFS 最短路、拓扑排序、按深度子图裁剪与环检测），使用标准库与 NumPy，不引入图数据库；前端用 ECharts 关系图渲染。不做通用知识本体或从文本自动抽取关系。
+6. 识别辅助：OpenCV/Pillow 对规定格式的时序状态表做灰度化、二值化、网格切分与 0/1 判定，输出状态序列与次态转换。不使用深度学习模型，不声称识别任意手绘电路或卡诺图化简。
 
 不使用 PyTorch/TensorFlow，不下载大模型。算法参数和评价用例写入 Spec，不把安装了某个库视为算法已完成。
 
