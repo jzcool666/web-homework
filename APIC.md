@@ -164,8 +164,8 @@ Question options：单选/多选 2—6 个唯一 key，答案必须在选项内�
 | E066 | GET /knowledge-graph | U且有课程访问权 | chapter_id?,root_id?,depth?=1—3 | KnowledgeGraph；只含已发布知识点 |
 | E067 | GET /knowledge-graph/path | U且有课程访问权 | from,to | {matched:boolean,nodes:[GraphNode],edges:[GraphEdge]}；无路径matched=false |
 | E068 | GET /knowledge-graph/topological | U且有课程访问权 | chapter_id? | {order:int[],has_cycle:boolean,cycle_edges:[GraphEdge]}；有环不返回order |
-| E069 | POST /recognition-tasks | U且有课程访问权 | multipart image、kind:state_table | RecognitionTask；413/415；同步处理并限时 |
-| E070 | GET /recognition-tasks/{id} | 创建者/所属班T | 无 | RecognitionTask；跨班404，失败含格式原因 |
+| E069 | POST /recognition-tasks | U且有课程访问权 | multipart image、class_id、kind:state_table | RecognitionTask；S仅本人有效班级、T仅本人任教班级；413/415；同步处理并限时 |
+| E070 | GET /recognition-tasks/{id} | 创建者/所属班T | 无 | RecognitionTask；以任务保存的class_id核对任课关系，跨班404，失败含格式原因 |
 
 统计模型：
 
@@ -177,7 +177,7 @@ Question options：单选/多选 2—6 个唯一 key，答案必须在选项内�
 - GraphNode：`knowledge_id,title,chapter_id,depth:int,dimension:0/1`；dimension 表示是否根节点集合的成员，供前端同层对齐。
 - GraphEdge：`prerequisite_id,target_id`；方向为先修指向后继。
 - KnowledgeGraph：`nodes:[GraphNode],edges:[GraphEdge],has_cycle:boolean,truncated:boolean`；truncated 为节点超上限被裁剪时为 true。
-- RecognitionTask：`id,kind:state_table,status:queued/done/failed,created_at,result:{rows:int,cols:int,states:[{row:int,value:int}],transitions:[{from:int,to:int}],confidence:number}或null,error:{code,message,details}或null`；status=failed 时 result 为 null 且 error 给出格式原因；结果含 `requires_review:true` 人工核对提示。
+- RecognitionTask：`id,class_id,kind:state_table,status:done/failed,created_at,result:{rows:int,cols:int,states:[{row:int,value:int}],transitions:[{from:int,to:int}],confidence:number,requires_review:true}或null,error:{code,message,details}或null`；同步处理完成后才返回任务，status=failed 时 result 为 null 且 error 给出格式原因。
 
 CSV 返回 UTF-8 BOM 文件，包含相同过滤条件的可展开明细，不包含密码、会话或答案；对以 =、+、-、@ 开头的用户输入文本加安全前缀。JSON 字段名和 CSV 列说明在实现测试中固定。
 

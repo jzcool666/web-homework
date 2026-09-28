@@ -1,6 +1,6 @@
 # 数据库设计
 
-版本：设计基线 1.0，2026-09-28。数据库：SQLite。本文定义计划模型，当前未创建数据库或迁移文件。
+版本：设计基线 1.0，2026-09-28。数据库：SQLite。SPEC-000 已建立迁移基线；本文所列业务表仍为计划模型，尚未创建。
 
 ## 1 公共约定
 
@@ -81,7 +81,7 @@
 | --- | --- | --- |
 | qa_entries | knowledge_id FK knowledge_points、question TEXT(200)、answer_md TEXT、source_url TEXT?、published BOOL、owner_id FK users | 索引内容由已发布条目和知识点构成；修改后更新语料版本 |
 | warning_snapshots | class_id FK classes、student_id FK users、window_start TEXT、window_end TEXT、algorithm_version TEXT、evidence_json TEXT、score REAL?、level TEXT(insufficient/low/medium/high)、cluster_label INTEGER?、generated_at TEXT | INDEX(class_id,generated_at)，新计算生成批次号存 evidence；列表展示最近同窗口完整批次 |
-| recognition_tasks | owner_id FK users、kind TEXT(state_table)、storage_key TEXT、original_name TEXT?、mime TEXT、size_bytes INTEGER、status TEXT(queued/done/failed)、result_json TEXT?、error_json TEXT?、created_at TEXT | INDEX(owner_id,created_at)；图片按 ADR-008 随机 storage_key 保存，file 类规则与 resource_versions 一致；失败任务不保留有效 result |
+| recognition_tasks | owner_id FK users、class_id FK classes、kind TEXT(state_table)、storage_key TEXT、original_name TEXT?、mime TEXT、size_bytes INTEGER、status TEXT(done/failed)、result_json TEXT?、error_json TEXT?、created_at TEXT | INDEX(owner_id,created_at)、INDEX(class_id,created_at)；图片按 ADR-008 随机 storage_key 保存，file 类规则与 resource_versions 一致；失败任务不保留有效 result；class_id 固定创建时所属班级 |
 
 普通统计不另存汇总表，从业务记录按统一服务计算。推荐首版实时计算，不持久保存学生隐式画像；只返回当前候选和理由。组卷输入、候选版本指纹、随机种子、求解状态及所选题号保存在 assessments.generation_json，不另设孤立组卷表。知识图谱不另建表，是 knowledge_edges（先修关系，见第 3 节）的只读投影，结果实时计算；先修关系的增删改在内容管理内完成，不通过图谱接口写入。识别任务的结果保存在 recognition_tasks.result_json，图片本身不进入题库或实验事实。
 
@@ -104,6 +104,7 @@ erDiagram
   experiments ||--o{ experiment_attempts : validates
   knowledge_points ||--o{ knowledge_edges : prerequisite
   users ||--o{ recognition_tasks : requests
+  classes ||--o{ recognition_tasks : contains
 ```
 
 默认外键 ON DELETE RESTRICT；只允许删除没有历史引用的本人草稿，删除草稿的从属条目在同事务显式删除。收藏与过期会话允许直接删除。已提交测评、实验记录、签到名单不得因用户退班而级联删除。管理员班级换教师后，新教师继承该班教学数据访问权，旧教师立即失去；内容作者身份不改变。
