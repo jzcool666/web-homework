@@ -53,12 +53,21 @@ def success(data, status: int = 200, **meta_extra):
 class ApiError(Exception):
     """业务错误；由 errorhandler 渲染成 APIC 错误封装。"""
 
-    def __init__(self, code: str, message: str, details=None, status: int | None = None):
+    def __init__(
+        self,
+        code: str,
+        message: str,
+        details=None,
+        status: int | None = None,
+        headers: dict | None = None,
+    ):
         super().__init__(message)
         self.code = code
         self.message = message
         self.details = details
         self.status = status or ERROR_STATUS.get(code, 400)
+        # 例如 429 的 Retry-After（APIC 第 1 节）
+        self.headers = headers or {}
 
 
 def error_payload(code: str, message: str, details=None) -> dict:
@@ -71,7 +80,11 @@ def error_payload(code: str, message: str, details=None) -> dict:
 def register_error_handlers(app: Flask) -> None:
     @app.errorhandler(ApiError)
     def _handle_api_error(exc: ApiError):
-        return jsonify(error_payload(exc.code, exc.message, exc.details)), exc.status
+        response = jsonify(error_payload(exc.code, exc.message, exc.details))
+        response.status_code = exc.status
+        for name, value in exc.headers.items():
+            response.headers[name] = value
+        return response
 
     @app.errorhandler(HTTPException)
     def _handle_http_exception(exc: HTTPException):

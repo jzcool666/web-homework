@@ -1,0 +1,122 @@
+/* SPEC-001 页面基础样式：表单、列表与提示。 */
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+  color: #202124;
+  background: #fff;
+}
+
+.page {
+  max-width: 52rem;
+  margin: 2rem auto;
+  padding: 0 1.5rem 3rem;
+}
+
+.page h1 {
+  font-size: 1.4rem;
+  margin-bottom: 0.25rem;
+}
+
+.page .hint {
+  color: #5f6368;
+  font-size: 0.9rem;
+}
+
+.card {
+  margin-top: 1.25rem;
+  padding: 1.25rem;
+  border: 1px solid #dadce0;
+  border-radius: 0.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.85rem;
+}
+
+.field label {
+  font-size: 0.9rem;
+  color: #3c4043;
+}
+
+.field input,
+.field select {
+  padding: 0.45rem 0.6rem;
+  border: 1px solid #bdc1c6;
+  border-radius: 0.25rem;
+  font-size: 0.95rem;
+}
+
+button.primary {
+  padding: 0.45rem 1rem;
+  border: 1px solid #1a73e8;
+  border-radius: 0.25rem;
+  background: #1a73e8;
+  color: #fff;
+  cursor: pointer;
+}
+
+button.primary:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+button.link {
+  border: none;
+  background: none;
+  color: #1a73e8;
+  cursor: pointer;
+  padding: 0 0.3rem;
+}
+
+.error {
+  color: #b3261e;
+  font-size: 0.9rem;
+  margin: 0.5rem 0 0;
+}
+
+.success {
+  color: #1e7a3c;
+  font-size: 0.9rem;
+  margin: 0.5rem 0 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.75rem;
+  font-size: 0.92rem;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.45rem 0.5rem;
+  border-bottom: 1px solid #e8eaed;
+}
+
+th {
+  color: #5f6368;
+  font-weight: 500;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.05rem 0.4rem;
+  border: 1px solid #dadce0;
+  border-radius: 0.75rem;
+  font-size: 0.8rem;
+  color: #3c4043;
+}
+
+.badge.off {
+  color: #b3261e;
+  border-color: #f2b8b5;
+}

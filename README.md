@@ -2,7 +2,7 @@
 
 本项目面向时序逻辑课堂，支持教师备课、逐拍演示、随堂测与讲评，并为学生提供练习、实验和课后复习。
 
-当前版本为设计基线 1.0。工程骨架（SPEC-000）已实现并在新目录实测通过，业务功能尚未实现：登录与账号、课程内容、测评、实验等由后续 Spec 交付。命令与环境的实际结果见 [SPEC-000 执行报告](docs/testing/SPEC-000-执行报告.md)，未执行的项在该报告中逐条列出。
+当前版本为设计基线 1.0。工程骨架（SPEC-000）与账号角色与班级权限（SPEC-001）已实现并实测通过，其余业务功能尚未实现：课程内容、测评、实验等由后续 Spec 交付。命令与环境的实际结果见 [SPEC-000 执行报告](docs/testing/SPEC-000-执行报告.md) 与 [SPEC-001 执行报告](docs/testing/SPEC-001-执行报告.md)，未执行的项在报告中逐条列出。
 
 ## 文档入口
 
@@ -20,6 +20,7 @@
 - [任务书功能覆盖矩阵](docs/testing/任务书功能覆盖矩阵.md)
 - [设计检查记录](docs/checkpoints/checkpoint-1.md)
 - [SPEC-000 执行报告](docs/testing/SPEC-000-执行报告.md)
+- [SPEC-001 执行报告](docs/testing/SPEC-001-执行报告.md)
 
 ## 技术和目录约定
 
@@ -52,7 +53,7 @@ SQLite 文件路径必须解析成绝对路径，启用外键、5 秒 busy_timeo
 2. 配置环境变量（模板见 `backend/.env.example`），执行 `python -m flask --app app:create_app db upgrade`（工作目录 backend）。
 3. 开发时后端监听 localhost:5000，前端 `npm run dev` 使用 Vite 代理 `/api`；测试命令为根目录 `python -m pytest tests/backend`、前端 `npm run test:unit` 和 `npm run build`（pytest 路径已在 `pytest.ini` 配置）。
 4. 部署时先 `npm run build`，再以 `waitress-serve --listen=0.0.0.0:5000 wsgi:app`（工作目录 backend）启动，后端同源提供 `frontend/dist`；不使用 Flask 开发服务器承担实际课堂访问。`APP_ENV=production` 时必须提供 `DATABASE_URL` 与 `SECRET_KEY`。
-5. 管理员初始化与教学样例命令（`init-admin`、`seed-demo`）属 SPEC-001 及各业务模块，当前尚未提供。
+5. 管理员初始化（SPEC-001，已提供）：迁移后在工作目录 backend 执行 `python -m flask --app app:create_app init-admin --login-name <登录名> --password <口令>`。公开注册只允许学生，首个管理员的登录名一经占用即拒绝重建。教学样例命令 `seed-demo` 属各业务模块，尚未提供。
 
 ## 测试和部署验收
 

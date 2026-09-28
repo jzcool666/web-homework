@@ -79,3 +79,73 @@ def read_probe_rows(app) -> list[str]:
             row[0]
             for row in connection.exec_driver_sql("SELECT note FROM test_probe ORDER BY id")
         ]
+
+
+# ---- SPEC-001 接口测试助手 ----
+
+API = "/api/v1"
+DEFAULT_PASSWORD = "Passw0rd!23"
+
+
+def api_call(client, method: str, path: str, *, csrf_token: str | None = None, **kwargs):
+    """按 APIC 约定发请求：写方法自动附带 X-CSRF-Token。"""
+    headers = dict(kwargs.pop("headers", {}) or {})
+    if csrf_token is not None:
+        headers["X-CSRF-Token"] = csrf_token
+    return getattr(client, method)(path, headers=headers, **kwargs)
+
+
+def get_csrf(client) -> str:
+    response = client.get(f"{API}/auth/csrf")
+    assert response.status_code == 200, response.get_data(as_text=True)
+    return response.get_json()["data"]["csrf_token"]
+
+
+def register(
+    client,
+    csrf_token,
+    *,
+    login_name: str,
+    student_no: str,
+    display_name: str = "学生",
+    password: str = DEFAULT_PASSWORD,
+):
+    return api_call(
+        client,
+        "post",
+        f"{API}/auth/register",
+        csrf_token=csrf_token,
+        json={
+            "login_name": login_name,
+            "student_no": student_no,
+            "display_name": display_name,
+            "password": password,
+        },
+    )
+
+
+def login(client, csrf_token, *, login_name: str, password: str = DEFAULT_PASSWORD):
+    return api_call(
+        client,
+        "post",
+        f"{API}/auth/login",
+        csrf_token=csrf_token,
+        json={"login_name": login_name, "password": password},
+    )
+
+
+def scalar(app, sql: str, params: tuple = ()):
+    """直接在库上取标量，用于核对口令散列/角色等 ORM 之外的证据。"""
+    engine = app.extensions["db_engine"]
+    with engine.connect() as connection:
+        return connection.exec_driver_sql(sql, params).scalar()
+
+
+def create_admin(app, *, login_name: str = "admin_root", password: str = "Adm1nPass!23"):
+    """用 CLI 命令建立管理员（与真实初始化路径一致）。"""
+    runner = app.test_cli_runner()
+    result = runner.invoke(
+        args=["init-admin", "--login-name", login_name, "--password", password]
+    )
+    assert result.exit_code == 0, result.output
+    return login_name, password
