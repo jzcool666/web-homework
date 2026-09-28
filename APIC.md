@@ -164,7 +164,7 @@ Question options：单选/多选 2—6 个唯一 key，答案必须在选项内�
 | E066 | GET /knowledge-graph | U且有课程访问权 | chapter_id?,root_id?,depth?=1—3 | KnowledgeGraph；只含已发布知识点 |
 | E067 | GET /knowledge-graph/path | U且有课程访问权 | from,to | {matched:boolean,nodes:[GraphNode],edges:[GraphEdge]}；无路径matched=false |
 | E068 | GET /knowledge-graph/topological | U且有课程访问权 | chapter_id? | {order:int[],has_cycle:boolean,cycle_edges:[GraphEdge]}；有环不返回order |
-| E069 | POST /recognition-tasks | U且有课程访问权 | multipart image、class_id、kind:state_table | RecognitionTask；S仅本人有效班级、T仅本人任教班级；413/415；同步处理并限时 |
+| E069 | POST /recognition-tasks | S/T | multipart image、class_id、kind:state_table | RecognitionTask；S仅本人有效班级、T仅本人任教班级；413/415；同步处理并限时 |
 | E070 | GET /recognition-tasks/{id} | 创建者/所属班T | 无 | RecognitionTask；以任务保存的class_id核对任课关系，跨班404，失败含格式原因 |
 
 统计模型：
