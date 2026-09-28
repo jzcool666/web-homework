@@ -41,6 +41,8 @@ docs/                     设计、规格、测试与检查材料
 
 SQLite 文件路径必须解析成绝对路径，启用外键、5 秒 busy_timeout；数据库迁移版本由 Alembic 管理。不提交数据库、上传文件、密钥、node_modules、虚拟环境或缓存。
 
+`testing` 模式默认使用系统临时目录中的数据库，不继承环境变量 `DATABASE_URL`；测试夹具需要独立数据库时，通过 `create_app("testing", {"DATABASE_URL": ...})` 显式指定。
+
 ## 运行步骤
 
 以下步骤已在仓库外的新目录实测，命令、退出码与结果见 [SPEC-000 执行报告](docs/testing/SPEC-000-执行报告.md)。

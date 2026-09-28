@@ -86,3 +86,9 @@
 - 备份恢复演练未执行（见 CHG-RB 第 6 节）。
 
 以上未执行项不得记为通过。
+
+## 5 PR 独立评审复测
+
+评审发现：原实现的 testing 配置会继承环境变量 `DATABASE_URL`，当开发机已有正式库地址时可能误连正式库。已修改为 testing 模式忽略该环境变量；测试需要指定数据库时仍可通过 `create_app("testing", {"DATABASE_URL": ...})` 显式覆盖。
+
+修正后在 PR 工作树执行 `python -m pytest tests/backend -q`：11 passed；新增用例验证环境中已有数据库地址时 testing 仍指向系统临时目录，正式地址对应的文件未创建。前端未因该修正改变，独立评审中 `npm run test:unit` 为 6 passed，`npm run build` 成功；`git diff --check` 通过。原第 2 节的新目录证据采于 `e5f29e6`，与本节的评审复测区分记录。

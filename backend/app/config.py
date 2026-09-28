@@ -125,7 +125,11 @@ def load_config(config_name: str | None = None, overrides: dict | None = None) -
         settings[key] = getattr(config_cls, key)
     if name == "testing":
         settings["DATABASE_URL"] = TestingConfig.default_database_url()
-    settings.update(config_cls.from_env())
+    env_settings = config_cls.from_env()
+    if name == "testing":
+        # 测试不能继承开发/生产进程中的数据库地址；需要独立测试库时显式传 overrides。
+        env_settings.pop("DATABASE_URL", None)
+    settings.update(env_settings)
     if overrides:
         settings.update(overrides)
 

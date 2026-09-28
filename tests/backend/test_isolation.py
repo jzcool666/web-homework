@@ -48,3 +48,19 @@ def test_testing_config_defaults_to_a_temp_path() -> None:
     assert url.startswith("sqlite:///")
     assert "instance" not in url.replace("\\", "/").split("sqlite:///")[1].split("/")
     app.extensions["db_engine"].dispose()
+
+
+def test_testing_config_does_not_inherit_database_url_from_environment(
+    tmp_path: Path, monkeypatch,
+) -> None:
+    """机器已有正式库地址时，testing 仍应使用独立的临时库。"""
+    from app import create_app
+
+    production_path = tmp_path / "production.sqlite"
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{production_path.as_posix()}")
+    app = create_app("testing")
+    try:
+        assert app.config["DATABASE_URL"] != f"sqlite:///{production_path.as_posix()}"
+        assert not production_path.exists()
+    finally:
+        app.extensions["db_engine"].dispose()
