@@ -312,7 +312,10 @@ def effective_state(assessment: Assessment, now_iso: str) -> str:
     return "open"
 
 
-def assessment_public(assessment: Assessment, items=None, my_submission_id=None, now_iso=None) -> dict:
+def assessment_public(
+    assessment: Assessment, items=None, my_submission_id=None, now_iso=None,
+    *, include_teacher_snapshot: bool = False,
+) -> dict:
     payload = {
         "id": assessment.id,
         "class_id": assessment.class_id,
@@ -330,6 +333,11 @@ def assessment_public(assessment: Assessment, items=None, my_submission_id=None,
     }
     if items is not None:
         payload["items"] = [student_item_public(item) for item in items]
+        if include_teacher_snapshot:
+            for public_item, item in zip(payload["items"], items):
+                snapshot = item.snapshot
+                public_item["answer"] = snapshot.get("answer", [])
+                public_item["explanation_md"] = snapshot.get("explanation_md", "")
     return payload
 
 

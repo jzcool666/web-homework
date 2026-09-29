@@ -136,6 +136,25 @@ def submit_attempt(experiment_id: int):
     session = db_session()
     experiment = _visible_experiment(session, experiment_id)
 
+    existing = session.scalar(
+        select(ExperimentAttempt).where(
+            ExperimentAttempt.student_id == user.id,
+            ExperimentAttempt.request_key == request_key,
+        )
+    )
+    if existing is not None:
+        predictions = body.get("predictions")
+        if not isinstance(predictions, list) or any(type(item) is not int for item in predictions):
+            _fields_error("predictions", "必须是整数数组")
+        if not _same_payload(existing, experiment_id, experiment_version, predictions):
+            raise ApiError(
+                "DUPLICATE",
+                "该 request_key 已用于另一次提交，请换一个 key",
+                {"attempt_id": existing.id},
+            )
+        # 断线重试可能发生在教师更新实验后；已提交的同一请求仍返回原结果。
+        return success(attempt_public(existing))
+
     if experiment_version != experiment.version:
         raise ApiError(
             "VERSION_CONFLICT",
@@ -145,22 +164,6 @@ def submit_attempt(experiment_id: int):
 
     checkpoints = _checkpoints_or_422(experiment)
     predictions = _predictions_field(body, experiment.simulator_type, len(checkpoints))
-
-    existing = session.scalar(
-        select(ExperimentAttempt).where(
-            ExperimentAttempt.student_id == user.id,
-            ExperimentAttempt.request_key == request_key,
-        )
-    )
-    if existing is not None:
-        if not _same_payload(existing, experiment_id, experiment_version, predictions):
-            raise ApiError(
-                "DUPLICATE",
-                "该 request_key 已用于另一次提交，请换一个 key",
-                {"attempt_id": existing.id},
-            )
-        # 同 key 同内容：返回原结果，不新增记录（断线重试友好）
-        return success(attempt_public(existing))
 
     expected = expected_states(checkpoints)
     first_error = first_difference(expected, predictions)
@@ -212,7 +215,7 @@ def list_my_attempts():
         raise ApiError("FORBIDDEN", "只有学生有个人实验记录")
     page, page_size = pagination()
     session = db_session()
-    # 只返回本人的记录：模型没有按 id 读取单个尝试的接口，他人记录不存在可见路径
+    # 列表只返回本人记录；单条读取同样按本人身份校验。
     stmt = select(ExperimentAttempt).where(ExperimentAttempt.student_id == user.id)
 
     experiment_id = _int_arg("experiment_id", required=False)
@@ -226,3 +229,15 @@ def list_my_attempts():
     return success(
         [attempt_public(row) for row in rows], page=page, page_size=page_size, total=total
     )
+
+
+@bp.get("/me/experiment-attempts/<int:attempt_id>")
+@login_required
+def get_my_attempt(attempt_id: int):
+    user = require_course_access()
+    if user.role != "student":
+        raise ApiError("FORBIDDEN", "只有学生有个人实验记录")
+    attempt = db_session().get(ExperimentAttempt, attempt_id)
+    if attempt is None or attempt.student_id != user.id:
+        raise ApiError("NOT_FOUND", "实验记录不存在")
+    return success(attempt_public(attempt))

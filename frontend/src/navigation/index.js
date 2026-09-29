@@ -34,6 +34,12 @@ export const navigation = {
     { label: '备课', icon: 'book', planned: 'SPEC-008' },
     { label: '课程内容', icon: 'layers', route: 'teacher-content' },
     { label: '题库', icon: 'check', route: 'teacher-questions' },
+    {
+      label: '测评与讲评',
+      icon: 'chart',
+      route: 'teacher-assessments',
+      activeRoutes: ['teacher-assessments', 'teacher-assessment'],
+    },
     { label: '实验', icon: 'flask', planned: 'SPEC-013 教师端' },
     { label: '考勤与请假', icon: 'calendar', route: 'teacher-attendance' },
     { label: '学情分析', icon: 'chart', planned: 'SPEC-006' },

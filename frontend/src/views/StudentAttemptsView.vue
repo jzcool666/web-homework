@@ -39,7 +39,7 @@ function titleOf(attempt) {
 }
 
 function simulatorOf(attempt) {
-  return experimentOf(attempt)?.simulator_type ?? 'counter'
+  return attempt.simulator_type ?? experimentOf(attempt)?.simulator_type ?? 'counter'
 }
 
 async function load() {

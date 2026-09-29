@@ -384,15 +384,17 @@ def test_T013_04_history_is_own_records_only(lab):
     mine = student_a.get(f"{API}/me/experiment-attempts?experiment_id={experiment['id']}")
     assert mine.status_code == 200
     assert [row["id"] for row in mine.get_json()["data"]] == [attempt_id]
+    single = student_a.get(f"{API}/me/experiment-attempts/{attempt_id}")
+    assert single.status_code == 200
+    assert single.get_json()["data"]["id"] == attempt_id
 
     # 另一名学生看不到这条记录
     other = student_b.get(f"{API}/me/experiment-attempts?experiment_id={experiment['id']}")
     assert other.status_code == 200
     assert other.get_json()["data"] == []
     assert other.get_json()["meta"]["total"] == 0
-
-    # 也没有按 id 读取他人尝试的入口：尝试必须属于自己才出现在历史里
-    assert attempt_id not in [row["id"] for row in other.get_json()["data"]]
+    assert student_b.get(f"{API}/me/experiment-attempts/{attempt_id}").status_code == 404
+    assert student_b.get(f"{API}/me/experiment-attempts/999999").status_code == 404
 
     # 教师没有个人实验记录
     assert teacher.get(f"{API}/me/experiment-attempts").status_code == 403
@@ -542,11 +544,43 @@ def test_attempt_snapshot_isolates_from_experiment_edits(lab):
     assert by_id[stored["id"]]["expected"] == [5, 0, 1, 2]
     assert by_id[stored["id"]]["passed"] is False
     assert by_id[stored["id"]]["experiment_version"] == experiment["version"]
+    assert by_id[stored["id"]]["simulator_type"] == "counter"
     assert by_id[stored["id"]]["explanations"] == stored["explanations"]
 
     # 用旧版本号再提交要刷新
     stale = submit(student, csrf, experiment["id"], experiment["version"], [1, 2, 3, 4])
     assert stale.status_code == 409
+
+
+def test_same_key_retry_after_experiment_update_returns_saved_result(lab):
+    student, csrf = lab["student_a"]
+    teacher, teacher_csrf = lab["teacher"]
+    experiment = lab["experiment"]
+    key = str(uuid.uuid4())
+    first = submit(student, csrf, experiment["id"], experiment["version"], [5, 0, 1, 2], key=key)
+    assert first.status_code == 201
+
+    updated = api_call(
+        teacher,
+        "patch",
+        f"{API}/experiments/{experiment['id']}",
+        csrf_token=teacher_csrf,
+        json={"version": experiment["version"], "config": {"initial_q": 0, "modulus": 10}},
+    )
+    assert updated.status_code == 200
+
+    retry = submit(student, csrf, experiment["id"], experiment["version"], [5, 0, 1, 2], key=key)
+    assert retry.status_code == 200
+    assert retry.get_json()["data"] == first.get_json()["data"]
+    assert scalar(lab["app"], "SELECT COUNT(*) FROM experiment_attempts") == 1
+
+    changed = submit(student, csrf, experiment["id"], experiment["version"], [5, 6, 1, 2], key=key)
+    assert changed.status_code == 409
+    assert changed.get_json()["error"]["code"] == "DUPLICATE"
+
+    different_length = submit(student, csrf, experiment["id"], experiment["version"], [5], key=key)
+    assert different_length.status_code == 409
+    assert different_length.get_json()["error"]["code"] == "DUPLICATE"
 
 
 def test_experiment_without_effective_edges_is_rejected(lab):

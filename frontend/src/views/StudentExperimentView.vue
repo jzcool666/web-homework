@@ -9,7 +9,7 @@
  * 提交换新 key；只有网络类失败时保留同一个 key，使重试按 SPEC-013 第 4 节第 4 条
  * 幂等返回原结果，而不是重复计一次尝试。
  */
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 
 import AppIcon from '@/components/ui/AppIcon.vue'
@@ -54,6 +54,9 @@ function emptyAnswers(count) {
 
 async function load() {
   state.value = 'loading'
+  result.value = null
+  error.value = null
+  pendingKey.value = null
   try {
     experiment.value = await api.get(`/experiments/${experimentId.value}`)
     history.value = await api.get(
@@ -68,6 +71,7 @@ async function load() {
 }
 
 function setAnswer(index, value) {
+  pendingKey.value = null
   const next = [...answers.value]
   next[index] = value
   answers.value = next
@@ -94,16 +98,23 @@ async function submit() {
       request_key: pendingKey.value,
     })
     pendingKey.value = null
-    history.value = await api.get(
-      `/me/experiment-attempts?experiment_id=${experimentId.value}&page_size=100`,
-    )
+    try {
+      history.value = await api.get(
+        `/me/experiment-attempts?experiment_id=${experimentId.value}&page_size=100`,
+      )
+    } catch {
+      error.value = '提交已保存，记录列表暂时无法更新，请稍后刷新页面。'
+    }
   } catch (err) {
     error.value = err.message
     // 业务错误（版本过期、字段错误、key 冲突）说明这次内容已作废，需要新 key；
     // 网络类失败保留 key，重试时服务器会返回同一条记录
     if (err instanceof ApiError) {
       pendingKey.value = null
-      if (err.code === 'VERSION_CONFLICT') await load()
+      if (err.code === 'VERSION_CONFLICT') {
+        await load()
+        error.value = err.message
+      }
     }
   } finally {
     submitting.value = false
@@ -117,7 +128,7 @@ function reset() {
   answers.value = emptyAnswers(checkpoints.value.length)
 }
 
-onMounted(load)
+watch(experimentId, load, { immediate: true })
 </script>
 
 <template>
@@ -187,7 +198,7 @@ onMounted(load)
         <p v-if="error" class="error" role="alert">{{ error }}</p>
 
         <div class="actions">
-          <button class="button button--primary" type="button" :disabled="submitting" @click="submit">
+          <button class="button button--primary" type="button" :disabled="submitting || result !== null" @click="submit">
             <AppIcon name="check" :size="17" /> {{ submitting ? '提交中…' : '提交预测' }}
           </button>
           <button class="button button--secondary" type="button" :disabled="submitting" @click="reset">重新作答</button>
@@ -213,8 +224,8 @@ onMounted(load)
               <tr v-for="checkpoint in checkpoints" :key="`r-${checkpoint.index}`">
                 <td>{{ checkpointLabel(checkpoint.index) }}</td>
                 <td class="mono">{{ inputsText(checkpoint.inputs) }}</td>
-                <td class="mono">{{ formatBits(result.actual[checkpoint.index] ?? 0, simulatorType) }}</td>
-                <td class="mono">{{ formatBits(result.expected[checkpoint.index] ?? 0, simulatorType) }}</td>
+                <td class="mono">{{ formatBits(result.actual[checkpoint.index] ?? 0, result.simulator_type ?? simulatorType) }}</td>
+                <td class="mono">{{ formatBits(result.expected[checkpoint.index] ?? 0, result.simulator_type ?? simulatorType) }}</td>
                 <td>
                   <StatusBadge v-if="wrong.has(checkpoint.index)" tone="danger">错误</StatusBadge>
                   <StatusBadge v-else tone="success">正确</StatusBadge>
@@ -236,7 +247,7 @@ onMounted(load)
         <ul v-else class="history-list">
           <li v-for="attempt in history" :key="attempt.id">
             <StatusBadge :tone="resultTone(attempt)">{{ attempt.passed ? '通过' : resultSummary(attempt) }}</StatusBadge>
-            <span>{{ attemptSummary(attempt, simulatorType) }}</span>
+            <span>{{ attemptSummary(attempt, attempt.simulator_type ?? simulatorType) }}</span>
             <span class="mono hint">版本 {{ attempt.experiment_version }}</span>
           </li>
         </ul>

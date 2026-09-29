@@ -151,14 +151,14 @@
 | 学生 B 查 `?experiment_id=` | 返回空列表、`total=0`，看不到学生 A 的记录 |
 | 教师查 `GET /me/experiment-attempts` | 403 |
 
-说明：APIC 未提供按尝试 ID 读取单个记录的接口，E051 只返回本人记录，因此「其他学生查记录 404」在本模块落实为**他人记录不存在可见路径**（列表里查不到），而不是某个接口返回 404。
+集成评审补测：E051 增加本人单条记录读取。学生 A 以记录 ID 读取返回 200；学生 B 猜测同一 ID 及不存在的 ID 均返回 404，列表仍不包含他人记录。
 
 ### 其他边界
 
 - **长度**：`predictions` 长度不等于检查点数时 422，`details.fields.predictions` 给出应有的拍数。
 - **取值范围**：计数器允许 0—15，16 或 −1 为 422；D/JK 只允许 0/1，填 2 为 422；布尔与字符串同样 422。
 - **request_key**：非 UUID 字符串 422；大小写不同的同一 UUID 规范化为同一个 key。
-- **旧版本**：`experiment_version` 与当前不符返回 409 `VERSION_CONFLICT`，`details` 给出 `current_version`；浏览器侧表现为提示 + 重新拉取 + 清空答案。
+- **旧版本**：新请求的 `experiment_version` 与当前不符返回 409 `VERSION_CONFLICT`，`details` 给出 `current_version`；同 key 同内容的已保存请求在教师更新实验后重试仍返回原结果。浏览器侧版本冲突表现为提示 + 重新拉取 + 清空答案。
 - **快照隔离**：某次提交之后把实验改成模 10 并调整序列，旧记录的 `expected`、`passed`、`experiment_version` 与 `explanations` 全部不变；新提交按新配置判分。
 - **无有效沿的实验**：检查点为空时提交返回 422 并说明「没有有效上升沿」，避免空预测被误判为通过。
 - **输入序列被写坏**：重放时抛出可读错误（`CheckpointError`），而不是静默算出错误答案。
@@ -171,19 +171,35 @@
 - **真正断网重试**：`request_key` 的幂等重试在单元测试里用「模拟网络失败后复用同一 key」验证，浏览器侧未真正断网。
 - **性能**：未做课堂并发或延迟测试。
 - **部署形态**：本轮以开发配置运行（Flask 开发服务器 + 已构建前端同源），未在 waitress 下重跑。
-- 未提交/未开始 #8 及之后的模块；未合并 PR、未关闭 Issue。
+- 本模块的教师端页面及后续统计仍待交付。
 
 ## 6 契约与共享代码变更
 
 - 未改变 APIC 的路径与既有字段语义；E050/E051 按已合并文档实现。E048/E049 与 E052—E054 属 SPEC-012，本模块只读取。
 - **Experiment 响应新增只读字段 `checkpoints`**：`[{index, step_no, inputs}]`，只含拍号与该拍输入，不含标准状态。预测界面需要知道要答几拍、每拍的输入是什么；若交给前端从 `input_sequence` 推算，等于在前端重算「哪些是有效沿」的规则。已在 CHG-RB 登记。
 - **AttemptResult 新增只读字段 `experiment_id`**：E051 的跨实验历史需要标明每条记录属于哪个实验。已在 CHG-RB 登记。
+- **集成评审增量**：AttemptResult 另带提交时的 `simulator_type`，历史位宽不随实验模型变更；E051 增加本人单条读取，其他学生按 ID 查询返回 404。已同步 APIC 与 CHG-RB。
 - 新增迁移 `0007_spec013`，`down_revision = 0006_spec009`（本分支建立时的 head）。若并行的 #8 也从同一父版本新增迁移，合并后会出现两个 head；按约定由后合并方接续迁移链并复测。
 - `frontend/src/router/index.js`、`frontend/src/navigation/index.js`、`frontend/src/views/HomeView.vue` 只做必要增量：追加三条路由、把学生「实验中心」由「待开放」改为可点击、把模块状态与班级说明改为含实验；教师「实验」入口的 `planned` 文案由 `SPEC-013` 改为 `SPEC-013 教师端`，以免在模块已实现后仍提示「SPEC-013 尚未实现」。未覆盖其他分支的改动。
 - 模块代码各自独立：`experiment_service.py`、`models_attempt.py`、`api_attempt.py`；未改 `models.py`、`api_admin.py`、`api_content.py`、`api_attendance.py`、`api_assessment.py`。
 
 ## 7 实现期发现的取舍
 
-- **判分顺序**：先校验 `experiment_version`，再取检查点，最后校验 `predictions`。这样旧版本请求得到的是 409（要求刷新），而不是因为拍数不符而报 422 —— 版本过期时学生手上的拍数本来就可能已经作废。
+- **判分顺序**：先查同一学生的 `request_key`；已有记录且内容相同就返回原结果，即使教师在提交后更新了实验。新请求先校验 `experiment_version`，再取检查点和校验 `predictions`；旧版本得到 409，要求刷新。
 - **幂等的并发路径**：`UNIQUE(student_id, request_key)` 冲突时回滚并按「是否同内容」重新判断：同内容返回原记录，不同内容 409，避免并发下把重试误判为冲突。
 - **前端 request_key 生命周期**：进入一次提交时生成，成功或收到业务错误后作废，只有网络类失败才保留同一个 key，使重试按规格幂等；版本冲突时同时清空已填答案并重新拉取实验。
+
+## 8 集成评审复核（2026-09-29）
+
+本分支同步了已含 SPEC-010 的 `develop`（`57cc64b`），保留测评与实验的路由、导航及 README。复核发现并修正：教师更新实验后同 key 重试应返回已保存结果；网络失败后修改答案应换 key；提交成功但历史刷新失败不能当作提交失败；历史记录应按提交时的模型位宽显示；按记录 ID 越权读取应返回 404。相应后端和前端回归用例已补齐。
+
+| 检查 | 结果 |
+| --- | --- |
+| `python -m pytest tests/backend -q` | 退出码 0，178 passed（合并后的全量测试） |
+| `python -m pytest tests/backend/test_spec013.py -q` | 退出码 0，14 passed（最后接口修改后复跑） |
+| `npm run test:unit` | 退出码 0，14 个文件、91 passed |
+| `npm run build` | 退出码 0，99 modules transformed |
+| `alembic heads` | 仅 `0007_spec013` 一个 head |
+| 文档核对脚本及 `git diff --check` | 未发现问题 |
+
+本次集成未补做真实断网、视口截图、课堂负载与生产部署验证；这些仍留待系统集成验收。原第 2、3 节记录的是 PR 最初提交时的独立执行结果，上表记录合并基线后的复核结果。

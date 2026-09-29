@@ -51,14 +51,14 @@ GET 成功 200、创建 201、PATCH/PUT/动作成功 200、DELETE 成功 200 且
 | QuestionWrite | type:single/multiple/boolean、stem_md:string(1—10000)、options:[{key:string,label:string}]、answer:string[]、explanation_md:string(1—10000)、difficulty:1/2/3、knowledge_ids:id[1—3]、published:boolean |
 | Question | id、QuestionWrite 全部字段、owner_id、version；仅题库管理接口返回完整答案 |
 | StudentItem | id（测评条目 ID）、question_id、position、points:int、type、stem_md、options、knowledge_ids；不含 answer/explanation |
-| Assessment | id、class_id:id/null、kind:practice/quiz/homework/exam、title、state:draft/published/closed、effective_state:upcoming/open/closed/draft、starts_at:time/null、ends_at:time/null、feedback_released:boolean、total_score:int、version、my_submission_id:id/null、items:StudentItem[]；my_submission_id仅返回当前学生自己的记录ID，教师为null |
+| Assessment | id、class_id:id/null、kind:practice/quiz/homework/exam、title、state:draft/published/closed、effective_state:upcoming/open/closed/draft、starts_at:time/null、ends_at:time/null、feedback_released:boolean、total_score:int、version、my_submission_id:id/null、items:StudentItem[]；my_submission_id仅返回当前学生自己的记录ID，教师为null。教师读取 E038 时，已发布条目另含发布快照中的 answer、explanation_md；学生投影始终不含这两个字段 |
 | Submission | id、assessment_id、student_id、status:draft/submitted、answers:[{item_id,selected:string[]}]、version、saved_at:time、submitted_at:time/null、score:int/null |
 | Result | submission_id、score:int、total_score:int、feedback_available:boolean、items:[{item_id,selected,correct,awarded_points,answer,explanation_md,knowledge_ids}]；反馈未开放时 score=null，items 只保留 item_id/selected |
 | Experiment | id、title、knowledge_id、simulator_type:d/jk/counter/shift、config:SimulatorConfig、steps_md、input_sequence:SimEvent[]、published:boolean、version；无期望输出 |
 | SimulatorConfig | initial_q:int 0—15、modulus?:int 2—16（counter 默认16）；d/jk 初态只允许0/1，shift固定4位；复位同步高有效、时钟初始0固定 |
 | SimEvent | op:set/toggle_clock/reset_view；set 带 inputs:{d?:0/1,j?:0/1,k?:0/1,enable?:0/1,serial_in?:0/1,reset?:0/1}；仅允许对应模型字段 |
 | Demo | id、class_id、experiment_id、active:boolean、version、state:{clock,inputs,q,step_no}、history:状态行[]、reveal_next:boolean、next_q:int/null、last_updated:time；next_q为按当前输入计算的下一个有效上升沿状态，预测隐藏时为null |
-| AttemptResult | id、passed:boolean、first_error_index:int/null、expected:int[]、actual:int[]、explanations:string[]、experiment_version:int |
+| AttemptResult | id、experiment_id:int、simulator_type:d/jk/counter/shift、passed:boolean、first_error_index:int/null、expected:int[]、actual:int[]、explanations:string[]、experiment_version:int |
 | QAEntry | id、knowledge_id、question:string≤200、answer_md:string≤10000、source_url:string/null、published:boolean、version |
 
 Question options：单选/多选 2—6 个唯一 key，答案必须在选项内；多选至少 2 个正确项，判断只有 true/false。创建模型的 owner_id 从会话取得，学生端不得提交 owner_id/role/score/correct。
@@ -121,7 +121,7 @@ AttendanceRecord 与 Leave 的 `student_display_name`、`student_no` 为只读�
 | E035 | GET/POST /questions | T | GET knowledge_id?,difficulty?,type?,q?；POST QuestionWrite | Question列表/Question；教师可读已发布共享题及自己草稿 |
 | E036 | GET/PATCH /questions/{id} | T/所有者 | PATCH version+QuestionWrite可改字段 | Question，编辑仅所有者 |
 | E037 | GET/POST /assessments | T/S | GET class_id?,kind?；POST T class_id,kind:quiz/homework/exam,title,items:[{question_id,points}] | Assessment列表/草稿；新建1—30题 |
-| E038 | GET/PATCH /assessments/{id} | T/S | PATCH仅T草稿，version,title?,items? | Assessment；未到开始时间学生只获活动概要，items为空 |
+| E038 | GET/PATCH /assessments/{id} | T/S | PATCH仅T草稿，version,title?,items? | Assessment；教师读取已发布条目的答案与解析取发布快照，不取后续可编辑题库；未到开始时间学生只获活动概要，items为空 |
 | E039 | POST /assessments/{id}/publication | T | version,starts_at,ends_at | Assessment；固定题目/名单/总分；结束须晚于开始 |
 | E040 | POST /assessments/{id}/closure | T | version | Assessment；结束并最终化已开始草稿 |
 | E041 | POST /assessments/{id}/feedback-release | T | version | Assessment；有效结束前409，公开后幂等 |
@@ -145,7 +145,7 @@ AttendanceRecord 与 Leave 的 `student_display_name`、`student_no` 为只读�
 | E048 | GET/POST /experiments | U/O | GET knowledge_id?,q?；POST O，Experiment可写字段 | Experiment列表/Experiment |
 | E049 | GET/PATCH /experiments/{id} | U/O | PATCH O，version+可写字段 | Experiment；发布记录更新需保留旧快照 |
 | E050 | POST /experiments/{id}/attempts | S | experiment_version、predictions:int[]、request_key:UUID | AttemptResult；相同key同payload返回原结果，不同payload409 |
-| E051 | GET /me/experiment-attempts | S | experiment_id?,分页 | 本人AttemptResult列表 |
+| E051 | GET /me/experiment-attempts；GET /me/experiment-attempts/{id} | S | 列表：experiment_id?,分页；单条：id | 本人AttemptResult列表或单条；其他学生的记录与不存在的 id 均返回404 |
 | E052 | GET/POST /demo-sessions | T/S | GET class_id,active?；POST仅T class_id,experiment_id | Demo列表/Demo，配置从实验快照初始化；班级已有active则409 |
 | E053 | GET /demo-sessions/{id} | T/S | 无 | Demo；reveal_next=false时不含未执行下一状态与未来轨迹 |
 | E054 | POST /demo-sessions/{id}/actions | T | expected_version、event:SimEvent 或 {op:"set_reveal",value:boolean} 或 {op:"close"} | Demo；后端重算，不允许请求直接指定q；版本冲突409 |
@@ -177,7 +177,7 @@ AttendanceRecord 与 Leave 的 `student_display_name`、`student_no` 为只读�
 
 - AttendanceStats：`window, settled_tasks, counts:{present,late,leave,absent}, attendance_rate:number/null, students:[{student_id,counts,attendance_rate}], correlation:{coefficient:number/null,n:int,reason:string/null}`。相关仅用同窗口出勤和百分制平均测评分数均存在的学生，n≥5且两列非恒定才计算 Pearson，说明不代表因果。
 - LearningStats：`window, published_knowledge_count, students:[{student_id,completed_count,completion_rate}], resources:[{resource_id,unique_students,dedup_events}]`。进度是 to 时点前已完成且当前仍完成的记录快照近似，不声称精确历史重建；from只过滤资源事件，响应给出 `progress_basis:"current_completed_before_to"`。资源事件按UTC整日计，from/to须为UTC日边界，非法非整日范围422；页面将日期选择转换为对应UTC日并标注口径。
-- AssessmentStats：`window, assessments:[{id,roster_count,submitted_count,submission_rate,mean_percent}], items:[{item_id,answered_count,correct_count,correct_rate,option_counts}], knowledge:[{knowledge_id,first_attempt_count,first_correct_count,first_accuracy}], score_buckets:[{range,count}]`。空答案算题目机会但各选项不增计。
+- AssessmentStats：`window:{from,to}, assessments:[{id,roster_count,submitted_count,blank_count,submission_rate,mean_percent}], items:[{item_id,answered_count,unanswered_count,correct_count,correct_rate,option_counts}], knowledge:[{knowledge_id,first_attempt_count,first_correct_count,first_accuracy}], score_buckets:[{range,count}]`。空答案算题目机会（计入 answered_count 分母）但各选项不增计；漏答数单列在 unanswered_count，白卷单列在 blank_count，便于与选项分布对账。`option_counts` 是 `{选项key: 被选次数}`，一次选中只计一次。`score_buckets.range` 取 `0-<60`、`60-<70`、`70-<80`、`80-<90`、`90-100`。计入窗口的班级测评是起止区间与 `[from,to)` 有交集的测评；提交率分母是发布时固定的名单，平均分与分数段只含已提交（白卷按 0 分计入）。返回值只有聚合值，不含学生身份。
 - ExperimentStats：`window,published_count,participants,passed_students,pass_rate,attempt_count,experiments:[{experiment_id,participants,passed_students,attempt_count,pass_rate}]`。总通过人数指至少通过一个实验；单实验口径分别给出，不能误写全部实验均通过。
 - Warning：`student_id,score:number/null,level:insufficient/low/medium/high,factors:{attendance?,progress?,accuracy?},available_factors,sample_counts,cluster_label:int/null,reasons:string[],generated_at`。
 - GraphNode：`knowledge_id,title,chapter_id,depth:int,dimension:0/1`；dimension 表示是否根节点集合的成员，供前端同层对齐。
@@ -185,12 +185,14 @@ AttendanceRecord 与 Leave 的 `student_display_name`、`student_no` 为只读�
 - KnowledgeGraph：`nodes:[GraphNode],edges:[GraphEdge],has_cycle:boolean,truncated:boolean`；truncated 为节点超上限被裁剪时为 true。
 - RecognitionTask：`id,class_id,kind:state_table,status:done/failed,created_at,result:{rows:int,cols:int,states:[{row:int,value:int}],transitions:[{from:int,to:int}],confidence:number,requires_review:true}或null,error:{code,message,details}或null`；同步处理完成后才返回任务，status=failed 时 result 为 null 且 error 给出格式原因。
 
-CSV 返回 UTF-8 BOM 文件，包含相同过滤条件的可展开明细，不包含密码、会话或答案；对以 =、+、-、@ 开头的用户输入文本加安全前缀。JSON 字段名和 CSV 列说明在实现测试中固定。
+E057 的提交、平均分、逐题统计与分数段只计 `submitted_at ∈ [from,to)` 的记录；首答先从全历史确定最早作答，再检查其是否属于本次选中的测评和时间窗口。省略 `from/to` 时，默认窗口的 `to` 取服务器当前秒的下一秒，以覆盖当前秒刚提交的记录；显式传入的 `to` 始终右开。
+
+CSV 返回 UTF-8 BOM 文件，包含相同过滤条件的可展开明细，不包含密码、会话或答案；对以 =、+、-、@ 开头的用户输入文本加安全前缀。JSON 字段名和 CSV 列说明在实现测试中固定。E057 的 CSV 把四个块展开为同一张表，用 `section` 区分（`assessment`／`item`／`knowledge`／`score_bucket`），列顺序固定为 `section,assessment_id,item_id,knowledge_id,range,roster_count,submitted_count,blank_count,submission_rate,mean_percent,answered_count,unanswered_count,correct_count,correct_rate,option_counts,first_attempt_count,first_correct_count,first_accuracy,count`；`option_counts` 在 CSV 中写成 `key=次数;key=次数`。
 
 ## 8 幂等、时间和状态
 
 - 自练在创建时固定 starts_at=当前时间、ends_at=24小时后；仅创建者列入名单。所有作答范围是 `[starts_at,ends_at)`。
-- 活动关闭、结果读取、统计查询和截止后的提交进入同一个幂等 finalize 服务；已开始草稿按最后保存答案评分，未开始者仍记未提交。
+- 活动关闭、结果读取、统计查询和截止后的提交进入同一个幂等 finalize 服务；已开始草稿按最后保存答案评分，未开始者仍记未提交。最终化的 `submitted_at` 取测评的有效截止时间：自然截止取 `ends_at`，教师提前结束时先把 `ends_at` 收缩到实际结束时间，因此统计窗口不会把访问触发的延迟处理时间算成提交时间，也不需要额外的关闭时间列。
 - 最终化已提交试卷不再改分；重复 finalization 返回原结果，无需重新计算。旧草稿保存必须返回409。
 - POST 创建普通资源不保证重复点击幂等，前端须避免重复发送；实验使用 request_key，其他有自然唯一键的动作依约返回原对象或409。
 - 文件上传失败不得保留有效版本记录；落库失败清理本次临时文件。算法执行过程中引用版本变化返回409，不能写入与请求不符的快照。

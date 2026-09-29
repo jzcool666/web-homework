@@ -8,7 +8,7 @@
 
 ## 2 接口契约
 
-E050提交 experiment_version/predictions/request_key；E051本人历史；AttemptResult含expected和first_error_index。
+E050提交 experiment_version/predictions/request_key；E051本人历史列表与单条查询（他人记录404）；AttemptResult含expected和first_error_index。
 
 接口完整字段、角色缩写、状态码和公共错误定义见 [APIC](../../APIC.md)。所有写操作按公共规则校验会话、CSRF和对象权限；列表/导出同样不能越权。匿名401、角色拒绝403、跨班对象404、字段错误422、状态/版本冲突409；本模块特有错误以 APIC 为准。
 
@@ -32,7 +32,7 @@ experiments、experiment_attempts，快照包括模型配置和输入序列。
 | T-013-01 | 计数器M6初态4连续4拍预期[5,0,1,2]，完全匹配通过。 | 已执行，见报告 |
 | T-013-02 | 预测[5,6,1,2]时首错index1并指出第二拍应回0。 | 已执行，见报告 |
 | T-013-03 | 伪造passed=true或自带input_sequence被拒绝，不影响后端判分。 | 已执行，见报告 |
-| T-013-04 | 同key重试不新增尝试；不同预测复用key409；其他学生查记录404。 | 已执行，见报告（「其他学生查记录」按本人历史不含该条实现） |
+| T-013-04 | 同key重试不新增尝试；不同预测复用key409；其他学生查记录404。 | 已执行，见报告 |
 
 这些条件是实现后的验收要求，不是测试已通过的记录。测试使用固定数据和独立数据库，功能完成后在检查报告中填写实际命令、结果和证据位置。
 

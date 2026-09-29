@@ -1,4 +1,4 @@
-"""E035—E047：题库与测评（SPEC-009 第 4 节）。
+"""E035—E047 题库与测评（SPEC-009 第 4 节）与 E057 测评统计（SPEC-010）。
 
 规则要点：
 - 选项与答案结构由 grading 校验；判分只读 assessment_items.snapshot_json，
@@ -17,7 +17,7 @@ from __future__ import annotations
 import hashlib
 from datetime import datetime, timedelta, timezone
 
-from flask import Blueprint, request
+from flask import Blueprint, Response, request
 from sqlalchemy import delete, func, or_, select
 from sqlalchemy.exc import IntegrityError
 
@@ -66,6 +66,14 @@ from .models_assessment import (
     to_json,
 )
 from .models_content import KnowledgePoint
+from .stats_assessment import (
+    percent_of,
+    score_bucket_rows,
+    summarize_assessment,
+    summarize_item,
+    summarize_knowledge,
+    to_csv,
+)
 from .store import db_session
 from .validation import json_object, pagination, text_field
 
@@ -355,7 +363,12 @@ def _ended(assessment: Assessment, now: str) -> bool:
     return bool(assessment.ends_at) and now >= assessment.ends_at
 
 
-def _grade_into(session, submission: Submission, items, reason: str, now: str) -> None:
+def _grade_into(session, submission: Submission, items, reason: str, stamp: str) -> None:
+    """按快照判分并落库；stamp 是写进 submitted_at 的时间。
+
+    手动提交传服务器当前时间；截止最终化传测评的有效截止时间（ends_at），
+    这样统计窗口不会把后台/访问触发处理的延迟算成提交时间（SPEC-010 第 4.7 条）。
+    """
     answers = _answers_of(session, submission.id)
     by_item = {answer.item_id: answer.selected for answer in answers}
     # 漏答也要留痕：没有记录的条目按空答案计 0 分
@@ -377,7 +390,7 @@ def _grade_into(session, submission: Submission, items, reason: str, now: str) -
         answer.correct = 1 if correct else 0
         answer.awarded_points = awarded
     submission.status = STATUS_SUBMITTED
-    submission.submitted_at = now
+    submission.submitted_at = stamp
     submission.submit_reason = reason
     submission.score = total
     submission.final_request_hash = _request_hash(by_item)
@@ -392,7 +405,12 @@ def _request_hash(by_item: dict[int, list[str]]) -> str:
 
 
 def _finalize_assessment(session, assessment: Assessment, now: str | None = None) -> int:
-    """把已结束测评中仍是 draft 的提交按服务器已保存答案最终化；幂等。"""
+    """把已结束测评中仍是 draft 的提交按服务器已保存答案最终化；幂等。
+
+    提交时间统一取测评的有效截止时间 ends_at：自然截止时它就是计划结束时间，
+    教师提前结束时 E040 会把它收缩到实际结束时间。没开始的名单成员不会在这里
+    产生记录，仍算未提交。
+    """
     now = now or _now()
     if assessment.state == STATE_DRAFT or not _ended(assessment, now):
         return 0
@@ -407,8 +425,9 @@ def _finalize_assessment(session, assessment: Assessment, now: str | None = None
     if not drafts:
         return 0
     items = _items_of(session, assessment.id)
+    deadline = assessment.ends_at or now
     for submission in drafts:
-        _grade_into(session, submission, items, REASON_TIMEOUT, now)
+        _grade_into(session, submission, items, REASON_TIMEOUT, deadline)
     return len(drafts)
 
 
@@ -733,7 +752,10 @@ def get_assessment(assessment_id: int):
     state = effective_state(assessment, now)
     if current_user().role == "student" and state == "upcoming":
         items = None
-    return success(assessment_public(assessment, items, my_submission_id, now))
+    return success(assessment_public(
+        assessment, items, my_submission_id, now,
+        include_teacher_snapshot=current_user().role == "teacher",
+    ))
 
 
 @bp.patch("/assessments/<int:assessment_id>")
@@ -838,11 +860,16 @@ def close_assessment(assessment_id: int):
             {"expected_version": version, "current_version": assessment.version},
         )
     assessment.state = STATE_CLOSED
+    # 提前结束时把 ends_at 收缩到实际结束时间：ends_at 始终是有效截止时间，
+    # 最终化的 submitted_at 与统计窗口都据此取值，不需要额外的关闭时间列。
+    now = _now()
+    if assessment.ends_at and assessment.ends_at > now:
+        assessment.ends_at = now
     assessment.version += 1
     # 结束并最终化已开始草稿（ADR-006 的同一个幂等入口）
-    _finalize_assessment(session, assessment)
+    _finalize_assessment(session, assessment, now)
     session.commit()
-    return success(assessment_public(assessment, _items_of(session, assessment.id), None, _now()))
+    return success(assessment_public(assessment, _items_of(session, assessment.id), None, now))
 
 
 # ---- E041 /assessments/{id}/feedback-release ----
@@ -1217,6 +1244,288 @@ def get_result(submission_id: int):
             "items": payload_items,
         }
     )
+
+
+# ---- E057 /analytics/assessment ----
+
+WINDOW_DEFAULT_DAYS = 30
+WINDOW_MAX_DAYS = 366
+
+CSV_COLUMNS = (
+    "section",
+    "assessment_id",
+    "item_id",
+    "knowledge_id",
+    "range",
+    "roster_count",
+    "submitted_count",
+    "blank_count",
+    "submission_rate",
+    "mean_percent",
+    "answered_count",
+    "unanswered_count",
+    "correct_count",
+    "correct_rate",
+    "option_counts",
+    "first_attempt_count",
+    "first_correct_count",
+    "first_accuracy",
+    "count",
+)
+
+
+def _window_param(raw: str, name: str) -> datetime:
+    if not isinstance(raw, str):
+        raise ApiError("INVALID_REQUEST", f"{name} 必须是带 Z 的 UTC 时间")
+    try:
+        return _parse(raw)
+    except ValueError:
+        raise ApiError("INVALID_REQUEST", f"{name} 必须是带 Z 的 UTC 时间，如 2026-09-29T01:00:00Z")
+
+
+def _stats_window() -> tuple[str, str]:
+    """统计窗口 [from,to)：两者同时给出或都省略，默认最近 30 天，最长 366 天。
+
+    默认的 to 取服务器当前时间（与其余判定同源），不是进程启动时间。
+    """
+    raw_from = request.args.get("from")
+    raw_to = request.args.get("to")
+    if (raw_from is None) != (raw_to is None):
+        raise ApiError("INVALID_REQUEST", "from 与 to 必须同时给出或同时省略")
+    if raw_from is None:
+        # 存储时间精度为秒；默认窗口须包含「当前秒」刚提交的记录，
+        # 同时保持 [from,to) 的右开语义。
+        to_dt = _parse(_now()) + timedelta(seconds=1)
+        from_dt = to_dt - timedelta(days=WINDOW_DEFAULT_DAYS)
+    else:
+        from_dt = _window_param(raw_from, "from")
+        to_dt = _window_param(raw_to, "to")
+    if to_dt <= from_dt:
+        raise ApiError("INVALID_REQUEST", "to 必须晚于 from")
+    if to_dt - from_dt > timedelta(days=WINDOW_MAX_DAYS):
+        raise ApiError("INVALID_REQUEST", f"统计窗口最长 {WINDOW_MAX_DAYS} 天")
+    return from_dt.strftime(STAMP_FORMAT), to_dt.strftime(STAMP_FORMAT)
+
+
+def _stats_class_id() -> int:
+    raw = request.args.get("class_id")
+    if raw is None:
+        raise ApiError("INVALID_REQUEST", "缺少必填查询参数 class_id")
+    try:
+        value = int(raw)
+    except (TypeError, ValueError):
+        raise ApiError("INVALID_REQUEST", "class_id 必须是正整数")
+    if value < 1:
+        raise ApiError("INVALID_REQUEST", "class_id 必须是正整数")
+    return value
+
+
+def _stats_answer_rows(session, submission_ids):
+    if not submission_ids:
+        return {}
+    rows = session.execute(
+        select(
+            SubmissionAnswer.submission_id,
+            SubmissionAnswer.item_id,
+            SubmissionAnswer.selected_json,
+            SubmissionAnswer.correct,
+        ).where(SubmissionAnswer.submission_id.in_(submission_ids))
+    ).all()
+    grouped: dict[int, dict[int, tuple[list[str], bool]]] = {}
+    for submission_id, item_id, selected_json, correct in rows:
+        grouped.setdefault(submission_id, {})[item_id] = (
+            from_json(selected_json),
+            bool(correct),
+        )
+    return grouped
+
+
+def _first_attempt_rows(session, assessment_ids, question_ids, student_ids, window_from, window_to):
+    """每一个 (学生, 题目) 的全历史最早已提交作答，再按 submitted_at 落窗筛选。"""
+    if not question_ids or not student_ids:
+        return []
+    rows = session.execute(
+        select(
+            AssessmentItem.assessment_id,
+            AssessmentItem.question_id,
+            AssessmentItem.snapshot_json,
+            Submission.id,
+            Submission.student_id,
+            Submission.submitted_at,
+            SubmissionAnswer.correct,
+        )
+        .join(SubmissionAnswer, SubmissionAnswer.item_id == AssessmentItem.id)
+        .join(Submission, Submission.id == SubmissionAnswer.submission_id)
+        .where(
+            AssessmentItem.question_id.in_(question_ids),
+            Submission.student_id.in_(student_ids),
+            Submission.status == STATUS_SUBMITTED,
+            Submission.submitted_at.is_not(None),
+        )
+    ).all()
+    earliest: dict[tuple[int, int], tuple[str, int, int, bool, list[int]]] = {}
+    for assessment_id, question_id, snapshot_json, submission_id, student_id, submitted_at, correct in rows:
+        key = (student_id, question_id)
+        current = earliest.get(key)
+        if current is None or (submitted_at, submission_id) < current[:2]:
+            knowledge_ids = from_json(snapshot_json, default={}).get("knowledge_ids", [])
+            earliest[key] = (submitted_at, submission_id, assessment_id, bool(correct), knowledge_ids)
+    result = []
+    selected_assessments = set(assessment_ids)
+    for (_student_id, _question_id), (submitted_at, _submission_id, assessment_id, correct, knowledge_ids) in earliest.items():
+        if assessment_id not in selected_assessments or not (window_from <= submitted_at < window_to):
+            continue
+        for knowledge_id in knowledge_ids:
+            result.append((knowledge_id, correct))
+    return result
+
+
+@bp.get("/analytics/assessment")
+@roles_required("teacher")
+def assessment_analytics():
+    window_from, window_to = _stats_window()
+    class_id = _stats_class_id()
+    session = db_session()
+    _require_class_teacher(session, class_id)
+
+    # 计入窗口的是「起止区间与 [from,to) 有交集的班级测评」：这样正在进行中的
+    # 随堂测也能被教师讲评页看到实时进度，而窗口外的历史测评自然排除。
+    stmt = select(Assessment).where(
+        Assessment.class_id == class_id,
+        Assessment.kind.in_(CLASS_KINDS),
+        Assessment.state.in_((STATE_PUBLISHED, STATE_CLOSED)),
+        Assessment.starts_at.is_not(None),
+        Assessment.starts_at < window_to,
+        or_(Assessment.ends_at.is_(None), Assessment.ends_at >= window_from),
+    )
+    if (raw_assessment := request.args.get("assessment_id")) is not None:
+        try:
+            wanted = int(raw_assessment)
+        except (TypeError, ValueError):
+            raise ApiError("INVALID_REQUEST", "assessment_id 必须是正整数")
+        stmt = stmt.where(Assessment.id == wanted)
+    assessments = list(session.scalars(stmt.order_by(Assessment.starts_at, Assessment.id)))
+    assessment_ids = [item.id for item in assessments]
+
+    # 统计查询进入同一个幂等最终化入口：先把已结束的草稿结算，再统计
+    for assessment in assessments:
+        if _finalize_assessment(session, assessment):
+            session.commit()
+
+    roster_map: dict[int, set[int]] = {aid: set() for aid in assessment_ids}
+    if assessment_ids:
+        for assessment_id, student_id in session.execute(
+            select(AssessmentRoster.assessment_id, AssessmentRoster.student_id).where(
+                AssessmentRoster.assessment_id.in_(assessment_ids)
+            )
+        ).all():
+            roster_map[assessment_id].add(student_id)
+
+    submissions: list[Submission] = []
+    if assessment_ids:
+        submissions = list(
+            session.scalars(
+                select(Submission).where(
+                    Submission.assessment_id.in_(assessment_ids),
+                    Submission.status == STATUS_SUBMITTED,
+                    Submission.submitted_at >= window_from,
+                    Submission.submitted_at < window_to,
+                )
+            )
+        )
+    answers_by_submission = _stats_answer_rows(session, [row.id for row in submissions])
+
+    submissions_by_assessment: dict[int, list[Submission]] = {}
+    for submission in submissions:
+        if submission.student_id in roster_map.get(submission.assessment_id, set()):
+            submissions_by_assessment.setdefault(submission.assessment_id, []).append(submission)
+
+    def is_blank(submission_id: int) -> bool:
+        """白卷：已提交但所有条目都是空答案（与漏答分开核算）。"""
+        return not any(
+            selected for selected, _correct in answers_by_submission.get(submission_id, {}).values()
+        )
+
+    assessment_rows = []
+    all_percents: list[float] = []
+    for assessment in assessments:
+        rows = submissions_by_assessment.get(assessment.id, [])
+        percents = [percent_of(row.score, assessment.total_score) for row in rows]
+        all_percents.extend([value for value in percents if value is not None])
+        assessment_rows.append(
+            summarize_assessment(
+                assessment_id=assessment.id,
+                roster_count=len(roster_map[assessment.id]),
+                percents=percents,
+                blank_count=sum(1 for row in rows if is_blank(row.id)),
+            )
+        )
+
+    items = _items_of_many(session, assessment_ids)
+    item_rows = []
+    for item in items:
+        responses = []
+        for submission in submissions_by_assessment.get(item.assessment_id, []):
+            entry = answers_by_submission.get(submission.id, {}).get(item.id)
+            responses.append(entry if entry is not None else ([], False))
+        item_rows.append(summarize_item(item_id=item.id, responses=responses))
+
+    question_ids = sorted({item.question_id for item in items})
+    student_ids = sorted({sid for ids in roster_map.values() for sid in ids})
+    knowledge_rows = summarize_knowledge(
+        _first_attempt_rows(session, assessment_ids, question_ids, student_ids, window_from, window_to)
+    )
+    buckets = score_bucket_rows(all_percents)
+
+    payload = {
+        "window": {"from": window_from, "to": window_to},
+        "assessments": assessment_rows,
+        "items": item_rows,
+        "knowledge": knowledge_rows,
+        "score_buckets": buckets,
+    }
+    if request.args.get("format") == "csv":
+        return _stats_csv(payload)
+    if request.args.get("format") not in (None, "json"):
+        raise ApiError("INVALID_REQUEST", "format 只支持 json 或 csv")
+    return success(payload)
+
+
+def _items_of_many(session, assessment_ids) -> list[AssessmentItem]:
+    if not assessment_ids:
+        return []
+    return list(
+        session.scalars(
+            select(AssessmentItem)
+            .where(AssessmentItem.assessment_id.in_(assessment_ids))
+            .order_by(AssessmentItem.assessment_id, AssessmentItem.position)
+        )
+    )
+
+
+def _stats_csv(payload):
+    """CSV 明细：每个块展开成自己的 section，列固定为 CSV_COLUMNS。"""
+    rows: list[dict] = []
+    for block in payload["assessments"]:
+        rows.append({"section": "assessment", **block})
+    for block in payload["items"]:
+        rows.append(
+            {
+                "section": "item",
+                **block,
+                "option_counts": ";".join(
+                    f"{key}={value}" for key, value in sorted(block["option_counts"].items())
+                ),
+            }
+        )
+    for block in payload["knowledge"]:
+        rows.append({"section": "knowledge", **block})
+    for block in payload["score_buckets"]:
+        rows.append({"section": "score_bucket", **block})
+    body = to_csv(CSV_COLUMNS, rows)
+    response = Response(body, mimetype="text/csv; charset=utf-8")
+    response.headers["Content-Disposition"] = "attachment; filename=assessment-stats.csv"
+    return response
 
 
 # ---- E047 /me/mistakes ----

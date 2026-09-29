@@ -173,6 +173,36 @@ describe('学生逐拍预测页', () => {
     expect(second).toBe(first)
   })
 
+  it('网络失败后修改答案使用新的 request_key', async () => {
+    api.post.mockRejectedValueOnce(new TypeError('Failed to fetch'))
+    api.post.mockResolvedValueOnce(structuredClone(PASSED))
+    const wrapper = await setup()
+    await fill(wrapper, [5, 0, 1, 2])
+    await submitButton(wrapper).trigger('click')
+    await flushPromises()
+
+    await wrapper.findAll('input[type="number"]')[1].setValue('6')
+    await submitButton(wrapper).trigger('click')
+    await flushPromises()
+
+    expect(api.post.mock.calls[1][1].predictions).toEqual([5, 6, 1, 2])
+    expect(api.post.mock.calls[1][1].request_key).not.toBe(api.post.mock.calls[0][1].request_key)
+  })
+
+  it('提交成功但历史刷新失败时保留结果，不让同一答案重复提交', async () => {
+    api.post.mockResolvedValue(structuredClone(PASSED))
+    const wrapper = await setup()
+    api.get.mockRejectedValueOnce(new TypeError('Failed to fetch'))
+    await fill(wrapper, [5, 0, 1, 2])
+    await submitButton(wrapper).trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('全部预测正确')
+    expect(wrapper.text()).toContain('提交已保存，记录列表暂时无法更新')
+    expect(submitButton(wrapper).attributes('disabled')).toBeDefined()
+    expect(api.post).toHaveBeenCalledTimes(1)
+  })
+
   it('版本冲突时换新 key 并重新拉取实验', async () => {
     api.post.mockRejectedValueOnce(new ApiError(409, 'VERSION_CONFLICT', '实验已被更新，请刷新后再提交'))
     const wrapper = await setup()
