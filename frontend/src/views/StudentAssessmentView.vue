@@ -1,11 +1,13 @@
 <script setup>
 /**
- * 学生作答（SPEC-009 E043—E045）。
+ * 学生作答（SPEC-009 E043—E045 + SPEC-010 第 4 节第 4、7 条）。
  *
- * 题目来自服务器投影：不含答案与解析，前端隐藏不是保护手段。
- * 保存与最终提交分两步：先等保存回执，再提交判分；保存失败就停止提交。
+ * - 题目来自服务器投影：不含答案与解析，前端隐藏不是保护手段。
+ * - 草稿变化后 1 秒短延迟自动保存；最终提交先等待保存确认，保存失败就停止提交。
+ * - 刷新或重新登录后，用 Assessment.my_submission_id / E043 的幂等开始取回原草稿。
+ * - 断线或保存失败时显示未保存与最后保存时间，不伪报成功。
  */
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import { api } from '@/api/client'
@@ -15,8 +17,10 @@ import StatePanel from '@/components/ui/StatePanel.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
 import {
   ASSESSMENT_STATE_LABEL,
+  AUTOSAVE_DELAY_MS,
   QUESTION_TYPE_LABEL,
-  selectedFor,
+  answerPayload,
+  saveStatus,
   toggleSelection,
   unansweredCount,
 } from '@/utils/assessment'
@@ -29,22 +33,28 @@ const assessment = ref(null)
 const submission = ref(null)
 const answers = ref({})
 const saving = ref(false)
+const saveFailed = ref(false)
 const submitting = ref(false)
 const loading = ref(true)
 const loadError = ref(null)
 const error = ref(null)
-const notice = ref(null)
 const lastSavedAt = ref(null)
+const online = ref(typeof navigator === 'undefined' ? true : navigator.onLine)
+const editRevision = ref(0)
+const savedRevision = ref(0)
+let timer = null
+let saveQueue = Promise.resolve()
 
 const items = computed(() => assessment.value?.items ?? [])
 const missing = computed(() => unansweredCount(items.value, payloadAnswers()))
 const closed = computed(() => assessment.value?.effective_state === 'closed')
+const dirty = computed(() => editRevision.value !== savedRevision.value)
+const status = computed(() =>
+  saveStatus({ online: online.value, saving: saving.value, failed: saveFailed.value, dirty: dirty.value, lastSavedAt: lastSavedAt.value }),
+)
 
 function payloadAnswers() {
-  return Object.entries(answers.value).map(([itemId, selected]) => ({
-    item_id: Number(itemId),
-    selected,
-  }))
+  return answerPayload(answers.value)
 }
 
 function selected(itemId) {
@@ -52,9 +62,82 @@ function selected(itemId) {
 }
 
 function choose(item, key) {
+  if (closed.value || submitting.value) return
   answers.value = {
     ...answers.value,
     [item.id]: toggleSelection(selected(item.id), key, item.type === 'multiple'),
+  }
+  editRevision.value += 1
+  scheduleSave()
+}
+
+function scheduleSave() {
+  if (closed.value) return
+  saveFailed.value = false
+  if (timer) clearTimeout(timer)
+  timer = setTimeout(() => {
+    timer = null
+    save()
+  }, AUTOSAVE_DELAY_MS)
+}
+
+function save() {
+  // 所有保存串行执行：第二次请求须使用第一次返回的新 version。
+  const task = saveQueue.then(async () => {
+    if (!submission.value) return false
+    if (!dirty.value && lastSavedAt.value) return true
+    const revision = editRevision.value
+    const currentAnswers = payloadAnswers()
+    saving.value = true
+    try {
+      submission.value = await api.put(`/submissions/${submission.value.id}/answers`, {
+        version: submission.value.version,
+        answers: currentAnswers,
+      })
+      savedRevision.value = revision
+      lastSavedAt.value = submission.value.saved_at
+      saveFailed.value = false
+      error.value = null
+      return !dirty.value
+    } catch (err) {
+      saveFailed.value = true
+      error.value = `保存失败：${err.message}。尚未提交，可重试保存。`
+      return false
+    } finally {
+      saving.value = false
+    }
+  })
+  saveQueue = task.then(() => undefined, () => undefined)
+  return task
+}
+
+/** 取消失效的延迟任务并立刻保存；提交前必须等它返回。 */
+async function flushSave() {
+  if (timer) {
+    clearTimeout(timer)
+    timer = null
+  }
+  return save()
+}
+
+async function submit() {
+  error.value = null
+  submitting.value = true
+  try {
+    const saved = await flushSave()
+    if (!saved) return // 保存没确认就不提交
+    await api.post(`/submissions/${submission.value.id}/finalization`, {
+      version: submission.value.version,
+    })
+    await router.push({
+      name: 'student-result',
+      params: { submissionId: submission.value.id },
+      query: { assessment: assessmentId },
+    })
+  } catch (err) {
+    error.value = err.message
+  } finally {
+    submitting.value = false
   }
 }
 
@@ -82,6 +165,8 @@ async function load() {
       restored[entry.item_id] = entry.selected
     }
     answers.value = restored
+    editRevision.value = 0
+    savedRevision.value = 0
     lastSavedAt.value = started.answers.length ? started.saved_at : null
   } catch (err) {
     loadError.value = err.message
@@ -90,49 +175,35 @@ async function load() {
   }
 }
 
-async function save() {
-  saving.value = true
-  error.value = null
-  notice.value = null
-  try {
-    submission.value = await api.put(`/submissions/${submission.value.id}/answers`, {
-      version: submission.value.version,
-      answers: payloadAnswers(),
-    })
-    lastSavedAt.value = submission.value.saved_at
-    notice.value = `已保存（${submission.value.saved_at}）`
-    return true
-  } catch (err) {
-    error.value = `保存失败：${err.message}。未提交，请重试。`
-    return false
-  } finally {
-    saving.value = false
-  }
+function handleOnline() {
+  online.value = true
+  if (dirty.value) scheduleSave()
 }
 
-async function submit() {
-  error.value = null
-  notice.value = null
-  submitting.value = true
-  try {
-    const saved = await save()
-    if (!saved) return
-    await api.post(`/submissions/${submission.value.id}/finalization`, {
-      version: submission.value.version,
-    })
-    await router.push({
-      name: 'student-result',
-      params: { submissionId: submission.value.id },
-      query: { assessment: assessmentId },
-    })
-  } catch (err) {
-    error.value = err.message
-  } finally {
-    submitting.value = false
-  }
+function handleOffline() {
+  online.value = false
 }
 
-onMounted(load)
+function warnUnload(event) {
+  if (!timer && !dirty.value && !saving.value) return undefined
+  event.preventDefault()
+  event.returnValue = ''
+  return ''
+}
+
+onMounted(() => {
+  load()
+  window.addEventListener('online', handleOnline)
+  window.addEventListener('offline', handleOffline)
+  window.addEventListener('beforeunload', warnUnload)
+})
+
+onUnmounted(() => {
+  if (timer) clearTimeout(timer)
+  window.removeEventListener('online', handleOnline)
+  window.removeEventListener('offline', handleOffline)
+  window.removeEventListener('beforeunload', warnUnload)
+})
 </script>
 
 <template>
@@ -153,7 +224,10 @@ onMounted(load)
     <StatePanel v-else-if="loadError" kind="error" title="无法开始作答" :description="loadError" />
 
     <template v-else-if="assessment">
-      <p v-if="notice" class="success">{{ notice }}</p>
+      <div class="save-bar" :class="`save-bar--${status.tone}`">
+        <StatusBadge :tone="status.tone">{{ status.text }}</StatusBadge>
+        <span class="hint">草稿变化后 {{ AUTOSAVE_DELAY_MS / 1000 }} 秒自动保存；提交前会先保存并等待确认。</span>
+      </div>
       <p v-if="error" class="error" role="alert">{{ error }}</p>
 
       <SectionCard>
@@ -174,7 +248,7 @@ onMounted(load)
         <StatePanel
           v-else-if="closed"
           title="测评已结束"
-          description="已结束的测评不能继续作答；若已保存过草稿，服务端会按最后一次保存判分。"
+          description="已结束的测评不能继续作答；服务端会按最后一次保存的答案判分。"
         />
 
         <ol v-else class="questions">
@@ -190,6 +264,7 @@ onMounted(load)
                   :type="item.type === 'multiple' ? 'checkbox' : 'radio'"
                   :name="`item-${item.id}`"
                   :checked="selected(item.id).includes(option.key)"
+                  :disabled="submitting"
                   @change="choose(item, option.key)"
                 />
                 <span class="option-key">{{ option.key }}</span>
@@ -200,8 +275,8 @@ onMounted(load)
         </ol>
 
         <div v-if="!closed && assessment.effective_state !== 'upcoming'" class="actions">
-          <button class="button button--secondary" type="button" :disabled="saving || submitting" @click="save">
-            {{ saving ? '保存中…' : '保存草稿' }}
+          <button class="button button--secondary" type="button" :disabled="saving || submitting" @click="flushSave">
+            {{ saving ? '保存中…' : '立即保存' }}
           </button>
           <button class="primary" type="button" :disabled="saving || submitting" @click="submit">
             {{ submitting ? '提交中…' : '提交并判分' }}
@@ -214,6 +289,14 @@ onMounted(load)
 </template>
 
 <style scoped>
+.save-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+
 .meta {
   display: flex;
   align-items: center;
