@@ -14,6 +14,7 @@
 - [变更及回滚 CHG-RB](CHG-RB.md)
 - [组员分工表](docs/组员分工表.md)
 - [页面与课堂流程](docs/design/页面与课堂流程.md)
+- [UI 设计基线](docs/design/UI设计基线.md)
 - [实施计划](docs/design/实施计划.md)
 - [Spec 索引](docs/specs/README.md)
 - [测试计划与追溯](docs/testing/需求追溯与测试计划.md)
@@ -21,6 +22,7 @@
 - [设计检查记录](docs/checkpoints/checkpoint-1.md)
 - [SPEC-000 执行报告](docs/testing/SPEC-000-执行报告.md)
 - [SPEC-001 执行报告](docs/testing/SPEC-001-执行报告.md)
+- [UI 基线检查记录](docs/testing/UI基线检查记录.md)
 
 ## 技术和目录约定
 

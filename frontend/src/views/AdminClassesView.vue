@@ -3,15 +3,22 @@ import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 
 import { api } from '@/api/client'
+import PageHeader from '@/components/ui/PageHeader.vue'
+import SectionCard from '@/components/ui/SectionCard.vue'
+import StatePanel from '@/components/ui/StatePanel.vue'
+import StatusBadge from '@/components/ui/StatusBadge.vue'
 
 const classes = ref([])
+const loading = ref(false)
+const listError = ref(null)
 const teachers = ref([])
 const error = ref(null)
 const notice = ref(null)
 const form = ref({ name: '', teacher_id: '' })
 
 async function load() {
-  error.value = null
+  loading.value = true
+  listError.value = null
   try {
     const [classList, teacherList] = await Promise.all([
       api.get('/classes?page_size=100'),
@@ -20,7 +27,9 @@ async function load() {
     classes.value = classList
     teachers.value = teacherList
   } catch (err) {
-    error.value = err.message
+    listError.value = err.message
+  } finally {
+    loading.value = false
   }
 }
 
@@ -73,13 +82,11 @@ onMounted(load)
 </script>
 
 <template>
-  <main class="page">
-    <h1>班级管理</h1>
-    <p class="hint">每个班级一名任课教师。更换教师后，教学数据权限立即随之变化。</p>
+  <div class="page">
+    <PageHeader eyebrow="基础管理" title="班级管理" description="每个班级一名任课教师。更换教师后，教学数据权限立即随之变化。" />
 
-    <section class="card">
-      <h2>新建班级</h2>
-      <form @submit.prevent="createClass">
+    <SectionCard title="新建班级">
+      <form class="admin-form" @submit.prevent="createClass">
         <div class="field">
           <label for="class_name">班级名称</label>
           <input id="class_name" v-model="form.name" required />
@@ -96,13 +103,16 @@ onMounted(load)
         <button class="primary" type="submit">创建</button>
         <p v-if="teachers.length === 0" class="hint">还没有教师账号，请先在「账号管理」中创建。</p>
       </form>
-    </section>
+    </SectionCard>
 
     <p v-if="notice" class="success">{{ notice }}</p>
     <p v-if="error" class="error" role="alert">{{ error }}</p>
 
-    <section class="card">
-      <h2>班级列表</h2>
+    <SectionCard title="班级列表">
+      <StatePanel v-if="loading" kind="loading" title="正在读取班级" />
+      <StatePanel v-else-if="listError" kind="error" title="班级列表加载失败" :description="listError" />
+      <StatePanel v-else-if="classes.length === 0" title="暂无班级" description="创建班级后会显示在这里。" />
+      <div v-else class="table-scroll">
       <table>
         <thead>
           <tr>
@@ -126,9 +136,9 @@ onMounted(load)
               </select>
             </td>
             <td>
-              <span class="badge" :class="{ off: !schoolClass.active }">
+              <StatusBadge :tone="schoolClass.active ? 'success' : 'danger'">
                 {{ schoolClass.active ? '有效' : '已停用' }}
-              </span>
+              </StatusBadge>
             </td>
             <td>
               <RouterLink
@@ -145,6 +155,7 @@ onMounted(load)
           </tr>
         </tbody>
       </table>
-    </section>
-  </main>
+      </div>
+    </SectionCard>
+  </div>
 </template>

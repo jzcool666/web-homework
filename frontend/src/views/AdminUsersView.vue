@@ -2,19 +2,28 @@
 import { onMounted, ref } from 'vue'
 
 import { api } from '@/api/client'
+import PageHeader from '@/components/ui/PageHeader.vue'
+import SectionCard from '@/components/ui/SectionCard.vue'
+import StatePanel from '@/components/ui/StatePanel.vue'
+import StatusBadge from '@/components/ui/StatusBadge.vue'
 
 const users = ref([])
+const loading = ref(false)
+const listError = ref(null)
 const error = ref(null)
 const notice = ref(null)
 const form = ref({ login_name: '', display_name: '', student_no: '', password: '', role: 'teacher' })
 
 async function load() {
-  error.value = null
+  loading.value = true
+  listError.value = null
   try {
     const data = await api.get('/users?page_size=100')
     users.value = data
   } catch (err) {
-    error.value = err.message
+    listError.value = err.message
+  } finally {
+    loading.value = false
   }
 }
 
@@ -64,13 +73,11 @@ onMounted(load)
 </script>
 
 <template>
-  <main class="page">
-    <h1>账号管理</h1>
-    <p class="hint">管理员创建教师与学生账号，并可停用或调整角色。最后一名有效管理员不能被停用或降级。</p>
+  <div class="page">
+    <PageHeader eyebrow="基础管理" title="账号管理" description="管理员创建教师与学生账号，并可停用或调整角色。最后一名有效管理员不能被停用或降级。" />
 
-    <section class="card">
-      <h2>新建账号</h2>
-      <form @submit.prevent="createUser">
+    <SectionCard title="新建账号">
+      <form class="admin-form" @submit.prevent="createUser">
         <div class="field">
           <label for="new_login_name">登录名</label>
           <input id="new_login_name" v-model="form.login_name" required />
@@ -97,13 +104,16 @@ onMounted(load)
         </div>
         <button class="primary" type="submit">创建</button>
       </form>
-    </section>
+    </SectionCard>
 
     <p v-if="notice" class="success">{{ notice }}</p>
     <p v-if="error" class="error" role="alert">{{ error }}</p>
 
-    <section class="card">
-      <h2>账号列表</h2>
+    <SectionCard title="账号列表">
+      <StatePanel v-if="loading" kind="loading" title="正在读取账号" />
+      <StatePanel v-else-if="listError" kind="error" title="账号列表加载失败" :description="listError" />
+      <StatePanel v-else-if="users.length === 0" title="暂无账号" description="创建账号后会显示在这里。" />
+      <div v-else class="table-scroll">
       <table>
         <thead>
           <tr>
@@ -128,9 +138,9 @@ onMounted(load)
               </select>
             </td>
             <td>
-              <span class="badge" :class="{ off: !user.active }">
+              <StatusBadge :tone="user.active ? 'success' : 'danger'">
                 {{ user.active ? '有效' : '已停用' }}
-              </span>
+              </StatusBadge>
             </td>
             <td>
               <button class="link" type="button" @click="toggleActive(user)">
@@ -140,6 +150,7 @@ onMounted(load)
           </tr>
         </tbody>
       </table>
-    </section>
-  </main>
+      </div>
+    </SectionCard>
+  </div>
 </template>
