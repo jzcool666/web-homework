@@ -64,6 +64,7 @@
 | 2026-09-29 | SPEC-006实现 | 实现学习进度与资源统计：新增接口 E056 `GET /analytics/learning`（含 CSV 导出）、`stats_learning.py`（Pandas 分组与去重）与教师「学情分析」页面 | **未新增迁移**，复用 SPEC-005 的 learning_progress／resource_events／knowledge_points 与 SPEC-001 的 enrollments，head 仍为 `0008_spec008`；学生端「学习分析」保持待开放，因为 E056 仅教师可访问 |
 | 2026-09-29 | SPEC-006实现 | 固定 E056 的统计口径：默认窗口截止到当前 UTC 日的下一日 00:00；分母只算当前已发布知识点、为 0 时完成率为 null；`completed_at` 为空或晚于 `to` 不计分子；`chapter_id` 同时收窄进度与资源两侧；`resources` 只列窗口内有去重事件的资料；退班学生不计当前进度名单但保留历史访问 | APIC 第 7 节。SPEC-006 第 4 节要求「当前快照近似」「from 只过滤资源事件」「UTC 整日边界」，原文字未覆盖这些边界 |
 | 2026-09-29 | SPEC-006实现 | CSV 与 JSON 在同一处算出同一份 payload、共用同一套权限校验后才分流；CSV 生成复用 `stats_assessment` 的 `to_csv`／`csv_safe` | SPEC-006 第 4 节第 4 条「CSV与同筛选JSON一致」；避免出现第二份公式注入防护实现 |
+| 2026-09-29 | SPEC-006独立评审 | 历史资源事件按入班日至退班日的 UTC 日范围归属，避免转班后的访问继续计入旧班；CSV 固定包含 summary 行 | 现有事件只有日期、入班表只有一组起止时间，同日转班或反复入班不能精确归属；空班级导出仍须保留分母和窗口元数据 |
 
 当前没有发布版本、部署记录或实际回滚记录。以下为后续实现必须提供的流程。
 

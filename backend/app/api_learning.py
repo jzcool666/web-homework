@@ -128,12 +128,13 @@ def learning_analytics():
             .order_by(Enrollment.student_id)
         )
     )
-    # 曾在本班的学生（含已退班）：历史资源活动仍然统计
-    ever_ids = set(
-        session.scalars(
-            select(Enrollment.student_id).where(Enrollment.class_id == class_id)
-        )
-    )
+    # 历史资源活动只归入该学生在本班的入班/退班 UTC 日范围。
+    # 事件只存日期，不存精确时间；同日转班只能按自然日近似。
+    enrollment_days = {
+        row.student_id: (row.joined_at[:10], row.left_at[:10] if row.left_at else None)
+        for row in session.scalars(select(Enrollment).where(Enrollment.class_id == class_id))
+    }
+    ever_ids = set(enrollment_days)
 
     published_stmt = select(KnowledgePoint.id).where(KnowledgePoint.published == 1)
     if chapter_id is not None:
@@ -194,6 +195,9 @@ def learning_analytics():
         for student_id, version_id, kind, event_day, resource_id, _knowledge_id in session.execute(
             event_stmt
         ):
+            joined_day, left_day = enrollment_days[student_id]
+            if event_day < joined_day or (left_day is not None and event_day > left_day):
+                continue
             resource_of_version[version_id] = resource_id
             events.append(
                 {

@@ -142,7 +142,7 @@ after re-upgrade:0008_spec008 → 三张表恢复
 
 - **未新增迁移**：确认现有表不缺字段，`head` 仍为 `0008_spec008`。
 - **学生端统计未开放**：E056 权限为 T（仅教师），因此「学习分析」在学生导航里保持「待开放」。APIC 没有给学生侧的班级统计接口；若要给学生看个人进度，需要新增学生侧的 `/me` 统计接口并登记 APIC。
-- **退班判定用 `enrollments.active`**：SPEC-006 第 4 节只写「当前已退班学生不计当前进度名单」。历史活动保留的做法是「曾在本班有 enrollment 记录的学生都计入资源统计」；如果评审希望资源统计也只算当前在册学生，需要修改口径并同步 APIC。
+- **退班判定用 `enrollments.active`**：当前进度名单只含有效在册学生。独立评审后，资源历史活动进一步限定在本班入班日至退班日的 UTC 日范围，退班后其他班级的访问不会继续计入旧班。事件只有日期、入班表只有一组起止时间，同日转班与反复入班的精确归属仍无法还原。
 - **`resources` 只列窗口内有去重事件的资料**：没有访问的资料不出现在列表里（否则每个班都会列出全部资料）。APIC 未明确这一点，已在第 7 节补充说明。
 - **页面用学生 ID 而不是姓名**：`LearningStats.students` 只有 `student_id`（APIC 如此），教师端页面显示 `#id`；如需姓名需要给该模型加只读字段。
 - **未实现**：`/analytics/attendance`(E055)、`/analytics/experiment`(E058，属 SPEC-014，已由该模块交付)、`/analytics/assessment`(E057，属 SPEC-010，已交付)，以及 SPEC-003/007/011/015 等模块；未做把点击次数估算成学习时长或掌握度的任何推导（SPEC-006 第 1 节明确列为非目标）。
@@ -160,3 +160,9 @@ after re-upgrade:0008_spec008 → 三张表恢复
 - **代码复用**：CSV 落盘与比例口径复用 `stats_assessment` 的 `to_csv`／`csv_safe`／`ratio`，避免出现第二份公式注入防护；统计实现放在新文件 `stats_learning.py`（Pandas 分组与去重），接口放在新文件 `api_learning.py`。
 - 共享文件只做必要增量：`backend/app/__init__.py` 注册一个蓝图；`frontend/src/router/index.js` 增加 1 条路由；`frontend/src/navigation/index.js` 把教师「学情分析」由 `planned` 改为已实现路由（学生「学习分析」保持待开放）；`README.md`／`CHG-RB.md`／测试计划仅增本模块条目。未改 `api_content.py`／`api_assessment.py`／`api_experiment_stats.py`／`api_lesson.py` 等其他模块的业务文件。
 - 本分支未新增迁移，因此不会与并行分支产生迁移链分叉。
+
+## 9 独立评审补测（2026-09-29）
+
+评审发现原先仅按「曾在本班入班」筛资源事件，会把退班后在其他班级产生的访问继续计入旧班。现用入班日、退班日限定可归属的 UTC 日范围；旧班保留在班期间的历史访问，退班日之后的访问不再进入旧班统计。由于 `resource_events` 只存 UTC 日，且 `enrollments` 只存一组起止时间，同日转班和反复入班仍不能精确还原，已在 SPEC-006/APIC 写明。
+
+评审还发现当进度名单和资源列表都为空时，CSV 原先只有表头，缺少 JSON 仍有的分母、窗口与口径。现固定输出一行 summary；进度和资源明细行仍与 JSON 一一对应。新增回归验证退班后事件排除及空班级 CSV 元数据；`test_spec006.py` 定向测试 **16 passed**。完整后端测试 **218 passed in 928.91s**，前端全量测试 **124 passed**，构建成功，文档检查未发现问题，Alembic head 仍为 `0008_spec008`。

@@ -156,7 +156,8 @@ def to_csv_rows(payload: dict) -> list[dict]:
         "window_to": window["to"],
         "progress_basis": payload["progress_basis"],
     }
-    rows = [{"section": "progress", **shared, **student} for student in payload["students"]]
+    rows = [{"section": "summary", **shared}]
+    rows += [{"section": "progress", **shared, **student} for student in payload["students"]]
     rows += [{"section": "resource", **shared, **resource} for resource in payload["resources"]]
     return rows
 

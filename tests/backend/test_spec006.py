@@ -299,6 +299,8 @@ def test_T006_04_utc_day_window_filters_events(school):
     v1 = school["versions_a"][0]
     stu1 = school["students"]["stu_a1"]["id"]
     inside, before = utc_day(-2), utc_day(-10)
+    execute(app, "UPDATE enrollments SET joined_at=? WHERE class_id=? AND student_id=?",
+            (f"{utc_day(-11)}T00:00:00Z", school["class_a"]["id"], stu1))
     execute(app, "INSERT INTO resource_events (student_id, resource_version_id, event_kind, event_day) VALUES (?,?,?,?)",
             (stu1, v1["id"], "open", inside))
     execute(app, "INSERT INTO resource_events (student_id, resource_version_id, event_kind, event_day) VALUES (?,?,?,?)",
@@ -386,6 +388,27 @@ def test_T006_04_left_student_leaves_progress_but_keeps_history(school):
     assert row["dedup_events"] == 1
 
 
+def test_T006_04_old_class_excludes_events_after_student_left(school):
+    app = school["app"]
+    student_id = school["students"]["stu_a3"]["id"]
+    version_before, version_after = school["versions_a"]
+    class_id = school["class_a"]["id"]
+    post_as(app, school["admin"], "put", f"{API}/classes/{class_id}/enrollments", {
+        "student_id": student_id, "active": False,
+    })
+    execute(app, "UPDATE enrollments SET joined_at=?, left_at=? WHERE class_id=? AND student_id=?",
+            (f"{utc_day(-3)}T00:00:00Z", f"{utc_day(-1)}T12:00:00Z", class_id, student_id))
+    execute(app, "INSERT INTO resource_events (student_id, resource_version_id, event_kind, event_day) VALUES (?,?,?,?)",
+            (student_id, version_before["id"], "open", utc_day(-2)))
+    execute(app, "INSERT INTO resource_events (student_id, resource_version_id, event_kind, event_day) VALUES (?,?,?,?)",
+            (student_id, version_after["id"], "open", utc_day()))
+
+    body = stats(school).get_json()["data"]
+    row = next(item for item in body["resources"] if item["resource_id"] == school["resource_a"]["id"])
+    assert row["dedup_events"] == 1, "退班后其他班的访问不应计入旧班"
+    assert row["unique_students"] == 1
+
+
 def test_T006_04_permissions_are_class_scoped(school):
     assert stats(school, who="tb").status_code == 404, "跨班读统计按 404"
     assert stats(school, who="sa1").status_code == 403, "学生不得访问班级统计"
@@ -425,6 +448,8 @@ def test_T006_json_and_csv_share_the_same_numbers(school):
     assert lines[0].startswith("section,student_id,completed_count")
     progress_lines = [line for line in lines if line.startswith("progress,")]
     resource_lines = [line for line in lines if line.startswith("resource,")]
+    summary_lines = [line for line in lines if line.startswith("summary,")]
+    assert len(summary_lines) == 1
     assert len(progress_lines) == len(json_body["students"])
     assert len(resource_lines) == len(json_body["resources"])
 
@@ -459,3 +484,20 @@ def test_T006_csv_escapes_formula_like_text(school):
     text = response.get_data(as_text=True).lstrip("﻿")
     assert "progress_basis" in text.splitlines()[0]
     assert "current_completed_before_to" in text
+
+
+def test_T006_empty_class_csv_keeps_summary_metadata(school):
+    app = school["app"]
+    class_id = school["class_a"]["id"]
+    for student in ("stu_a1", "stu_a2", "stu_a3"):
+        post_as(app, school["admin"], "put", f"{API}/classes/{class_id}/enrollments", {
+            "student_id": school["students"][student]["id"], "active": False,
+        })
+    payload = stats(school).get_json()["data"]
+    assert payload["students"] == []
+    response = stats(school, query="&format=csv")
+    lines = response.get_data(as_text=True).lstrip("﻿").splitlines()
+    assert len(lines) == 2
+    assert lines[1].startswith("summary,")
+    assert str(payload["published_knowledge_count"]) in lines[1]
+    assert payload["progress_basis"] in lines[1]
