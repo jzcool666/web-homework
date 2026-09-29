@@ -31,6 +31,9 @@
 | 2026-09-29 | SPEC-005实现 | `testing` 配置的上传目录改到系统临时目录；测试不再写入仓库内 `instance/uploads` | app/config.py；与 SPEC-000「测试不触碰仓库内 instance/」的隔离原则一致 |
 | 2026-09-29 | SPEC-005实现 | 迁移测试由按步数回退（`-1`）改为显式回退到 `0001_baseline` | tests/backend/test_migrations.py；迁移链随各模块前移后，按步数回退不再表达原意 |
 | 2026-09-29 | SPEC-005评审修正 | 未入班学生不能借个人写接口记录课程数据；外链要求有效主机名；上传备注先校验再落盘 | SPEC-005、api_content.py 与回归测试；不改变 E011—E022 路径字段 |
+| 2026-09-29 | SPEC-009实现 | 实现题库练习与错题：新增迁移 `0005_spec009`（questions/question_knowledge/assessments/assessment_items/assessment_roster/submissions/submission_answers）、接口 E035—E047、教师「题库」与学生「习题训练/作答/结果/错题本」页面 | 字段与路径按 APIC/DBD 已定义内容实现，无路径或状态码变更；发布时在单个事务里冻结题目快照、名单与总分，判分只读快照；执行结果见 SPEC-009 执行报告 |
+| 2026-09-29 | SPEC-009实现 | 明确反馈投影：`feedback_released=false` 时学生的 `Submission.score` 同样返回 null，不只是 Result.score | APIC 第 5 节。分数本身也是对错信息，未到公开时机提前返回等于绕过 E041；任课教师读本班提交不受该时机限制。属投影口径明确，未增删字段 |
+| 2026-09-29 | SPEC-009实现 | 回填 Issue #6 的跨模块补测：#4 T-001-02「教师猜测其他班学生答案 ID 同样拒绝」已用本模块的 `submissions` 对象实测，跨班读结果返回 404 | SPEC-001 执行报告第 4 节与 SPEC-009 执行报告；无代码变更 |
 
 当前没有发布版本、部署记录或实际回滚记录。以下为后续实现必须提供的流程。
 

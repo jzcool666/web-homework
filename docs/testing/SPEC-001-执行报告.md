@@ -76,6 +76,8 @@
 
 「猜测学生答案 ID 同样拒绝」依赖 SPEC-009 的答案对象，本任务仅验证可复用的对象权限机制（按 `classes.teacher_id` 现算 + 跨班 404），该机制在 SPEC-009 实现时需接入其答案对象并补测，见第 5 节。
 
+**跨模块补测回填（2026-09-29，随 SPEC-009 实现）**：答案对象（`submissions`）已交付，补测见 SPEC-009 的 `test_other_teacher_cannot_read_result`。观测：教师乙用教师甲班学生的提交 ID 请求 `GET /submissions/{id}/result` 返回 **404 `NOT_FOUND`**；同班另一名学生读他人提交同样 404；任课教师本人返回 200。命令与结果见 [SPEC-009 执行报告](SPEC-009-执行报告.md) 第 4 节。本条至此有实测证据，不再是待补项。
+
 ### T-001-03 退出、禁用或改密码后旧会话返回 401；缺 CSRF 写操作返回 403
 
 覆盖用例：`test_T001_03_missing_csrf_is_rejected`、`test_T001_03_logout_invalidates_session`、`test_T001_03_deactivation_invalidates_session`、`test_T001_03_password_change_invalidates_sessions`、`test_T001_03_change_password_requires_current_password`、`test_T001_03_role_change_invalidates_session`。
