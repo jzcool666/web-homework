@@ -54,6 +54,24 @@ const routes = [
     meta: { requiresAuth: true, roles: ['student'] },
   },
   {
+    path: '/student/experiments',
+    name: 'student-experiments',
+    component: () => import('@/views/StudentExperimentsView.vue'),
+    meta: { requiresAuth: true, roles: ['student'] },
+  },
+  {
+    path: '/student/experiments/:id',
+    name: 'student-experiment',
+    component: () => import('@/views/StudentExperimentView.vue'),
+    meta: { requiresAuth: true, roles: ['student'] },
+  },
+  {
+    path: '/student/attempts',
+    name: 'student-attempts',
+    component: () => import('@/views/StudentAttemptsView.vue'),
+    meta: { requiresAuth: true, roles: ['student'] },
+  },
+  {
     path: '/teacher/attendance',
     name: 'teacher-attendance',
     component: () => import('@/views/TeacherAttendanceView.vue'),

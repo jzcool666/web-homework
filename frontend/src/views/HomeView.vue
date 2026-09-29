@@ -85,7 +85,7 @@ onMounted(() => {
           <div class="class-list">
             <div v-for="schoolClass in classes" :key="schoolClass.id" class="class-row">
               <span class="class-row__icon"><AppIcon name="book" /></span>
-              <div><strong>{{ schoolClass.name }}</strong><small>课程学习、课堂演示、习题训练与考勤已开放</small></div>
+              <div><strong>{{ schoolClass.name }}</strong><small>课程学习、课堂演示、习题训练、实验与考勤已开放</small></div>
               <StatusBadge :tone="schoolClass.active ? 'neutral' : 'warning'">{{ schoolClass.active ? '已分配' : '班级已停用' }}</StatusBadge>
             </div>
           </div>
@@ -110,7 +110,7 @@ onMounted(() => {
           <div><AppIcon name="book" /><span>课程知识与教学资源</span><StatusBadge tone="success">已开放</StatusBadge></div>
           <div><AppIcon name="clock" /><span>课堂演示与时序仿真</span><StatusBadge tone="success">已开放</StatusBadge></div>
           <div><AppIcon name="check" /><span>题库练习与错题</span><StatusBadge tone="success">已开放</StatusBadge></div>
-          <div><AppIcon name="flask" /><span>实验辅助与验证</span><StatusBadge>待开放</StatusBadge></div>
+          <div><AppIcon name="flask" /><span>实验辅助与验证</span><StatusBadge tone="success">已开放</StatusBadge></div>
         </div>
       </SectionCard>
       <SectionCard title="系统连接">

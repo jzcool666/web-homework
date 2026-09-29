@@ -21,6 +21,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .db import Base
+from .experiment_service import checkpoint_contexts, replay_checkpoints
 from .models import now_utc
 from .simulator import SIMULATOR_TYPES
 
@@ -131,6 +132,15 @@ def experiment_public(experiment: Experiment) -> dict:
         "config": load_json(experiment.config_json, {}),
         "steps_md": experiment.steps_md,
         "input_sequence": load_json(experiment.input_sequence_json, []),
+        # 检查点上下文（拍号与该拍输入），供 SPEC-013 的预测界面逐拍作答；
+        # 只含输入，不含标准答案——标准状态在提交后由 E050 返回
+        "checkpoints": checkpoint_contexts(
+            replay_checkpoints(
+                experiment.simulator_type,
+                load_json(experiment.config_json, {}),
+                load_json(experiment.input_sequence_json, []),
+            )
+        ),
         "published": bool(experiment.published),
         "owner_id": experiment.owner_id,
         "version": experiment.version,
