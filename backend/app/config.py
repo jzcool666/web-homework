@@ -82,16 +82,24 @@ class DevelopmentConfig(BaseConfig):
 
 
 class TestingConfig(BaseConfig):
-    """测试配置：数据库落在系统临时目录，正式数据库不受影响。"""
+    """测试配置：数据库与上传目录都落在系统临时目录，正式数据不受影响。"""
 
     APP_ENV = "testing"
     SECRET_KEY = "testing-only"
     COOKIE_SECURE = False
 
     @classmethod
+    def _tmp_root(cls) -> Path:
+        return Path(tempfile.gettempdir()) / "digital-logic-testing"
+
+    @classmethod
     def default_database_url(cls) -> str:
-        tmp_dir = Path(tempfile.gettempdir()) / "digital-logic-testing"
-        return f"{SQLITE_PREFIX}{tmp_dir.as_posix()}/testing.sqlite"
+        return f"{SQLITE_PREFIX}{cls._tmp_root().as_posix()}/testing.sqlite"
+
+    @classmethod
+    def default_upload_dir(cls) -> str:
+        """与测试库同理：默认不写进仓库内的 instance/uploads。"""
+        return (cls._tmp_root() / "uploads").as_posix()
 
 
 class ProductionConfig(BaseConfig):
@@ -125,10 +133,13 @@ def load_config(config_name: str | None = None, overrides: dict | None = None) -
         settings[key] = getattr(config_cls, key)
     if name == "testing":
         settings["DATABASE_URL"] = TestingConfig.default_database_url()
+        settings["UPLOAD_DIR"] = TestingConfig.default_upload_dir()
     env_settings = config_cls.from_env()
     if name == "testing":
-        # 测试不能继承开发/生产进程中的数据库地址；需要独立测试库时显式传 overrides。
+        # 测试不能继承开发/生产进程中的数据库地址与上传目录；
+        # 需要独立路径时显式传 overrides。
         env_settings.pop("DATABASE_URL", None)
+        env_settings.pop("UPLOAD_DIR", None)
     settings.update(env_settings)
     if overrides:
         settings.update(overrides)
