@@ -19,7 +19,7 @@
 | classes | name TEXT(80)、teacher_id FK users、active BOOL | INDEX(teacher_id,active)，服务层确保教师角色 |
 | enrollments | class_id FK classes、student_id FK users、active BOOL、joined_at TEXT、left_at TEXT? | UNIQUE(class_id,student_id)，部分唯一索引 student_id WHERE active=1，学生最多一个有效班级 |
 
-角色、禁用状态每次请求检查；角色变更或账号停用时使所有会话失效。停用班级后禁止新活动，但历史查询仍可用。
+角色、禁用状态每次请求检查；角色变更或账号停用时使所有会话失效。学生账号必须有学号；任课教师需先转交班级、在班学生需先退出班级，才能改为其他角色。停用班级后禁止新活动，但历史查询仍可用；停用班级或停用学生不能新增有效入班关系。
 
 ## 3 课程内容和备课
 

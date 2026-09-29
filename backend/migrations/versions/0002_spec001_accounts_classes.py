@@ -33,6 +33,7 @@ def upgrade() -> None:
         sa.Column("role", sa.String(16), nullable=False),
         sa.Column("active", sa.Integer(), nullable=False, server_default=sa.text("1")),
         sa.CheckConstraint("role IN ('student','teacher','admin')", name="ck_users_role"),
+        sa.CheckConstraint("role <> 'student' OR student_no IS NOT NULL", name="ck_users_student_no"),
         sa.CheckConstraint("active IN (0,1)", name="ck_users_active"),
         sa.UniqueConstraint("login_name", name="uq_users_login_name"),
         sa.UniqueConstraint("student_no", name="uq_users_student_no"),

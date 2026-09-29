@@ -296,20 +296,82 @@ def test_T001_03_change_password_requires_current_password(upgraded_app):
 
 
 def test_T001_03_role_change_invalidates_session(upgraded_app):
-    ctx = seed_school(upgraded_app)
-    admin_client, admin_csrf = ctx["admin"]
-    teacher = ctx["teacher_a"]
+    create_admin(upgraded_app)
+    admin_client, admin_csrf = login_as(upgraded_app, "admin_root", "Adm1nPass!23")
+    teacher = create_teacher(upgraded_app, admin_client, admin_csrf, "teacher_aaa")
     client, _ = login_as(upgraded_app, "teacher_aaa")
     sid = sid_of(client)
 
-    api_call(
+    changed = api_call(
         admin_client,
         "patch",
         f"{API}/users/{teacher['id']}",
         csrf_token=admin_csrf,
-        json={"version": teacher["version"], "role": "student", "active": True},
+        json={"version": teacher["version"], "role": "admin", "active": True},
     )
+    assert changed.status_code == 200, changed.get_data(as_text=True)
     assert replay(upgraded_app, sid).status_code == 401
+
+
+def test_role_change_preserves_class_and_student_invariants(upgraded_app):
+    ctx = seed_school(upgraded_app)
+    admin, csrf = ctx["admin"]
+    teacher = ctx["teacher_a"]
+    assigned = api_call(
+        admin, "patch", f"{API}/users/{teacher['id']}", csrf_token=csrf,
+        json={"version": teacher["version"], "role": "admin"},
+    )
+    assert assigned.status_code == 409
+    assert scalar(upgraded_app, "SELECT role FROM users WHERE id=?", (teacher["id"],)) == "teacher"
+
+    unassigned = create_teacher(upgraded_app, admin, csrf, "teacher_free")
+    no_number = api_call(
+        admin, "patch", f"{API}/users/{unassigned['id']}", csrf_token=csrf,
+        json={"version": unassigned["version"], "role": "student"},
+    )
+    assert no_number.status_code == 409
+
+    student = register_student(upgraded_app, "stu_role01", "20240500")
+    joined = api_call(
+        admin, "put", f"{API}/classes/{ctx['class_a']['id']}/enrollments",
+        csrf_token=csrf, json={"student_id": student["id"], "active": True},
+    )
+    assert joined.status_code == 200
+    enrolled = api_call(
+        admin, "patch", f"{API}/users/{student['id']}", csrf_token=csrf,
+        json={"version": student["version"], "role": "teacher"},
+    )
+    assert enrolled.status_code == 409
+    assert scalar(upgraded_app, "SELECT role FROM users WHERE id=?", (student["id"],)) == "student"
+
+
+def test_inactive_class_or_student_cannot_gain_active_enrollment(upgraded_app):
+    ctx = seed_school(upgraded_app)
+    admin, csrf = ctx["admin"]
+    student = register_student(upgraded_app, "stu_inact", "20240501")
+    school_class = ctx["class_a"]
+
+    disabled_class = api_call(
+        admin, "patch", f"{API}/classes/{school_class['id']}", csrf_token=csrf,
+        json={"version": school_class["version"], "active": False},
+    )
+    assert disabled_class.status_code == 200
+    blocked = api_call(
+        admin, "put", f"{API}/classes/{school_class['id']}/enrollments",
+        csrf_token=csrf, json={"student_id": student["id"], "active": True},
+    )
+    assert blocked.status_code == 409
+
+    disabled_student = api_call(
+        admin, "patch", f"{API}/users/{student['id']}", csrf_token=csrf,
+        json={"version": student["version"], "active": False},
+    )
+    assert disabled_student.status_code == 200
+    blocked = api_call(
+        admin, "put", f"{API}/classes/{ctx['class_b']['id']}/enrollments",
+        csrf_token=csrf, json={"student_id": student["id"], "active": True},
+    )
+    assert blocked.status_code == 409
 
 
 # ---- T-001-04 ----

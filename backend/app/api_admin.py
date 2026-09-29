@@ -187,6 +187,21 @@ def patch_user(user_id: int):
 
     role_changed = new_role != target.role
     deactivated = bool(target.active) and not new_active
+    if role_changed:
+        # 班级与入班关系以角色为前提；先处理关联关系，避免留下无教师班级
+        # 或非学生的有效入班记录。
+        if target.role == "teacher" and session.scalar(
+            select(SchoolClass.id).where(SchoolClass.teacher_id == target.id).limit(1)
+        ) is not None:
+            raise ApiError("STATE_CONFLICT", "请先将该教师任教的班级转交其他教师")
+        if target.role == "student" and session.scalar(
+            select(Enrollment.student_id).where(
+                Enrollment.student_id == target.id, Enrollment.active == 1
+            ).limit(1)
+        ) is not None:
+            raise ApiError("STATE_CONFLICT", "请先将该学生移出当前班级")
+        if new_role == "student" and not target.student_no:
+            raise ApiError("STATE_CONFLICT", "没有学号的账号不能改为学生")
     target.role = new_role
     target.active = 1 if new_active else 0
     target.version += 1
@@ -341,6 +356,10 @@ def set_enrollment(class_id: int):
     enrollment = session.get(Enrollment, (class_id, student_id))
 
     if active:
+        if not school_class.active:
+            raise ApiError("STATE_CONFLICT", "已停用的班级不能加入学生")
+        if not student.active:
+            raise ApiError("STATE_CONFLICT", "已停用的学生不能加入班级")
         # 学生最多一个有效班级：已在别的班级有效则冲突
         other = session.scalar(
             select(Enrollment).where(

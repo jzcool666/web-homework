@@ -38,6 +38,7 @@ class User(Base):
     __tablename__ = "users"
     __table_args__ = (
         CheckConstraint("role IN ('student','teacher','admin')", name="ck_users_role"),
+        CheckConstraint("role <> 'student' OR student_no IS NOT NULL", name="ck_users_student_no"),
         CheckConstraint("active IN (0,1)", name="ck_users_active"),
     )
 
