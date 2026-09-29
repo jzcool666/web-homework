@@ -44,7 +44,7 @@ GET 成功 200、创建 201、PATCH/PUT/动作成功 200、DELETE 成功 200 且
 | ResourceVersion | id、version_no:int、kind:file/link、original_name:string/null、mime:string/null、size_bytes:int/null、external_url:string/null、note:string≤200、created_at:time；无 storage_key |
 | Plan | id、title:string、planned_at:time/null、notes:string≤5000、items:PlanItem[]、owner_id、version |
 | PlanItem | sort_order:int、target_type:knowledge/resource_version/question/experiment、target_id:id |
-| Preview | id、class_id、plan_id、due_at:time/null、items:公开预习条目快照[]；题目仅含题干，不含答案 |
+| Preview | id、class_id、plan_id、plan_title:string（发布时冻结的标题）、due_at:time/null、items:公开预习条目快照[]；题目仅含题干，不含答案 |
 | AttendanceTask | id、class_id、title、opens_at、late_at、closes_at、settled_at:time/null、version；明文 code 仅创建响应和教师显式重置响应一次显示 |
 | AttendanceRecord | id、task_id、student_id、student_display_name、student_no、status:pending/present/late/leave/absent、signed_at:time/null |
 | Leave | id、task_id、student_id、student_display_name、student_no、reason:string(1—300)、status:pending/approved/rejected、review_note:string/null、reviewed_at:time/null、version |
@@ -60,6 +60,8 @@ GET 成功 200、创建 201、PATCH/PUT/动作成功 200、DELETE 成功 200 且
 | Demo | id、class_id、experiment_id、active:boolean、version、state:{clock,inputs,q,step_no}、history:状态行[]、reveal_next:boolean、next_q:int/null、last_updated:time；next_q为按当前输入计算的下一个有效上升沿状态，预测隐藏时为null |
 | AttemptResult | id、experiment_id:int、simulator_type:d/jk/counter/shift、passed:boolean、first_error_index:int/null、expected:int[]、actual:int[]、explanations:string[]、experiment_version:int |
 | QAEntry | id、knowledge_id、question:string≤200、answer_md:string≤10000、source_url:string/null、published:boolean、version |
+
+公开预习条目快照的元素形状（2026-09-29 随 SPEC-008 实现固定）：`{sort_order,target_type,target_id,content}`，`content` 按类型给发布时冻结的内容摘要——`knowledge:{title,excerpt,source_url}`、`resource_version:{resource_title,category,version_no,kind,original_name,mime,size_bytes,external_url,note}`、`question:{stem_md}`（**只有题干**，不含 answer/explanation，也不含选项）、`experiment:{title,simulator_type,steps_md}`。`excerpt` 是知识点正文的前 200 字摘要。备课单条目上限 50 条。
 
 Question options：单选/多选 2—6 个唯一 key，答案必须在选项内；多选至少 2 个正确项，判断只有 true/false。创建模型的 owner_id 从会话取得，学生端不得提交 owner_id/role/score/correct。
 
