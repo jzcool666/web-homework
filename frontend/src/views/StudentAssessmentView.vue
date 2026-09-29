@@ -40,13 +40,17 @@ const loadError = ref(null)
 const error = ref(null)
 const lastSavedAt = ref(null)
 const online = ref(typeof navigator === 'undefined' ? true : navigator.onLine)
+const editRevision = ref(0)
+const savedRevision = ref(0)
 let timer = null
+let saveQueue = Promise.resolve()
 
 const items = computed(() => assessment.value?.items ?? [])
 const missing = computed(() => unansweredCount(items.value, payloadAnswers()))
 const closed = computed(() => assessment.value?.effective_state === 'closed')
+const dirty = computed(() => editRevision.value !== savedRevision.value)
 const status = computed(() =>
-  saveStatus({ online: online.value, saving: saving.value, failed: saveFailed.value, lastSavedAt: lastSavedAt.value }),
+  saveStatus({ online: online.value, saving: saving.value, failed: saveFailed.value, dirty: dirty.value, lastSavedAt: lastSavedAt.value }),
 )
 
 function payloadAnswers() {
@@ -58,10 +62,12 @@ function selected(itemId) {
 }
 
 function choose(item, key) {
+  if (closed.value || submitting.value) return
   answers.value = {
     ...answers.value,
     [item.id]: toggleSelection(selected(item.id), key, item.type === 'multiple'),
   }
+  editRevision.value += 1
   scheduleSave()
 }
 
@@ -75,25 +81,34 @@ function scheduleSave() {
   }, AUTOSAVE_DELAY_MS)
 }
 
-async function save() {
-  if (!submission.value) return false
-  saving.value = true
-  try {
-    submission.value = await api.put(`/submissions/${submission.value.id}/answers`, {
-      version: submission.value.version,
-      answers: payloadAnswers(),
-    })
-    lastSavedAt.value = submission.value.saved_at
-    saveFailed.value = false
-    error.value = null
-    return true
-  } catch (err) {
-    saveFailed.value = true
-    error.value = `保存失败：${err.message}。尚未提交，可重试保存。`
-    return false
-  } finally {
-    saving.value = false
-  }
+function save() {
+  // 所有保存串行执行：第二次请求须使用第一次返回的新 version。
+  const task = saveQueue.then(async () => {
+    if (!submission.value) return false
+    if (!dirty.value && lastSavedAt.value) return true
+    const revision = editRevision.value
+    const currentAnswers = payloadAnswers()
+    saving.value = true
+    try {
+      submission.value = await api.put(`/submissions/${submission.value.id}/answers`, {
+        version: submission.value.version,
+        answers: currentAnswers,
+      })
+      savedRevision.value = revision
+      lastSavedAt.value = submission.value.saved_at
+      saveFailed.value = false
+      error.value = null
+      return !dirty.value
+    } catch (err) {
+      saveFailed.value = true
+      error.value = `保存失败：${err.message}。尚未提交，可重试保存。`
+      return false
+    } finally {
+      saving.value = false
+    }
+  })
+  saveQueue = task.then(() => undefined, () => undefined)
+  return task
 }
 
 /** 取消失效的延迟任务并立刻保存；提交前必须等它返回。 */
@@ -150,6 +165,8 @@ async function load() {
       restored[entry.item_id] = entry.selected
     }
     answers.value = restored
+    editRevision.value = 0
+    savedRevision.value = 0
     lastSavedAt.value = started.answers.length ? started.saved_at : null
   } catch (err) {
     loadError.value = err.message
@@ -160,7 +177,7 @@ async function load() {
 
 function handleOnline() {
   online.value = true
-  scheduleSave()
+  if (dirty.value) scheduleSave()
 }
 
 function handleOffline() {
@@ -168,7 +185,7 @@ function handleOffline() {
 }
 
 function warnUnload(event) {
-  if (!timer) return undefined
+  if (!timer && !dirty.value && !saving.value) return undefined
   event.preventDefault()
   event.returnValue = ''
   return ''
@@ -247,6 +264,7 @@ onUnmounted(() => {
                   :type="item.type === 'multiple' ? 'checkbox' : 'radio'"
                   :name="`item-${item.id}`"
                   :checked="selected(item.id).includes(option.key)"
+                  :disabled="submitting"
                   @change="choose(item, option.key)"
                 />
                 <span class="option-key">{{ option.key }}</span>

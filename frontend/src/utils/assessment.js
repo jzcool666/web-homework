@@ -126,7 +126,7 @@ export function answerPayload(answers) {
  * 保存状态文案与色调。断线时不伪报成功：只要最近一次保存失败或浏览器离线，
  * 就明确显示「未保存」并给出最后保存时间。
  */
-export function saveStatus({ online = true, saving = false, failed = false, lastSavedAt = null } = {}) {
+export function saveStatus({ online = true, saving = false, failed = false, dirty = false, lastSavedAt = null } = {}) {
   if (!online) {
     return { tone: 'danger', text: lastSavedAt ? `离线，最后保存 ${lastSavedAt}` : '离线，尚未保存' }
   }
@@ -134,6 +134,10 @@ export function saveStatus({ online = true, saving = false, failed = false, last
     return { tone: 'danger', text: lastSavedAt ? `保存失败，最后保存 ${lastSavedAt}` : '保存失败，尚未保存' }
   }
   if (saving) return { tone: 'warning', text: '保存中…' }
+  if (dirty) return {
+    tone: 'warning',
+    text: lastSavedAt ? `有未保存更改，最后保存 ${lastSavedAt}` : '尚未保存',
+  }
   if (lastSavedAt) return { tone: 'success', text: `已保存 ${lastSavedAt}` }
   return { tone: 'neutral', text: '尚未保存' }
 }

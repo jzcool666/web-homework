@@ -752,7 +752,10 @@ def get_assessment(assessment_id: int):
     state = effective_state(assessment, now)
     if current_user().role == "student" and state == "upcoming":
         items = None
-    return success(assessment_public(assessment, items, my_submission_id, now))
+    return success(assessment_public(
+        assessment, items, my_submission_id, now,
+        include_teacher_snapshot=current_user().role == "teacher",
+    ))
 
 
 @bp.patch("/assessments/<int:assessment_id>")
@@ -1290,7 +1293,9 @@ def _stats_window() -> tuple[str, str]:
     if (raw_from is None) != (raw_to is None):
         raise ApiError("INVALID_REQUEST", "from 与 to 必须同时给出或同时省略")
     if raw_from is None:
-        to_dt = _parse(_now())
+        # 存储时间精度为秒；默认窗口须包含「当前秒」刚提交的记录，
+        # 同时保持 [from,to) 的右开语义。
+        to_dt = _parse(_now()) + timedelta(seconds=1)
         from_dt = to_dt - timedelta(days=WINDOW_DEFAULT_DAYS)
     else:
         from_dt = _window_param(raw_from, "from")
@@ -1335,14 +1340,16 @@ def _stats_answer_rows(session, submission_ids):
     return grouped
 
 
-def _first_attempt_rows(session, question_ids, student_ids, window_from, window_to):
+def _first_attempt_rows(session, assessment_ids, question_ids, student_ids, window_from, window_to):
     """每一个 (学生, 题目) 的全历史最早已提交作答，再按 submitted_at 落窗筛选。"""
     if not question_ids or not student_ids:
         return []
     rows = session.execute(
         select(
+            AssessmentItem.assessment_id,
             AssessmentItem.question_id,
             AssessmentItem.snapshot_json,
+            Submission.id,
             Submission.student_id,
             Submission.submitted_at,
             SubmissionAnswer.correct,
@@ -1356,16 +1363,17 @@ def _first_attempt_rows(session, question_ids, student_ids, window_from, window_
             Submission.submitted_at.is_not(None),
         )
     ).all()
-    earliest: dict[tuple[int, int], tuple[str, bool, list[int]]] = {}
-    for question_id, snapshot_json, student_id, submitted_at, correct in rows:
+    earliest: dict[tuple[int, int], tuple[str, int, int, bool, list[int]]] = {}
+    for assessment_id, question_id, snapshot_json, submission_id, student_id, submitted_at, correct in rows:
         key = (student_id, question_id)
         current = earliest.get(key)
-        if current is None or submitted_at < current[0]:
+        if current is None or (submitted_at, submission_id) < current[:2]:
             knowledge_ids = from_json(snapshot_json, default={}).get("knowledge_ids", [])
-            earliest[key] = (submitted_at, bool(correct), knowledge_ids)
+            earliest[key] = (submitted_at, submission_id, assessment_id, bool(correct), knowledge_ids)
     result = []
-    for (student_id, question_id), (submitted_at, correct, knowledge_ids) in earliest.items():
-        if not (window_from <= submitted_at < window_to):
+    selected_assessments = set(assessment_ids)
+    for (_student_id, _question_id), (submitted_at, _submission_id, assessment_id, correct, knowledge_ids) in earliest.items():
+        if assessment_id not in selected_assessments or not (window_from <= submitted_at < window_to):
             continue
         for knowledge_id in knowledge_ids:
             result.append((knowledge_id, correct))
@@ -1420,6 +1428,8 @@ def assessment_analytics():
                 select(Submission).where(
                     Submission.assessment_id.in_(assessment_ids),
                     Submission.status == STATUS_SUBMITTED,
+                    Submission.submitted_at >= window_from,
+                    Submission.submitted_at < window_to,
                 )
             )
         )
@@ -1463,7 +1473,7 @@ def assessment_analytics():
     question_ids = sorted({item.question_id for item in items})
     student_ids = sorted({sid for ids in roster_map.values() for sid in ids})
     knowledge_rows = summarize_knowledge(
-        _first_attempt_rows(session, question_ids, student_ids, window_from, window_to)
+        _first_attempt_rows(session, assessment_ids, question_ids, student_ids, window_from, window_to)
     )
     buckets = score_bucket_rows(all_percents)
 

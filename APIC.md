@@ -51,7 +51,7 @@ GET 成功 200、创建 201、PATCH/PUT/动作成功 200、DELETE 成功 200 且
 | QuestionWrite | type:single/multiple/boolean、stem_md:string(1—10000)、options:[{key:string,label:string}]、answer:string[]、explanation_md:string(1—10000)、difficulty:1/2/3、knowledge_ids:id[1—3]、published:boolean |
 | Question | id、QuestionWrite 全部字段、owner_id、version；仅题库管理接口返回完整答案 |
 | StudentItem | id（测评条目 ID）、question_id、position、points:int、type、stem_md、options、knowledge_ids；不含 answer/explanation |
-| Assessment | id、class_id:id/null、kind:practice/quiz/homework/exam、title、state:draft/published/closed、effective_state:upcoming/open/closed/draft、starts_at:time/null、ends_at:time/null、feedback_released:boolean、total_score:int、version、my_submission_id:id/null、items:StudentItem[]；my_submission_id仅返回当前学生自己的记录ID，教师为null |
+| Assessment | id、class_id:id/null、kind:practice/quiz/homework/exam、title、state:draft/published/closed、effective_state:upcoming/open/closed/draft、starts_at:time/null、ends_at:time/null、feedback_released:boolean、total_score:int、version、my_submission_id:id/null、items:StudentItem[]；my_submission_id仅返回当前学生自己的记录ID，教师为null。教师读取 E038 时，已发布条目另含发布快照中的 answer、explanation_md；学生投影始终不含这两个字段 |
 | Submission | id、assessment_id、student_id、status:draft/submitted、answers:[{item_id,selected:string[]}]、version、saved_at:time、submitted_at:time/null、score:int/null |
 | Result | submission_id、score:int、total_score:int、feedback_available:boolean、items:[{item_id,selected,correct,awarded_points,answer,explanation_md,knowledge_ids}]；反馈未开放时 score=null，items 只保留 item_id/selected |
 | Experiment | id、title、knowledge_id、simulator_type:d/jk/counter/shift、config:SimulatorConfig、steps_md、input_sequence:SimEvent[]、published:boolean、version；无期望输出 |
@@ -121,7 +121,7 @@ AttendanceRecord 与 Leave 的 `student_display_name`、`student_no` 为只读�
 | E035 | GET/POST /questions | T | GET knowledge_id?,difficulty?,type?,q?；POST QuestionWrite | Question列表/Question；教师可读已发布共享题及自己草稿 |
 | E036 | GET/PATCH /questions/{id} | T/所有者 | PATCH version+QuestionWrite可改字段 | Question，编辑仅所有者 |
 | E037 | GET/POST /assessments | T/S | GET class_id?,kind?；POST T class_id,kind:quiz/homework/exam,title,items:[{question_id,points}] | Assessment列表/草稿；新建1—30题 |
-| E038 | GET/PATCH /assessments/{id} | T/S | PATCH仅T草稿，version,title?,items? | Assessment；未到开始时间学生只获活动概要，items为空 |
+| E038 | GET/PATCH /assessments/{id} | T/S | PATCH仅T草稿，version,title?,items? | Assessment；教师读取已发布条目的答案与解析取发布快照，不取后续可编辑题库；未到开始时间学生只获活动概要，items为空 |
 | E039 | POST /assessments/{id}/publication | T | version,starts_at,ends_at | Assessment；固定题目/名单/总分；结束须晚于开始 |
 | E040 | POST /assessments/{id}/closure | T | version | Assessment；结束并最终化已开始草稿 |
 | E041 | POST /assessments/{id}/feedback-release | T | version | Assessment；有效结束前409，公开后幂等 |
@@ -184,6 +184,8 @@ AttendanceRecord 与 Leave 的 `student_display_name`、`student_no` 为只读�
 - GraphEdge：`prerequisite_id,target_id`；方向为先修指向后继。
 - KnowledgeGraph：`nodes:[GraphNode],edges:[GraphEdge],has_cycle:boolean,truncated:boolean`；truncated 为节点超上限被裁剪时为 true。
 - RecognitionTask：`id,class_id,kind:state_table,status:done/failed,created_at,result:{rows:int,cols:int,states:[{row:int,value:int}],transitions:[{from:int,to:int}],confidence:number,requires_review:true}或null,error:{code,message,details}或null`；同步处理完成后才返回任务，status=failed 时 result 为 null 且 error 给出格式原因。
+
+E057 的提交、平均分、逐题统计与分数段只计 `submitted_at ∈ [from,to)` 的记录；首答先从全历史确定最早作答，再检查其是否属于本次选中的测评和时间窗口。省略 `from/to` 时，默认窗口的 `to` 取服务器当前秒的下一秒，以覆盖当前秒刚提交的记录；显式传入的 `to` 始终右开。
 
 CSV 返回 UTF-8 BOM 文件，包含相同过滤条件的可展开明细，不包含密码、会话或答案；对以 =、+、-、@ 开头的用户输入文本加安全前缀。JSON 字段名和 CSV 列说明在实现测试中固定。E057 的 CSV 把四个块展开为同一张表，用 `section` 区分（`assessment`／`item`／`knowledge`／`score_bucket`），列顺序固定为 `section,assessment_id,item_id,knowledge_id,range,roster_count,submitted_count,blank_count,submission_rate,mean_percent,answered_count,unanswered_count,correct_count,correct_rate,option_counts,first_attempt_count,first_correct_count,first_accuracy,count`；`option_counts` 在 CSV 中写成 `key=次数;key=次数`。
 

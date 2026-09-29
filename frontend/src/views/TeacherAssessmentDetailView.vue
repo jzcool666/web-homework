@@ -30,7 +30,6 @@ const assessmentId = Number(route.params.id)
 const assessment = ref(null)
 const bank = ref([])
 const stats = ref(null)
-const answersByQuestion = ref({})
 const editing = ref(false)
 const draftItems = ref([])
 const publishForm = ref({ starts_at: '', ends_at: '' })
@@ -72,9 +71,9 @@ function optionCount(itemId, key) {
 }
 
 function correctText(itemId) {
-  const question = answersByQuestion.value[items.value.find((item) => item.id === itemId)?.question_id]
-  if (!question) return '—'
-  return selectionText(question.options, question.answer)
+  const item = items.value.find((row) => row.id === itemId)
+  if (!item?.answer) return '—'
+  return selectionText(item.options, item.answer)
 }
 
 function labelOf(itemId, key) {
@@ -117,27 +116,6 @@ async function loadBank() {
   bank.value = await api.get('/questions?page_size=100')
 }
 
-/** 讲评需要正确答案，题目接口是唯一能拿到答案的地方（快照只投影题干与选项）。 */
-async function loadAnswers() {
-  const detail = assessment.value
-  if (!detail) return
-  if (!detail.feedback_released && detail.state !== 'closed') {
-    answersByQuestion.value = {}
-    return
-  }
-  const unique = [...new Set(detail.items.map((item) => item.question_id))]
-  const loaded = await Promise.all(
-    unique.map(async (questionId) => {
-      try {
-        return [questionId, await api.get(`/questions/${questionId}`)]
-      } catch {
-        return [questionId, null]
-      }
-    }),
-  )
-  answersByQuestion.value = Object.fromEntries(loaded.filter(([, value]) => value !== null))
-}
-
 async function publish() {
   await run(async () => {
     const starts = localInputToUtc(publishForm.value.starts_at)
@@ -177,7 +155,6 @@ async function release() {
       version: assessment.value.version,
     })
     notice.value = '已公开反馈，学生现在可以看到分数、答案与解析'
-    await loadAnswers()
   })
 }
 
@@ -204,7 +181,6 @@ onMounted(async () => {
   try {
     await load()
     await loadBank()
-    await loadAnswers()
     if (assessment.value?.state === 'draft') {
       const now = new Date()
       publishForm.value = {
@@ -228,7 +204,7 @@ onMounted(async () => {
       :title="assessment ? assessment.title : '测评详情'"
       :description="assessment ? `${KIND_LABEL[assessment.kind] ?? assessment.kind} · 总分 ${assessment.total_score}` : ''"
     >
-      <template #actions>
+      <template v-if="!projecting" #actions>
         <RouterLink class="button button--secondary" :to="{ name: 'teacher-assessments' }">
           返回测评列表
         </RouterLink>
@@ -242,7 +218,7 @@ onMounted(async () => {
       <p v-if="notice" class="success">{{ notice }}</p>
       <p v-if="error" class="error" role="alert">{{ error }}</p>
 
-      <SectionCard title="状态与操作">
+      <SectionCard v-if="!projecting" title="状态与操作">
         <div class="state-row">
           <StatusBadge :tone="stateTone(assessment.effective_state)">
             {{ ASSESSMENT_STATE_LABEL[assessment.effective_state] ?? assessment.effective_state }}
@@ -293,6 +269,7 @@ onMounted(async () => {
       </SectionCard>
 
       <SectionCard v-if="projecting" title="投屏统计（匿名聚合）">
+        <button class="button button--secondary" type="button" @click="toggleProjection">退出投屏</button>
         <div v-if="overall" class="projection">
           <div class="projection__cell">
             <span class="eyebrow">已提交</span>
@@ -321,7 +298,7 @@ onMounted(async () => {
         <p class="hint">投屏只显示聚合结果，不含任何学生身份。</p>
       </SectionCard>
 
-      <SectionCard title="作答进度">
+      <SectionCard v-if="!projecting" title="作答进度">
         <StatePanel v-if="listError" kind="error" title="统计加载失败" :description="listError" />
         <StatePanel
           v-else-if="!overall"
@@ -357,7 +334,7 @@ onMounted(async () => {
         </template>
       </SectionCard>
 
-      <SectionCard title="讲评与逐题统计">
+      <SectionCard v-if="!projecting" title="讲评与逐题统计">
         <p class="hint">
           逐题正确率分母是已提交人数（含漏答）；选项各计一次，漏答单列。
         </p>

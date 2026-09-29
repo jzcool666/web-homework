@@ -125,6 +125,13 @@ describe('SPEC-010 草稿自动保存与状态提示', () => {
   it('保存中优先于旧的已保存时间', () => {
     expect(saveStatus({ saving: true, lastSavedAt: '10:00:00' }).tone).toBe('warning')
   })
+
+  it('修改已保存的答案后立即显示未保存更改', () => {
+    expect(saveStatus({ dirty: true, lastSavedAt: '10:00:00' })).toEqual({
+      tone: 'warning',
+      text: '有未保存更改，最后保存 10:00:00',
+    })
+  })
 })
 
 describe('SPEC-010 统计展示换算', () => {

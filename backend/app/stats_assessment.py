@@ -1,7 +1,7 @@
 """SPEC-010 测评统计的纯计算部分（E057）。
 
 这里不依赖 Flask 与 SQLAlchemy：入参是从库里取出的普通结构，出参是
-AssessmentStats 的各个块，便于直接对口径做单测。口径来自 SPEC-010 第 4 节：
+AssessmentStats 的各个块；知识点首答使用 Pandas 分组聚合。口径来自 SPEC-010 第 4 节：
 
 - 提交率分母是**发布时固定的名单**，不是当前在班人数。
 - 平均分与分数段只统计**已提交**的提交（白卷也算已提交，得 0 分）。
@@ -15,6 +15,8 @@ from __future__ import annotations
 
 import csv
 import io
+
+import pandas as pd
 
 # 分数段：0—<60、60—<70、70—<80、80—<90、90—100
 SCORE_BUCKETS = (
@@ -110,19 +112,24 @@ def score_bucket_rows(percents) -> list[dict]:
 
 def summarize_knowledge(rows) -> list[dict]:
     """rows 是窗口内的首答记录 (knowledge_id, correct)。"""
-    grouped: dict[int, list[bool]] = {}
-    for knowledge_id, correct in rows:
-        grouped.setdefault(knowledge_id, []).append(bool(correct))
+    if not rows:
+        return []
+    frame = pd.DataFrame(rows, columns=["knowledge_id", "correct"])
+    frame["correct"] = frame["correct"].astype(int)
+    grouped = frame.groupby("knowledge_id", sort=True).agg(
+        first_attempt_count=("correct", "size"),
+        first_correct_count=("correct", "sum"),
+    )
     result = []
-    for knowledge_id in sorted(grouped):
-        attempts = grouped[knowledge_id]
-        correct_count = sum(1 for flag in attempts if flag)
+    for knowledge_id, row in grouped.iterrows():
+        attempts = int(row["first_attempt_count"])
+        correct_count = int(row["first_correct_count"])
         result.append(
             {
-                "knowledge_id": knowledge_id,
-                "first_attempt_count": len(attempts),
+                "knowledge_id": int(knowledge_id),
+                "first_attempt_count": attempts,
                 "first_correct_count": correct_count,
-                "first_accuracy": ratio(correct_count, len(attempts)),
+                "first_accuracy": ratio(correct_count, attempts),
             }
         )
     return result

@@ -584,3 +584,69 @@ def test_csv_formula_injection_is_escaped():
     assert csv_safe("@x") == "'@x"
     assert csv_safe("正常文本") == "正常文本"
     assert csv_safe(None) == ""
+
+
+def test_same_second_default_window_includes_just_submitted_first_attempt(school):
+    question = make_question(school["app"], school["ta"], point=school["point"])
+    assessment = publish(school, [question])
+    item_id = items_of(school, assessment["id"], "stu_a1")[0]["id"]
+    submission = start(school, "stu_a1", assessment["id"])
+    saved = save(school, "stu_a1", submission, [(item_id, ["A"])]).get_json()["data"]
+    submit(school, "stu_a1", saved)
+
+    # 不推进时钟：教师在学生提交的同一秒刷新，首答也应计入默认窗口。
+    body = stats(school).get_json()["data"]
+    assert body["assessments"][0]["submitted_count"] == 1
+    assert body["knowledge"][0]["first_attempt_count"] == 1
+
+
+def test_explicit_window_excludes_submissions_at_right_boundary(school):
+    question = make_question(school["app"], school["ta"], point=school["point"])
+    assessment = publish(school, [question])
+    item_id = items_of(school, assessment["id"], "stu_a1")[0]["id"]
+    submission = start(school, "stu_a1", assessment["id"])
+    saved = save(school, "stu_a1", submission, [(item_id, ["A"])]).get_json()["data"]
+    submit(school, "stu_a1", saved)
+    now = parse(school["clock"]["now"])
+    window = (
+        f"&from={stamp(now - timedelta(seconds=120))}&to={stamp(now)}"
+        f"&assessment_id={assessment['id']}"
+    )
+    body = stats(school, query=window).get_json()["data"]
+    assert body["assessments"][0]["roster_count"] == 4
+    assert body["assessments"][0]["submitted_count"] == 0
+    assert body["items"][0]["answered_count"] == 0
+
+
+def test_teacher_review_uses_frozen_answer_after_question_edit(school):
+    question = make_question(school["app"], school["ta"], point=school["point"])
+    assessment = publish(school, [question])
+    changed = post_as(
+        school["app"], school["ta"], "patch", f"{API}/questions/{question['id']}",
+        {"version": question["version"], "answer": ["B"]},
+    )
+    assert changed.status_code == 200
+    teacher = post_as(
+        school["app"], school["ta"], "get", f"{API}/assessments/{assessment['id']}"
+    ).get_json()["data"]
+    student = post_as(
+        school["app"], actor(school, "stu_a1"), "get",
+        f"{API}/assessments/{assessment['id']}",
+    ).get_json()["data"]
+    assert teacher["items"][0]["answer"] == ["A"]
+    assert "answer" not in student["items"][0]
+
+
+def test_assessment_filter_does_not_count_first_attempt_from_another_assessment(school):
+    question = make_question(school["app"], school["ta"], point=school["point"])
+    first = publish(school, [question], title="测评甲")
+    second = publish(school, [question], title="测评乙")
+    item_id = items_of(school, second["id"], "stu_a1")[0]["id"]
+    submission = start(school, "stu_a1", second["id"])
+    saved = save(school, "stu_a1", submission, [(item_id, ["A"])]).get_json()["data"]
+    submit(school, "stu_a1", saved)
+    advance(school["clock"], 1)
+
+    body = stats(school, query=f"&assessment_id={first['id']}").get_json()["data"]
+    assert body["assessments"][0]["submitted_count"] == 0
+    assert body["knowledge"] == []
