@@ -110,3 +110,42 @@ export function selectionText(options, keys) {
   if (!keys || keys.length === 0) return '未作答'
   return keys.map((key) => optionLabel(options, key)).join('、')
 }
+
+/** 草稿变化后的短延迟保存（SPEC-010 第 4.4 条，建议 1 秒）。 */
+export const AUTOSAVE_DELAY_MS = 1000
+
+/** 作答映射 {itemId: [key]} → 接口要求的 answers 数组。 */
+export function answerPayload(answers) {
+  return Object.entries(answers ?? {}).map(([itemId, selected]) => ({
+    item_id: Number(itemId),
+    selected: [...(selected ?? [])],
+  }))
+}
+
+/**
+ * 保存状态文案与色调。断线时不伪报成功：只要最近一次保存失败或浏览器离线，
+ * 就明确显示「未保存」并给出最后保存时间。
+ */
+export function saveStatus({ online = true, saving = false, failed = false, lastSavedAt = null } = {}) {
+  if (!online) {
+    return { tone: 'danger', text: lastSavedAt ? `离线，最后保存 ${lastSavedAt}` : '离线，尚未保存' }
+  }
+  if (failed) {
+    return { tone: 'danger', text: lastSavedAt ? `保存失败，最后保存 ${lastSavedAt}` : '保存失败，尚未保存' }
+  }
+  if (saving) return { tone: 'warning', text: '保存中…' }
+  if (lastSavedAt) return { tone: 'success', text: `已保存 ${lastSavedAt}` }
+  return { tone: 'neutral', text: '尚未保存' }
+}
+
+/** 分数段在图上的相对高度，用于投屏条形展示。 */
+export function bucketWidth(count, counts) {
+  const max = Math.max(1, ...(counts ?? []).map((entry) => entry.count ?? 0))
+  return Math.round(((count ?? 0) / max) * 100)
+}
+
+/** 正确率 0—1 → 百分比文本；null 显示占位符而不是 0%。 */
+export function formatRate(rate) {
+  if (rate === null || rate === undefined) return '—'
+  return `${Math.round(rate * 1000) / 10}%`
+}

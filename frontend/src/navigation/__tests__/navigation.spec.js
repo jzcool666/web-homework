@@ -23,6 +23,8 @@ const routes = [
   { path: '/student/knowledge/1', name: 'student-knowledge', component: { template: '<div />' } },
   { path: '/student/classroom', name: 'student-classroom', component: { template: '<div />' } },
   { path: '/teacher/questions', name: 'teacher-questions', component: { template: '<div />' } },
+  { path: '/teacher/assessments', name: 'teacher-assessments', component: { template: '<div />' } },
+  { path: '/teacher/assessments/1', name: 'teacher-assessment', component: { template: '<div />' } },
   { path: '/student/practice', name: 'student-practice', component: { template: '<div />' } },
   { path: '/student/assessments/1', name: 'student-assessment', component: { template: '<div />' } },
   { path: '/student/results/1', name: 'student-result', component: { template: '<div />' } },
@@ -95,6 +97,14 @@ describe('role navigation and shell', () => {
     expect(student.wrapper.find('a.nav-item--active').text()).toContain('习题训练')
     expect(student.wrapper.find('.topbar__context').text()).toContain('习题训练')
     student.wrapper.unmount()
+  })
+
+  it('测评与讲评入口已接通并在详情页高亮', async () => {
+    const teacher = await setup('teacher', '/teacher/assessments/1')
+    const labels = teacher.wrapper.findAll('a.nav-item').map((item) => item.text())
+    expect(labels).toContain('测评与讲评')
+    expect(teacher.wrapper.find('a.nav-item--active').text()).toContain('测评与讲评')
+    teacher.wrapper.unmount()
   })
 
   it('课堂演示入口已接通，并在演示页高亮', async () => {
