@@ -24,6 +24,36 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: '/teacher/attendance',
+    name: 'teacher-attendance',
+    component: () => import('@/views/TeacherAttendanceView.vue'),
+    meta: { requiresAuth: true, roles: ['teacher'] },
+  },
+  {
+    path: '/student/classroom',
+    name: 'student-classroom',
+    component: () => import('@/views/StudentClassroomView.vue'),
+    meta: { requiresAuth: true, roles: ['student'] },
+  },
+  {
+    path: '/teacher/content',
+    name: 'teacher-content',
+    component: () => import('@/views/TeacherContentView.vue'),
+    meta: { requiresAuth: true, roles: ['teacher', 'admin'] },
+  },
+  {
+    path: '/student/learning',
+    name: 'student-learning',
+    component: () => import('@/views/StudentLearningView.vue'),
+    meta: { requiresAuth: true, roles: ['student'] },
+  },
+  {
+    path: '/student/knowledge/:id',
+    name: 'student-knowledge',
+    component: () => import('@/views/StudentKnowledgeView.vue'),
+    meta: { requiresAuth: true, roles: ['student'] },
+  },
+  {
     path: '/admin/users',
     name: 'admin-users',
     component: () => import('@/views/AdminUsersView.vue'),

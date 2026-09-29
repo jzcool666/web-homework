@@ -12,6 +12,11 @@ const routes = [
   { path: '/login', name: 'login', component: { template: '<div />' } },
   { path: '/register', name: 'register', component: { template: '<div />' } },
   { path: '/profile', name: 'profile', component: { template: '<div />' } },
+  { path: '/teacher/content', name: 'teacher-content', component: { template: '<div />' } },
+  { path: '/teacher/attendance', name: 'teacher-attendance', component: { template: '<div />' } },
+  { path: '/student/learning', name: 'student-learning', component: { template: '<div />' } },
+  { path: '/student/knowledge/1', name: 'student-knowledge', component: { template: '<div />' } },
+  { path: '/student/classroom', name: 'student-classroom', component: { template: '<div />' } },
   { path: '/admin/users', name: 'admin-users', component: { template: '<div />' } },
   { path: '/admin/classes', name: 'admin-classes', component: { template: '<div />' } },
   { path: '/admin/classes/1/enrollments', name: 'admin-enrollments', component: { template: '<div />' } },
@@ -53,5 +58,18 @@ describe('role navigation and shell', () => {
 
   it('未知角色没有导航入口', () => {
     expect(navigationFor('unknown')).toEqual([])
+  })
+
+  it('已实现的课程与考勤入口可点击，并在详情页高亮课程', async () => {
+    const { wrapper } = await setup('student', '/student/knowledge/1')
+    const links = wrapper.findAll('a.nav-item').map((item) => item.text())
+    expect(links).toContain('课程学习与收藏')
+    expect(links).toContain('考勤与请假')
+    expect(wrapper.find('a.nav-item--active').text()).toContain('课程学习与收藏')
+    wrapper.unmount()
+
+    expect(navigationFor('teacher').find((item) => item.route === 'teacher-content')).toBeTruthy()
+    expect(navigationFor('teacher').find((item) => item.route === 'teacher-attendance')).toBeTruthy()
+    expect(navigationFor('admin').find((item) => item.route === 'teacher-content')).toBeTruthy()
   })
 })

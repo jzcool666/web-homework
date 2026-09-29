@@ -73,11 +73,29 @@ async function send(method, path, payload) {
   return body.data
 }
 
+/**
+ * multipart 上传（SPEC-005 E020）。文件上传不能用 JSON 序列化，
+ * 这里单独走一条路径，CSRF 处理与 send 保持一致。
+ */
+async function sendForm(path, formData) {
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: { 'X-CSRF-Token': await ensureCsrf() },
+    body: formData,
+  })
+  if (!response.ok) throw await toError(response)
+  const body = await response.json()
+  return body.data
+}
+
 export const api = {
   get: (path) => send('GET', path),
   post: (path, payload = {}) => send('POST', path, payload),
   put: (path, payload = {}) => send('PUT', path, payload),
   patch: (path, payload = {}) => send('PATCH', path, payload),
+  delete: (path) => send('DELETE', path, {}),
+  postForm: (path, formData) => sendForm(path, formData),
 }
 
 export { toError as _toError }

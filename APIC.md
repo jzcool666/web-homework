@@ -46,8 +46,8 @@ GET 成功 200、创建 201、PATCH/PUT/动作成功 200、DELETE 成功 200 且
 | PlanItem | sort_order:int、target_type:knowledge/resource_version/question/experiment、target_id:id |
 | Preview | id、class_id、plan_id、due_at:time/null、items:公开预习条目快照[]；题目仅含题干，不含答案 |
 | AttendanceTask | id、class_id、title、opens_at、late_at、closes_at、settled_at:time/null、version；明文 code 仅创建响应和教师显式重置响应一次显示 |
-| AttendanceRecord | id、task_id、student_id、status:pending/present/late/leave/absent、signed_at:time/null |
-| Leave | id、task_id、student_id、reason:string(1—300)、status:pending/approved/rejected、review_note:string/null、reviewed_at:time/null、version |
+| AttendanceRecord | id、task_id、student_id、student_display_name、student_no、status:pending/present/late/leave/absent、signed_at:time/null |
+| Leave | id、task_id、student_id、student_display_name、student_no、reason:string(1—300)、status:pending/approved/rejected、review_note:string/null、reviewed_at:time/null、version |
 | QuestionWrite | type:single/multiple/boolean、stem_md:string(1—10000)、options:[{key:string,label:string}]、answer:string[]、explanation_md:string(1—10000)、difficulty:1/2/3、knowledge_ids:id[1—3]、published:boolean |
 | Question | id、QuestionWrite 全部字段、owner_id、version；仅题库管理接口返回完整答案 |
 | StudentItem | id（测评条目 ID）、question_id、position、points:int、type、stem_md、options、knowledge_ids；不含 answer/explanation |
@@ -111,6 +111,8 @@ Question options：单选/多选 2—6 个唯一 key，答案必须在选项内�
 | E034 | PATCH /leave-requests/{id} | T | version,status:approved/rejected,review_note? | Leave；已审批或已签到冲突409 |
 
 登录限流：账号+来源 15 分钟内 10 次失败后返回429；签到码错误同人同任务一分钟5次后限流。具体远端IP通过可信代理配置读取，不能信任任意转发头。
+
+AttendanceRecord 与 Leave 的 `student_display_name`、`student_no` 为只读联表字段（2026-09-29 随 SPEC-002 增加）：教师查看签到名单与请假申请时需要认出学生，而 GET /users 仅管理员可用。二者不来自可写字段，客户端提交会被未知字段规则拒绝。
 
 ## 5 测评接口
 
