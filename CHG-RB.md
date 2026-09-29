@@ -22,6 +22,10 @@
 | 2026-09-28 | SPEC-001实现 | 会话读取失败时按 503 DB_BUSY 返回；健康检查跳过会话读取，保持 SPEC-000 的 503 语义 | app/auth.py；避免数据库不可用时被误判为 500 |
 | 2026-09-29 | SPEC-001评审修正 | 角色变更须先转交任课班级或移出有效班级；学生角色必须有学号；停用班级或学生不能新增有效入班关系 | SPEC-001、DBD、迁移 0002、服务层与回归测试；现有数据尚未部署，无线上迁移 |
 | 2026-09-28 | SPEC-016/017评审修正 | 图谱关系明确为种子维护与只读投影；识别格式v1、任务班级归属及同步完成状态固定 | SPEC-016/017、APIC、DBD、测试计划与页面流程；无代码或迁移变更 |
+| 2026-09-29 | SPEC-002实现 | 实现考勤与请假：新增迁移 `0004_spec002`（attendance_tasks/attendance_records/leave_requests）、接口 E028—E034、教师「考勤与请假」与学生「我的课堂」页面 | 字段与路径按 APIC/DBD 已定义内容实现，无路径或状态码变更；新增后端 35 条、前端 8 条用例；执行结果见 SPEC-002 执行报告 |
+| 2026-09-29 | SPEC-002实现 | AttendanceRecord 与 Leave 响应增加只读联表字段 `student_display_name`、`student_no` | APIC 第 2、4 节；教师查看签到名单与请假申请需识别学生，而 GET /users 仅管理员可用。增量字段，未增表列 |
+| 2026-09-29 | SPEC-002实现 | 迁移链前移后，`tests/backend/test_migrations.py` 显式回退到 `0001_baseline` 再升级 | 测试随单一迁移链前移的必要更新，未放宽验收条件。SPEC-002 接在 SPEC-005 的 `0003_spec005` 后 |
+| 2026-09-29 | SPEC-002评审修正 | 停用班级禁止新的考勤动作；已离班学生不能凭旧名单快照提交新签到或请假 | SPEC-002、api_attendance.py 与回归测试；历史读取及结算仍可用 |
 | 2026-09-29 | SPEC-005实现 | 实现课程知识与教学资源：新增迁移 `0003_spec005`（chapters、knowledge_points、knowledge_edges、resources、resource_versions、favorites、learning_progress、resource_events）、接口 E011—E022、`seed-content` 命令（六单元 12 知识点、15 条先修关系、一份外链资料）及教师内容管理、学生学习与收藏页面 | 字段、路径、状态码按 APIC/DBD 已定义内容实现，无契约变更；先修关系写入前做无环校验，图谱读取接口仍属 SPEC-016 |
 | 2026-09-29 | SPEC-005实现 | Markdown 渲染由前端 `src/utils/markdown.js` 自行实现：整段先转义、只生成白名单标签，链接仅放行 http/https；未引入新的前端或后端依赖 | 新增前端模块与单测；ADR-008 已要求禁用原始 HTML 并净化输出 |
 | 2026-09-29 | SPEC-005实现 | `testing` 配置的上传目录改到系统临时目录；测试不再写入仓库内 `instance/uploads` | app/config.py；与 SPEC-000「测试不触碰仓库内 instance/」的隔离原则一致 |
