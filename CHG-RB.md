@@ -34,6 +34,7 @@
 | 2026-09-29 | SPEC-009实现 | 实现题库练习与错题：新增迁移 `0005_spec009`（questions/question_knowledge/assessments/assessment_items/assessment_roster/submissions/submission_answers）、接口 E035—E047、教师「题库」与学生「习题训练/作答/结果/错题本」页面 | 字段与路径按 APIC/DBD 已定义内容实现，无路径或状态码变更；发布时在单个事务里冻结题目快照、名单与总分，判分只读快照；执行结果见 SPEC-009 执行报告 |
 | 2026-09-29 | SPEC-009实现 | 明确反馈投影：`feedback_released=false` 时学生的 `Submission.score` 同样返回 null，不只是 Result.score | APIC 第 5 节。分数本身也是对错信息，未到公开时机提前返回等于绕过 E041；任课教师读本班提交不受该时机限制。属投影口径明确，未增删字段 |
 | 2026-09-29 | SPEC-009实现 | 回填 Issue #6 的跨模块补测：#4 T-001-02「教师猜测其他班学生答案 ID 同样拒绝」已用本模块的 `submissions` 对象实测，跨班读结果返回 404 | SPEC-001 执行报告第 4 节与 SPEC-009 执行报告；无代码变更 |
+| 2026-09-29 | SPEC-009评审修正 | 未入班学生不能创建自练；离班或停用班级不能产生新的测评作答；重复答案条目返回422，不按列表顺序静默覆盖 | SPEC-009、APIC 第5节、api_assessment.py 与回归测试；保留历史读取，不改迁移或接口路径 |
 
 当前没有发布版本、部署记录或实际回滚记录。以下为后续实现必须提供的流程。
 

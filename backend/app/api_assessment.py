@@ -239,6 +239,29 @@ def _require_class_teacher(session, class_id: int) -> SchoolClass:
     return school_class
 
 
+def _require_active_class(school_class: SchoolClass) -> None:
+    if not school_class.active:
+        raise ApiError("STATE_CONFLICT", "班级已停用，不能发起新的测评活动")
+
+
+def _require_student_work_access(session, class_id: int | None, student_id: int) -> None:
+    """名单是发布快照；新作答仍须满足当前入班关系与班级状态。"""
+    if class_id is None:
+        school_class = session.scalar(
+            select(SchoolClass)
+            .join(Enrollment, Enrollment.class_id == SchoolClass.id)
+            .where(Enrollment.student_id == student_id, Enrollment.active == 1)
+        )
+        if school_class is None:
+            raise ApiError("FORBIDDEN", "尚未分配班级，暂不能开始自练")
+    else:
+        school_class = session.get(SchoolClass, class_id)
+        enrollment = session.get(Enrollment, (class_id, student_id))
+        if school_class is None or enrollment is None or not enrollment.active:
+            raise ApiError("NOT_FOUND", "测评不存在")
+    _require_active_class(school_class)
+
+
 def _own_assessment(session, assessment_id: int) -> Assessment:
     assessment = session.get(Assessment, assessment_id)
     if assessment is None or assessment.owner_id != current_user().id:
@@ -656,7 +679,7 @@ def create_assessment():
         _fields_error("title", "1—100 个字符")
 
     session = db_session()
-    _require_class_teacher(session, class_id)
+    _require_active_class(_require_class_teacher(session, class_id))
     assessment = Assessment(
         class_id=class_id,
         owner_id=current_user().id,
@@ -758,6 +781,7 @@ def publish_assessment(assessment_id: int):
 
     session = db_session()
     assessment = _own_assessment(session, assessment_id)
+    _require_active_class(session.get(SchoolClass, assessment.class_id))
     if assessment.state != STATE_DRAFT:
         raise ApiError("STATE_CONFLICT", "只有草稿测评可以发布")
     if version != assessment.version:
@@ -871,6 +895,7 @@ def create_practice_session():
 
     session = db_session()
     user = current_user()
+    _require_student_work_access(session, None, user.id)
     blocked = _blocked_question_ids(session, user.id)
     stmt = select(Question).where(Question.published == 1)
 
@@ -984,6 +1009,7 @@ def start_submission(assessment_id: int):
                 existing, _answers_of(session, existing.id), bool(assessment.feedback_released)
             )
         )
+    _require_student_work_access(session, assessment.class_id, user.id)
     if _ended(assessment, now):
         raise ApiError("DEADLINE_PASSED", "测评已结束，不能开始作答")
     if assessment.starts_at and now < assessment.starts_at:
@@ -1036,6 +1062,7 @@ def save_answers(submission_id: int):
             {"expected_version": version, "current_version": submission.version},
         )
     assessment = session.get(Assessment, submission.assessment_id)
+    _require_student_work_access(session, assessment.class_id, current_user().id)
     now = _now()
     if _ended(assessment, now):
         raise ApiError("DEADLINE_PASSED", "测评已结束，不能再保存答案")
@@ -1045,6 +1072,7 @@ def save_answers(submission_id: int):
         _fields_error("answers", "必须是数组")
     items = {item.id: item for item in _items_of(session, assessment.id)}
     prepared: list[tuple[int, list[str]]] = []
+    seen_item_ids: set[int] = set()
     for entry in answers:
         if not isinstance(entry, dict):
             _fields_error("answers", "每项必须是 {item_id,selected}")
@@ -1052,8 +1080,11 @@ def save_answers(submission_id: int):
         if unknown:
             _fields_error("answers", f"不支持字段：{','.join(sorted(unknown))}")
         item_id = entry.get("item_id")
-        if item_id not in items:
+        if isinstance(item_id, bool) or not isinstance(item_id, int) or item_id not in items:
             _fields_error("item_id", "该条目不属于本测评")
+        if item_id in seen_item_ids:
+            _fields_error("answers", "同一条目不能重复提交")
+        seen_item_ids.add(item_id)
         snapshot = items[item_id].snapshot
         try:
             selected = validate_selected(entry.get("selected"), [opt.get("key") for opt in snapshot.get("options", [])])
@@ -1112,6 +1143,7 @@ def finalize_submission(submission_id: int):
             {"expected_version": version, "current_version": submission.version},
         )
     assessment = session.get(Assessment, submission.assessment_id)
+    _require_student_work_access(session, assessment.class_id, current_user().id)
     now = _now()
     if _ended(assessment, now):
         raise ApiError("DEADLINE_PASSED", "测评已结束，不能提交")

@@ -931,3 +931,76 @@ def test_mistakes_filters_and_isolation(school):
 
     # 其他学生看不到别人的错题
     assert api_call(school["sa2"][0], "get", f"{API}/me/mistakes").get_json()["data"] == []
+
+
+def test_duplicate_answer_item_is_rejected_without_server_error(school):
+    question = single_question(school)
+    assessment = publish_class_assessment(school, [question])
+    item_id = items_of(school, assessment["id"], school["sa1"])[0]["id"]
+    submission = post_as(
+        school["app"], school["sa1"], "post",
+        f"{API}/assessments/{assessment['id']}/submissions", {},
+    ).get_json()["data"]
+    response = post_as(
+        school["app"], school["sa1"], "put",
+        f"{API}/submissions/{submission['id']}/answers",
+        {"version": submission["version"], "answers": [
+            {"item_id": item_id, "selected": ["A"]},
+            {"item_id": item_id, "selected": ["B"]},
+        ]},
+    )
+    assert response.status_code == 422
+    unchanged = post_as(
+        school["app"], school["sa1"], "post",
+        f"{API}/assessments/{assessment['id']}/submissions", {},
+    ).get_json()["data"]
+    assert unchanged["version"] == submission["version"]
+    assert unchanged["answers"] == []
+
+
+def test_student_without_active_class_cannot_create_practice(school):
+    single_question(school)
+    app = school["app"]
+    client = app.test_client()
+    csrf = get_csrf(client)
+    created = register(client, csrf, login_name="stu_outside", student_no="20249999")
+    assert created.status_code == 201
+    outsider = login_as(app, "stu_outside")
+    response = post_as(app, outsider, "post", f"{API}/practice-sessions", {
+        "knowledge_ids": [school["point"]["id"]], "count": 1,
+    })
+    assert response.status_code == 403
+
+
+def test_removed_student_cannot_start_from_old_roster(school):
+    question = single_question(school)
+    assessment = publish_class_assessment(school, [question])
+    left = post_as(
+        school["app"], school["admin"], "put",
+        f"{API}/classes/{school['class_a']['id']}/enrollments",
+        {"student_id": student_id(school), "active": False},
+    )
+    assert left.status_code == 200
+    response = post_as(
+        school["app"], school["sa1"], "post",
+        f"{API}/assessments/{assessment['id']}/submissions", {},
+    )
+    assert response.status_code == 404
+
+
+def test_inactive_class_rejects_new_assessment(school):
+    question = single_question(school)
+    school_class = school["class_a"]
+    disabled = post_as(
+        school["app"], school["admin"], "patch",
+        f"{API}/classes/{school_class['id']}",
+        {"version": school_class["version"], "active": False},
+    )
+    assert disabled.status_code == 200
+    response = post_as(
+        school["app"], school["ta"], "post", f"{API}/assessments", {
+            "class_id": school_class["id"], "kind": "quiz", "title": "停用班级测评",
+            "items": [{"question_id": question["id"], "points": 1}],
+        },
+    )
+    assert response.status_code == 409
