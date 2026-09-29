@@ -1,14 +1,12 @@
 <script setup>
 import { computed } from 'vue'
-import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
+import { RouterLink, RouterView, useRouter } from 'vue-router'
 
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
-const route = useRoute()
 const router = useRouter()
 const isAdmin = computed(() => auth.hasRole('admin'))
-const useStandaloneLayout = computed(() => route.meta.standalone === true)
 
 async function signOut() {
   await auth.logout()
@@ -17,7 +15,7 @@ async function signOut() {
 </script>
 
 <template>
-  <header v-if="!useStandaloneLayout" class="app-nav">
+  <header class="app-nav">
     <RouterLink class="brand" :to="{ name: 'home' }">学海通 · 时序逻辑</RouterLink>
     <nav>
       <template v-if="auth.isAuthenticated()">
