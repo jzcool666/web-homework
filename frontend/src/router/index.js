@@ -6,6 +6,12 @@ import { useAuthStore } from '@/stores/auth'
 const routes = [
   { path: '/', name: 'home', component: HomeView },
   {
+    path: '/ui/student-dashboard',
+    name: 'student-dashboard-preview',
+    component: () => import('@/views/StudentDashboardPreview.vue'),
+    meta: { standalone: true },
+  },
+  {
     path: '/login',
     name: 'login',
     component: () => import('@/views/LoginView.vue'),
