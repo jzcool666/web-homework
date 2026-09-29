@@ -11,12 +11,12 @@
 from __future__ import annotations
 
 from flask import Blueprint, request
-from sqlalchemy import func, or_, select
+from sqlalchemy import func, or_, select, update
 from sqlalchemy.exc import IntegrityError
 
 from .auth import current_user, login_required, require_course_access, roles_required
 from .errors import ApiError, success
-from .models import Enrollment, SchoolClass
+from .models import Enrollment, SchoolClass, now_utc
 from .models_content import KnowledgePoint
 from .models_experiment import (
     STEPS_MD_MAX,
@@ -334,10 +334,20 @@ def patch_experiment(experiment_id: int):
     if not editable & set(body):
         raise ApiError("VALIDATION_ERROR", "没有可更新的字段")
 
-    simulator_type = body.get("simulator_type", experiment.simulator_type)
-    if "simulator_type" in body:
-        simulator_type = _simulator_type_field(body)
-        experiment.simulator_type = simulator_type
+    simulator_type = (
+        _simulator_type_field(body)
+        if "simulator_type" in body else experiment.simulator_type
+    )
+    # 类型变更后，旧配置和输入序列也必须符合新模型；否则后续开演示可能在
+    # compute_next_q 中读取不到计数器模数，或执行不属于该模型的输入事件。
+    config = load_json(experiment.config_json, {})
+    sequence = load_json(experiment.input_sequence_json, [])
+    if "simulator_type" in body or "config" in body:
+        config = _config_field(simulator_type, body.get("config", config))
+    if "simulator_type" in body or "input_sequence" in body:
+        sequence = _input_sequence_field(
+            simulator_type, body.get("input_sequence", sequence)
+        )
 
     if "title" in body:
         experiment.title = _title_field(body)
@@ -346,14 +356,14 @@ def patch_experiment(experiment_id: int):
         if session.get(KnowledgePoint, knowledge_id) is None:
             _fields_error("knowledge_id", "知识点不存在")
         experiment.knowledge_id = knowledge_id
-    if "config" in body:
-        experiment.config_json = dump_json(_config_field(simulator_type, body.get("config")))
+    if "simulator_type" in body:
+        experiment.simulator_type = simulator_type
+    if "simulator_type" in body or "config" in body:
+        experiment.config_json = dump_json(config)
     if "steps_md" in body:
         experiment.steps_md = _steps_md_field(body)
-    if "input_sequence" in body:
-        experiment.input_sequence_json = dump_json(
-            _input_sequence_field(simulator_type, body.get("input_sequence"))
-        )
+    if "simulator_type" in body or "input_sequence" in body:
+        experiment.input_sequence_json = dump_json(sequence)
     if "published" in body:
         published = body.get("published")
         if not isinstance(published, bool):
@@ -398,7 +408,9 @@ def create_demo_session():
     experiment_id = _int_field(body, "experiment_id")
 
     session = db_session()
-    _require_class_teacher(session, class_id)
+    school_class = _require_class_teacher(session, class_id)
+    if not school_class.active:
+        raise ApiError("STATE_CONFLICT", "班级已停用，不能发起新演示")
     # 只有可见的实验才能开演示：本人草稿或已发布（含他人的已发布内容）
     experiment = _visible_experiment(session, experiment_id, user)
 
@@ -460,7 +472,7 @@ def demo_action(demo_id: int):
     body = json_object(["expected_version", "event", "action"])
     session = db_session()
     demo = _demo_or_404(session, demo_id)
-    _require_class_teacher(session, demo.class_id)
+    school_class = _require_class_teacher(session, demo.class_id)
     if demo.owner_id != user.id:
         raise ApiError("FORBIDDEN", "只能操作本人发起的演示")
 
@@ -487,11 +499,15 @@ def demo_action(demo_id: int):
     state = load_json(demo.state_json, {})
     history = load_json(demo.event_log_json, [])
 
+    active = demo.active
+    reveal_next = demo.reveal_next
     if has_event:
         try:
             event = validate_event(simulator_type, body["event"])
         except SimulationError as exc:
             _simulation_error(exc)
+        if not school_class.active:
+            raise ApiError("STATE_CONFLICT", "班级已停用，不能继续演示")
         if len(history) >= MAX_EVENTS and event["op"] != "reset_view":
             # reset_view 会把历史清空，必须始终可用，否则演示会彻底卡死
             raise ApiError(
@@ -510,13 +526,41 @@ def demo_action(demo_id: int):
             action = validate_demo_action(body["action"])
         except SimulationError as exc:
             _simulation_error(exc)
+        if not school_class.active and action["op"] != "close":
+            raise ApiError("STATE_CONFLICT", "班级已停用，不能继续演示")
         if action["op"] == "close":
-            demo.active = 0
+            active = 0
         else:
-            demo.reveal_next = 1 if action["value"] else 0
+            reveal_next = 1 if action["value"] else 0
 
-    demo.state_json = dump_json(state)
-    demo.event_log_json = dump_json(history)
-    demo.version += 1
+    # 条件更新保证并行请求中只有一个能消费 expected_version。先读后写的 ORM
+    # version += 1 无法防止两个请求同时从相同旧状态推导、互相覆盖。
+    updated = session.execute(
+        update(DemoSession)
+        .where(
+            DemoSession.id == demo_id,
+            DemoSession.version == expected,
+            DemoSession.active == 1,
+        )
+        .values(
+            state_json=dump_json(state),
+            event_log_json=dump_json(history),
+            active=active,
+            reveal_next=reveal_next,
+            version=expected + 1,
+            updated_at=now_utc(),
+        ),
+        execution_options={"synchronize_session": False},
+    ).rowcount
+    if updated != 1:
+        session.rollback()
+        current_version = session.scalar(
+            select(DemoSession.version).where(DemoSession.id == demo_id)
+        )
+        raise ApiError(
+            "VERSION_CONFLICT", "演示已更新，请刷新后再操作",
+            {"expected_version": expected, "current_version": current_version},
+        )
     session.commit()
+    session.refresh(demo)
     return success(_demo_response(demo))

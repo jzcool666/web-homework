@@ -7,7 +7,9 @@
 
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from threading import Barrier
 
 import pytest
 
@@ -786,3 +788,66 @@ def test_demo_list_filters_by_class_and_active(lab):
         f"{API}/demo-sessions?class_id={lab['class_a']['id']}&active=false"
     ).get_json()["data"]
     assert len(closed) == 1 and closed[0]["active"] is False
+
+
+def test_parallel_demo_actions_reject_stale_version(lab, monkeypatch):
+    """两个请求都读到相同版本时，也只能提交一次状态变更。"""
+    import app.api_experiment as experiment_api
+
+    teacher, csrf = lab["teacher_a"]
+    experiment = create_experiment(teacher, csrf, lab["knowledge"]["id"]).get_json()["data"]
+    demo = start_demo(teacher, csrf, lab["class_a"]["id"], experiment["id"]).get_json()["data"]
+    other_teacher, other_csrf = login_as(lab["app"], "teacher_aaa")
+    barrier = Barrier(2)
+    original_apply = experiment_api.apply_event
+
+    def same_old_state(*args, **kwargs):
+        barrier.wait(timeout=10)
+        return original_apply(*args, **kwargs)
+
+    monkeypatch.setattr(experiment_api, "apply_event", same_old_state)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        first = pool.submit(act, teacher, csrf, demo["id"], demo["version"], event={"op": "toggle_clock"})
+        second = pool.submit(act, other_teacher, other_csrf, demo["id"], demo["version"], event={"op": "toggle_clock"})
+        statuses = sorted([first.result().status_code, second.result().status_code])
+    assert statuses == [200, 409]
+    current = teacher.get(f"{API}/demo-sessions/{demo['id']}").get_json()["data"]
+    assert current["version"] == demo["version"] + 1
+    assert len(current["history"]) == 1
+
+
+def test_changing_experiment_type_keeps_valid_config_and_events(lab):
+    teacher, csrf = lab["teacher_a"]
+    experiment = create_experiment(
+        teacher, csrf, lab["knowledge"]["id"], simulator_type="d", config={"initial_q": 0}
+    ).get_json()["data"]
+    response = api_call(
+        teacher, "patch", f"{API}/experiments/{experiment['id']}", csrf_token=csrf,
+        json={"version": experiment["version"], "simulator_type": "counter"},
+    )
+    assert response.status_code == 200
+    changed = response.get_json()["data"]
+    assert changed["config"]["modulus"] == 16
+    demo = start_demo(teacher, csrf, lab["class_a"]["id"], experiment["id"]).get_json()["data"]
+    rising = act(teacher, csrf, demo["id"], demo["version"], event={"op": "toggle_clock"})
+    assert rising.status_code == 200
+    assert rising.get_json()["data"]["state"]["q"] == 1
+
+
+def test_inactive_class_stops_new_demo_activity_but_allows_close(lab):
+    teacher, csrf = lab["teacher_a"]
+    admin, admin_csrf = lab["admin"]
+    experiment = create_experiment(teacher, csrf, lab["knowledge"]["id"]).get_json()["data"]
+    school_class = lab["class_a"]
+    demo = start_demo(teacher, csrf, school_class["id"], experiment["id"]).get_json()["data"]
+    disabled = api_call(
+        admin, "patch", f"{API}/classes/{school_class['id']}", csrf_token=admin_csrf,
+        json={"version": school_class["version"], "active": False},
+    )
+    assert disabled.status_code == 200
+    assert start_demo(teacher, csrf, school_class["id"], experiment["id"]).status_code == 409
+    assert act(teacher, csrf, demo["id"], demo["version"], event={"op": "toggle_clock"}).status_code == 409
+    closed = act(teacher, csrf, demo["id"], demo["version"], action={"op": "close"})
+    assert closed.status_code == 200
+    assert closed.get_json()["data"]["active"] is False
+    assert teacher.get(f"{API}/demo-sessions/{demo['id']}").status_code == 200
