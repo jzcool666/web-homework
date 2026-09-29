@@ -28,6 +28,9 @@
 | 2026-09-29 | SPEC-002评审修正 | 停用班级禁止新的考勤动作；已离班学生不能凭旧名单快照提交新签到或请假 | SPEC-002、api_attendance.py 与回归测试；历史读取及结算仍可用 |
 | 2026-09-29 | SPEC-005实现 | 实现课程知识与教学资源：新增迁移 `0003_spec005`（chapters、knowledge_points、knowledge_edges、resources、resource_versions、favorites、learning_progress、resource_events）、接口 E011—E022、`seed-content` 命令（六单元 12 知识点、15 条先修关系、一份外链资料）及教师内容管理、学生学习与收藏页面 | 字段、路径、状态码按 APIC/DBD 已定义内容实现，无契约变更；先修关系写入前做无环校验，图谱读取接口仍属 SPEC-016 |
 | 2026-09-29 | SPEC-005实现 | Markdown 渲染由前端 `src/utils/markdown.js` 自行实现：整段先转义、只生成白名单标签，链接仅放行 http/https；未引入新的前端或后端依赖 | 新增前端模块与单测；ADR-008 已要求禁用原始 HTML 并净化输出 |
+| 2026-09-29 | SPEC-014实现 | 实现实验学习统计：E058 的 JSON 与 CSV、教师「实验统计」页面；只读 `experiment_attempts`/`experiments`/`enrollments`，无需新字段，因此未新增迁移 | APIC 路径、字段与状态码按已定义内容实现；新增后端 12 条、前端 13 条用例；执行结果见 SPEC-014 执行报告 |
+| 2026-09-29 | SPEC-014实现 | SPEC-014 第 4 节补充作用域口径：`published_count` 与 `experiments[]` 同为「已发布实验」作用域且条数一致；学生未入班或已退班不计入任何班级统计 | docs/specs/SPEC-014.md 业务规则第 5、6 条；不改 APIC 字段名或类型 |
+| 2026-09-29 | SPEC-014实现 | 导航新增教师「实验统计」入口；导航单测补上该路由与高亮断言 | frontend/src/navigation、frontend/src/router 及其测试；SPEC-013 教师端计划入口保持原样 |
 | 2026-09-29 | SPEC-005实现 | `testing` 配置的上传目录改到系统临时目录；测试不再写入仓库内 `instance/uploads` | app/config.py；与 SPEC-000「测试不触碰仓库内 instance/」的隔离原则一致 |
 | 2026-09-29 | SPEC-005实现 | 迁移测试由按步数回退（`-1`）改为显式回退到 `0001_baseline` | tests/backend/test_migrations.py；迁移链随各模块前移后，按步数回退不再表达原意 |
 | 2026-09-29 | SPEC-005评审修正 | 未入班学生不能借个人写接口记录课程数据；外链要求有效主机名；上传备注先校验再落盘 | SPEC-005、api_content.py 与回归测试；不改变 E011—E022 路径字段 |
