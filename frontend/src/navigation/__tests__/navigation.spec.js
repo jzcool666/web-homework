@@ -14,6 +14,11 @@ const routes = [
   { path: '/profile', name: 'profile', component: { template: '<div />' } },
   { path: '/teacher/content', name: 'teacher-content', component: { template: '<div />' } },
   { path: '/teacher/attendance', name: 'teacher-attendance', component: { template: '<div />' } },
+  {
+    path: '/teacher/experiment-stats',
+    name: 'teacher-experiment-stats',
+    component: { template: '<div />' },
+  },
   { path: '/teacher/classroom', name: 'teacher-classroom', component: { template: '<div />' } },
   { path: '/teacher/demos/1', name: 'teacher-demo', component: { template: '<div />' } },
   { path: '/teacher/demos/1/present', name: 'teacher-demo-present', component: { template: '<div />' } },
@@ -136,5 +141,18 @@ describe('role navigation and shell', () => {
       expect(wrapper.find('a.nav-item--active').text()).toContain('实验中心')
       wrapper.unmount()
     }
+  })
+
+  it('实验统计入口已接通并在统计页高亮', async () => {
+    expect(
+      navigationFor('teacher').find((item) => item.route === 'teacher-experiment-stats'),
+    ).toBeTruthy()
+    expect(
+      navigationFor('teacher').find((item) => item.label === '实验统计').planned,
+    ).toBeUndefined()
+
+    const { wrapper } = await setup('teacher', '/teacher/experiment-stats')
+    expect(wrapper.find('a.nav-item--active').text()).toContain('实验统计')
+    wrapper.unmount()
   })
 })
