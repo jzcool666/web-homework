@@ -60,10 +60,9 @@ def test_startup_does_not_create_or_clear_tables(tmp_path: Path) -> None:
 
 
 def test_migration_chain_downgrade_and_upgrade_on_disposable_database(tmp_path: Path) -> None:
-    """在一次性库验证整条迁移链可回退到 base 并可重新升级，不触碰应用数据。
+    """在一次性库验证业务迁移可回退到工程基线并重新升级。
 
-    迁移是单一版本链，head 随各模块新增迁移前移，因此这里回退到 base 而不是 -1：
-    只退一步只会撤掉最后新增的模块，无法说明 SPEC-001 的表能干净地回退。
+    head 随模块前移，所以显式回退到 0001_baseline。
     """
     app = make_app(tmp_path / "migration-roundtrip.sqlite")
     try:
@@ -80,7 +79,7 @@ def test_migration_chain_downgrade_and_upgrade_on_disposable_database(tmp_path: 
 
         assert {"users", "sessions", "classes", "enrollments"} <= table_names()
 
-        downgrade(app, "base")
+        downgrade(app, "0001_baseline")
         assert not {"users", "sessions", "classes", "enrollments"} & table_names()
 
         upgrade(app)

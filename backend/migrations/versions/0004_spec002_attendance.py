@@ -1,7 +1,7 @@
 """SPEC-002 考勤表：attendance_tasks、attendance_records、leave_requests。
 
-Revision ID: 0003_spec002
-Revises: 0002_spec001
+Revision ID: 0004_spec002
+Revises: 0003_spec005
 Create Date: 2026-09-29
 
 字段与约束见 DBD 第 4 节。要点：
@@ -16,8 +16,8 @@ from __future__ import annotations
 import sqlalchemy as sa
 from alembic import op
 
-revision = "0003_spec002"
-down_revision = "0002_spec001"
+revision = "0004_spec002"
+down_revision = "0003_spec005"
 branch_labels = None
 depends_on = None
 
