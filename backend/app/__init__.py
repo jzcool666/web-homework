@@ -15,6 +15,7 @@ from .api_assessment import bp as assessment_bp
 from .api_attendance import bp as attendance_bp
 from .api_auth import bp as auth_bp
 from .api_content import bp as content_bp
+from .api_experiment import bp as experiment_bp
 from .auth import register_session_hooks
 from .cli import register_cli
 from .config import REPO_ROOT, load_config, sqlite_file_path
@@ -22,6 +23,7 @@ from .db import create_db_engine, make_session_factory
 from .errors import register_error_handlers
 from .health import bp as health_bp
 from .seed_content import register_content_cli
+from .seed_experiments import register_experiment_cli
 from .store import close_db_session
 
 __version__ = "0.1.0"
@@ -73,10 +75,12 @@ def create_app(config_name: str | None = None, overrides: dict | None = None) ->
     app.register_blueprint(attendance_bp, url_prefix=API_PREFIX)
     app.register_blueprint(assessment_bp, url_prefix=API_PREFIX)
     app.register_blueprint(content_bp, url_prefix=API_PREFIX)
+    app.register_blueprint(experiment_bp, url_prefix=API_PREFIX)
 
     register_error_handlers(app)
     register_cli(app)
     register_content_cli(app)
+    register_experiment_cli(app)
     register_session_hooks(app)
     app.teardown_appcontext(close_db_session)
     _register_frontend(app)

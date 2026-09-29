@@ -31,10 +31,18 @@
 | 2026-09-29 | SPEC-005实现 | `testing` 配置的上传目录改到系统临时目录；测试不再写入仓库内 `instance/uploads` | app/config.py；与 SPEC-000「测试不触碰仓库内 instance/」的隔离原则一致 |
 | 2026-09-29 | SPEC-005实现 | 迁移测试由按步数回退（`-1`）改为显式回退到 `0001_baseline` | tests/backend/test_migrations.py；迁移链随各模块前移后，按步数回退不再表达原意 |
 | 2026-09-29 | SPEC-005评审修正 | 未入班学生不能借个人写接口记录课程数据；外链要求有效主机名；上传备注先校验再落盘 | SPEC-005、api_content.py 与回归测试；不改变 E011—E022 路径字段 |
-| 2026-09-29 | SPEC-009实现 | 实现题库练习与错题：新增迁移 `0005_spec009`（questions/question_knowledge/assessments/assessment_items/assessment_roster/submissions/submission_answers）、接口 E035—E047、教师「题库」与学生「习题训练/作答/结果/错题本」页面 | 字段与路径按 APIC/DBD 已定义内容实现，无路径或状态码变更；发布时在单个事务里冻结题目快照、名单与总分，判分只读快照；执行结果见 SPEC-009 执行报告 |
+| 2026-09-29 | SPEC-009实现 | 实现题库练习与错题：新增迁移 `0006_spec009`（questions/question_knowledge/assessments/assessment_items/assessment_roster/submissions/submission_answers）、接口 E035—E047、教师「题库」与学生「习题训练/作答/结果/错题本」页面 | 字段与路径按 APIC/DBD 已定义内容实现，无路径或状态码变更；发布时在单个事务里冻结题目快照、名单与总分，判分只读快照；执行结果见 SPEC-009 执行报告 |
 | 2026-09-29 | SPEC-009实现 | 明确反馈投影：`feedback_released=false` 时学生的 `Submission.score` 同样返回 null，不只是 Result.score | APIC 第 5 节。分数本身也是对错信息，未到公开时机提前返回等于绕过 E041；任课教师读本班提交不受该时机限制。属投影口径明确，未增删字段 |
 | 2026-09-29 | SPEC-009实现 | 回填 Issue #6 的跨模块补测：#4 T-001-02「教师猜测其他班学生答案 ID 同样拒绝」已用本模块的 `submissions` 对象实测，跨班读结果返回 404 | SPEC-001 执行报告第 4 节与 SPEC-009 执行报告；无代码变更 |
 | 2026-09-29 | SPEC-009评审修正 | 未入班学生不能创建自练；离班或停用班级不能产生新的测评作答；重复答案条目返回422，不按列表顺序静默覆盖 | SPEC-009、APIC 第5节、api_assessment.py 与回归测试；保留历史读取，不改迁移或接口路径 |
+| 2026-09-29 | SPEC-012实现 | 实现课堂演示与时序仿真：新增迁移 `0005_spec012`（experiments、demo_sessions）、接口 E048/E049/E052—E054、`seed-experiments` 命令（D、JK、模 6 计数器、4 位移位寄存器四个预置实验）及教师课堂/控制台/投屏与学生只读页面 | 字段与路径按 APIC/DBD 已定义内容实现；实验预测提交 E050/E051 属 SPEC-013，本模块未实现 |
+| 2026-09-29 | SPEC-012实现 | Demo 响应增加只读字段 `experiment`：创建演示时固定的实验快照（id/title/simulator_type/config/steps_md） | APIC 第 2 节 Demo 未含模型类型，学生端无法据此渲染；该字段同时避免依赖可能被撤回为草稿的实验定义 |
+| 2026-09-29 | SPEC-012实现 | 固定 `history` 状态行口径：`seq/op/clock/inputs/q_before/q/rising/step_no` | APIC 第 2 节只写「状态行[]」；SPEC-012 第 4 节第 5 条要求记录时钟、输入、旧 Q、新 Q 与是否有效沿 |
+| 2026-09-29 | SPEC-012实现 | 演示初始 `reveal_next=false`：预测先隐藏，教师显式揭示后才返回 next_q | SPEC-012 第 4 节第 5 条与页面设计「下一状态 [待揭示]」 |
+| 2026-09-29 | SPEC-012实现 | `app/auth.py` 新增 `require_course_access()`，实验与演示沿用与 SPEC-005 相同的课程读取门槛 | 两处以外的模块将重复实现同一选课校验；该函数为纯新增，未改变既有接口行为 |
+| 2026-09-29 | SPEC-012实现 | experiments 不存期望输出；预置实验只提供配置与输入序列（每个模型不少于 4 个有效上升沿） | APIC 第 2 节 Experiment「无期望输出」；期望状态由 SPEC-013 按同一套仿真规则计算 |
+| 2026-09-29 | SPEC-012评审修正 | 演示动作按 `expected_version` 原子条件更新，防止并发旧版本动作互相覆盖；切换实验类型时重验配置和序列；停用班级禁止新演示与控制动作 | SPEC-012、api_experiment.py 与三条回归测试；旧演示可关闭和读取，不改接口路径或迁移 |
+| 2026-09-29 | SPEC-009集成 | SPEC-009 迁移改为 `0006_spec009`，接续已合入的 `0005_spec012`，保持单一 Alembic head | 两个并行模块原先都从 `0004_spec002` 分叉；后合入方顺序调整，不修改已部署的早期迁移 |
 
 当前没有发布版本、部署记录或实际回滚记录。以下为后续实现必须提供的流程。
 

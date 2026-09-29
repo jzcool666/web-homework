@@ -11,7 +11,7 @@ export const navigation = {
     { label: '学习首页', icon: 'home', route: 'home' },
     { label: '课程学习与收藏', icon: 'book', route: 'student-learning', activeRoutes: ['student-learning', 'student-knowledge'] },
     { label: '考勤与请假', icon: 'calendar', route: 'student-classroom' },
-    { label: '我的课堂', icon: 'clock', planned: 'SPEC-012' },
+    { label: '我的课堂', icon: 'clock', route: 'student-demos', activeRoutes: ['student-demos', 'student-demo'] },
     {
       label: '习题训练',
       icon: 'check',
@@ -25,7 +25,7 @@ export const navigation = {
   ],
   teacher: [
     { label: '教学首页', icon: 'home', route: 'home' },
-    { label: '课堂', icon: 'clock', planned: 'SPEC-012' },
+    { label: '课堂', icon: 'clock', route: 'teacher-classroom', activeRoutes: ['teacher-classroom', 'teacher-demo', 'teacher-demo-present'] },
     { label: '备课', icon: 'book', planned: 'SPEC-008' },
     { label: '课程内容', icon: 'layers', route: 'teacher-content' },
     { label: '题库', icon: 'check', route: 'teacher-questions' },
