@@ -10,11 +10,15 @@ from pathlib import Path
 
 from flask import Flask, abort, send_from_directory
 
+from .api_admin import bp as admin_bp
+from .api_auth import bp as auth_bp
+from .auth import register_session_hooks
 from .cli import register_cli
 from .config import REPO_ROOT, load_config, sqlite_file_path
 from .db import create_db_engine, make_session_factory
 from .errors import register_error_handlers
 from .health import bp as health_bp
+from .store import close_db_session
 
 __version__ = "0.1.0"
 
@@ -60,9 +64,13 @@ def create_app(config_name: str | None = None, overrides: dict | None = None) ->
     app.extensions["db_session"] = make_session_factory(engine)
 
     app.register_blueprint(health_bp, url_prefix=API_PREFIX)
+    app.register_blueprint(auth_bp, url_prefix=API_PREFIX)
+    app.register_blueprint(admin_bp, url_prefix=API_PREFIX)
 
     register_error_handlers(app)
     register_cli(app)
+    register_session_hooks(app)
+    app.teardown_appcontext(close_db_session)
     _register_frontend(app)
 
     return app

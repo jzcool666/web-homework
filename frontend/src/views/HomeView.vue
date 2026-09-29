@@ -14,10 +14,10 @@ onMounted(() => {
 <template>
   <main class="home">
     <h1>学海通数字逻辑课程学习系统</h1>
-    <p class="subtitle">设计基线 1.0 · 工程骨架（SPEC-000）</p>
+    <p class="subtitle">设计基线 1.0 · 账号与班级（SPEC-001）</p>
     <p class="note">
-      本页只用于验证前后端连通与部署同源。课堂演示、随堂测、实验等内容由后续
-      Spec 交付，当前版本不含任何业务功能。
+      当前已实现账号、角色与班级权限：学生注册、三角色登录、个人资料和管理员班级管理。
+      课堂演示、随堂测、实验等内容由后续 Spec 交付。
     </p>
 
     <section class="panel">

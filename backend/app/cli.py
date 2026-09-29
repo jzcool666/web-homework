@@ -46,3 +46,46 @@ def register_cli(app: Flask) -> None:
     def current() -> None:
         """显示当前数据库版本。"""
         alembic_command.current(build_alembic_config(app), verbose=True)
+
+    @app.cli.command("init-admin")
+    @click.option("--login-name", required=True, help="管理员登录名")
+    @click.option("--password", required=True, help="管理员口令（10—128 字符）")
+    @click.option("--display-name", default="系统管理员", show_default=True)
+    def init_admin(login_name: str, password: str, display_name: str) -> None:
+        """创建初始管理员账号（SPEC-001）。
+
+        公开注册只允许学生，因此首个管理员必须由本命令在服务端建立。
+        需先执行 `flask db upgrade`，否则业务表不存在。
+        """
+        # 延迟导入，避免 CLI 模块在应用工厂导入期就拉起模型
+        from sqlalchemy import select
+
+        from .models import User
+        from .security import hash_password
+        from .store import db_session
+        from .validation import LOGIN_NAME_RE
+
+        name = login_name.strip()
+        if not LOGIN_NAME_RE.match(name):
+            raise click.ClickException("登录名需为 4—32 位字母、数字或下划线")
+        if not 10 <= len(password) <= 128:
+            raise click.ClickException("口令长度需为 10—128 个字符")
+        label = display_name.strip() or "系统管理员"
+        if len(label) > 50:
+            raise click.ClickException("显示名不超过 50 个字符")
+
+        session = db_session()
+        if session.scalar(select(User.id).where(User.login_name == name)):
+            raise click.ClickException(f"登录名 {name} 已存在，未创建")
+
+        user = User(
+            login_name=name,
+            student_no=None,
+            display_name=label,
+            password_hash=hash_password(password),
+            role="admin",
+            active=1,
+        )
+        session.add(user)
+        session.commit()
+        click.echo(f"已创建管理员：id={user.id} login_name={user.login_name}")
