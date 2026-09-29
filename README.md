@@ -37,7 +37,7 @@ frontend/                 前端工程（SPEC-000 已建立骨架）
 backend/app/              后端工程（SPEC-000 已建立骨架）
 backend/migrations/       数据库迁移（SPEC-000 已建立，业务表由各模块追加）
 tests/backend/            接口和领域测试（SPEC-000 已建立）
-tests/frontend/           仿真逻辑测试，待创建（SPEC-012/013）
+frontend/src/**/__tests__/ 前端组件与仿真逻辑测试（SPEC-012 已实现，SPEC-013 待开发）
 tests/e2e/                页面流程测试，待创建
 scripts/                  初始化及备份脚本，待创建
 docs/                     设计、规格、测试与检查材料
