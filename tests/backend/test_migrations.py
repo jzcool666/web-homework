@@ -60,7 +60,11 @@ def test_startup_does_not_create_or_clear_tables(tmp_path: Path) -> None:
 
 
 def test_spec001_downgrade_and_upgrade_on_disposable_database(tmp_path: Path) -> None:
-    """在一次性库验证 0002 可回退并可重新升级，不触碰应用数据。"""
+    """在一次性库验证可回退到工程基线并可重新升级，不触碰应用数据。
+
+    这里显式回退到 0001_baseline，而不是用 `-1`：后续模块会不断追加迁移，
+    按步数回退会随 head 前移而失去意义。
+    """
     app = make_app(tmp_path / "migration-roundtrip.sqlite")
     try:
         upgrade(app)
@@ -71,7 +75,7 @@ def test_spec001_downgrade_and_upgrade_on_disposable_database(tmp_path: Path) ->
             ).scalars())
         assert {"users", "sessions", "classes", "enrollments"} <= names
 
-        downgrade(app)
+        downgrade(app, "0001_baseline")
         with engine.connect() as connection:
             names = set(connection.exec_driver_sql(
                 "SELECT name FROM sqlite_master WHERE type='table'"
