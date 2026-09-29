@@ -59,30 +59,31 @@ def test_startup_does_not_create_or_clear_tables(tmp_path: Path) -> None:
     app.extensions["db_engine"].dispose()
 
 
-def test_spec001_downgrade_and_upgrade_on_disposable_database(tmp_path: Path) -> None:
-    """在一次性库验证 0002 可回退并可重新升级，不触碰应用数据。"""
+def test_migration_chain_downgrade_and_upgrade_on_disposable_database(tmp_path: Path) -> None:
+    """在一次性库验证整条迁移链可回退到 base 并可重新升级，不触碰应用数据。
+
+    迁移是单一版本链，head 随各模块新增迁移前移，因此这里回退到 base 而不是 -1：
+    只退一步只会撤掉最后新增的模块，无法说明 SPEC-001 的表能干净地回退。
+    """
     app = make_app(tmp_path / "migration-roundtrip.sqlite")
     try:
         upgrade(app)
         engine = app.extensions["db_engine"]
-        with engine.connect() as connection:
-            names = set(connection.exec_driver_sql(
-                "SELECT name FROM sqlite_master WHERE type='table'"
-            ).scalars())
-        assert {"users", "sessions", "classes", "enrollments"} <= names
 
-        downgrade(app)
-        with engine.connect() as connection:
-            names = set(connection.exec_driver_sql(
-                "SELECT name FROM sqlite_master WHERE type='table'"
-            ).scalars())
-        assert not {"users", "sessions", "classes", "enrollments"} & names
+        def table_names() -> set[str]:
+            with engine.connect() as connection:
+                return set(
+                    connection.exec_driver_sql(
+                        "SELECT name FROM sqlite_master WHERE type='table'"
+                    ).scalars()
+                )
+
+        assert {"users", "sessions", "classes", "enrollments"} <= table_names()
+
+        downgrade(app, "base")
+        assert not {"users", "sessions", "classes", "enrollments"} & table_names()
 
         upgrade(app)
-        with engine.connect() as connection:
-            names = set(connection.exec_driver_sql(
-                "SELECT name FROM sqlite_master WHERE type='table'"
-            ).scalars())
-        assert {"users", "sessions", "classes", "enrollments"} <= names
+        assert {"users", "sessions", "classes", "enrollments"} <= table_names()
     finally:
         app.extensions["db_engine"].dispose()

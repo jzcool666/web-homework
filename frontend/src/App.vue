@@ -7,6 +7,8 @@ import { useAuthStore } from '@/stores/auth'
 const auth = useAuthStore()
 const router = useRouter()
 const isAdmin = computed(() => auth.hasRole('admin'))
+const isTeacher = computed(() => auth.hasRole('teacher'))
+const isStudent = computed(() => auth.hasRole('student'))
 
 async function signOut() {
   await auth.logout()
@@ -20,6 +22,8 @@ async function signOut() {
     <nav>
       <template v-if="auth.isAuthenticated()">
         <RouterLink :to="{ name: 'profile' }">{{ auth.user.display_name }}</RouterLink>
+        <RouterLink v-if="isTeacher" :to="{ name: 'teacher-attendance' }">考勤与请假</RouterLink>
+        <RouterLink v-if="isStudent" :to="{ name: 'student-classroom' }">我的课堂</RouterLink>
         <template v-if="isAdmin">
           <RouterLink :to="{ name: 'admin-users' }">账号管理</RouterLink>
           <RouterLink :to="{ name: 'admin-classes' }">班级管理</RouterLink>

@@ -24,6 +24,18 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: '/teacher/attendance',
+    name: 'teacher-attendance',
+    component: () => import('@/views/TeacherAttendanceView.vue'),
+    meta: { requiresAuth: true, roles: ['teacher'] },
+  },
+  {
+    path: '/student/classroom',
+    name: 'student-classroom',
+    component: () => import('@/views/StudentClassroomView.vue'),
+    meta: { requiresAuth: true, roles: ['student'] },
+  },
+  {
     path: '/admin/users',
     name: 'admin-users',
     component: () => import('@/views/AdminUsersView.vue'),
