@@ -16,7 +16,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.exc import SQLAlchemyError
 
 from .errors import ApiError, meta
-from .models import AuthSession, User, now_utc
+from .models import AuthSession, Enrollment, User, now_utc
 from .security import hash_token
 from .store import db_session
 
@@ -131,6 +131,28 @@ def roles_required(*roles: str):
         return wrapper
 
     return decorator
+
+
+def require_course_access():
+    """课程公开内容的读取门槛（APIC 第 3 节末段）。
+
+    教师/管理员直接通过；学生必须有有效选课，否则只应看到 /me 与入班提示。
+    新注册未入班学生读课程集合返回 403，而不是空列表——空列表会把「没权限」
+    显示成「课程没有内容」。
+    """
+    user = current_user()
+    if user is None:
+        raise ApiError("UNAUTHENTICATED", "请先登录")
+    if user.role in ("teacher", "admin"):
+        return user
+    enrolled = db_session().scalar(
+        select(Enrollment.student_id)
+        .where(Enrollment.student_id == user.id, Enrollment.active == 1)
+        .limit(1)
+    )
+    if enrolled is None:
+        raise ApiError("FORBIDDEN", "尚未分配班级，暂不能查看课程内容")
+    return user
 
 
 def invalidate_user_sessions(user_id: int) -> None:

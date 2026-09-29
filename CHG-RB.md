@@ -31,6 +31,12 @@
 | 2026-09-29 | SPEC-005实现 | `testing` 配置的上传目录改到系统临时目录；测试不再写入仓库内 `instance/uploads` | app/config.py；与 SPEC-000「测试不触碰仓库内 instance/」的隔离原则一致 |
 | 2026-09-29 | SPEC-005实现 | 迁移测试由按步数回退（`-1`）改为显式回退到 `0001_baseline` | tests/backend/test_migrations.py；迁移链随各模块前移后，按步数回退不再表达原意 |
 | 2026-09-29 | SPEC-005评审修正 | 未入班学生不能借个人写接口记录课程数据；外链要求有效主机名；上传备注先校验再落盘 | SPEC-005、api_content.py 与回归测试；不改变 E011—E022 路径字段 |
+| 2026-09-29 | SPEC-012实现 | 实现课堂演示与时序仿真：新增迁移 `0005_spec012`（experiments、demo_sessions）、接口 E048/E049/E052—E054、`seed-experiments` 命令（D、JK、模 6 计数器、4 位移位寄存器四个预置实验）及教师课堂/控制台/投屏与学生只读页面 | 字段与路径按 APIC/DBD 已定义内容实现；实验预测提交 E050/E051 属 SPEC-013，本模块未实现 |
+| 2026-09-29 | SPEC-012实现 | Demo 响应增加只读字段 `experiment`：创建演示时固定的实验快照（id/title/simulator_type/config/steps_md） | APIC 第 2 节 Demo 未含模型类型，学生端无法据此渲染；该字段同时避免依赖可能被撤回为草稿的实验定义 |
+| 2026-09-29 | SPEC-012实现 | 固定 `history` 状态行口径：`seq/op/clock/inputs/q_before/q/rising/step_no` | APIC 第 2 节只写「状态行[]」；SPEC-012 第 4 节第 5 条要求记录时钟、输入、旧 Q、新 Q 与是否有效沿 |
+| 2026-09-29 | SPEC-012实现 | 演示初始 `reveal_next=false`：预测先隐藏，教师显式揭示后才返回 next_q | SPEC-012 第 4 节第 5 条与页面设计「下一状态 [待揭示]」 |
+| 2026-09-29 | SPEC-012实现 | `app/auth.py` 新增 `require_course_access()`，实验与演示沿用与 SPEC-005 相同的课程读取门槛 | 两处以外的模块将重复实现同一选课校验；该函数为纯新增，未改变既有接口行为 |
+| 2026-09-29 | SPEC-012实现 | experiments 不存期望输出；预置实验只提供配置与输入序列（每个模型不少于 4 个有效上升沿） | APIC 第 2 节 Experiment「无期望输出」；期望状态由 SPEC-013 按同一套仿真规则计算 |
 
 当前没有发布版本、部署记录或实际回滚记录。以下为后续实现必须提供的流程。
 

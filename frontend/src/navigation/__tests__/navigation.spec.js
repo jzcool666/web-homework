@@ -14,6 +14,11 @@ const routes = [
   { path: '/profile', name: 'profile', component: { template: '<div />' } },
   { path: '/teacher/content', name: 'teacher-content', component: { template: '<div />' } },
   { path: '/teacher/attendance', name: 'teacher-attendance', component: { template: '<div />' } },
+  { path: '/teacher/classroom', name: 'teacher-classroom', component: { template: '<div />' } },
+  { path: '/teacher/demos/1', name: 'teacher-demo', component: { template: '<div />' } },
+  { path: '/teacher/demos/1/present', name: 'teacher-demo-present', component: { template: '<div />' } },
+  { path: '/student/demos', name: 'student-demos', component: { template: '<div />' } },
+  { path: '/student/demos/1', name: 'student-demo', component: { template: '<div />' } },
   { path: '/student/learning', name: 'student-learning', component: { template: '<div />' } },
   { path: '/student/knowledge/1', name: 'student-knowledge', component: { template: '<div />' } },
   { path: '/student/classroom', name: 'student-classroom', component: { template: '<div />' } },
@@ -71,5 +76,20 @@ describe('role navigation and shell', () => {
     expect(navigationFor('teacher').find((item) => item.route === 'teacher-content')).toBeTruthy()
     expect(navigationFor('teacher').find((item) => item.route === 'teacher-attendance')).toBeTruthy()
     expect(navigationFor('admin').find((item) => item.route === 'teacher-content')).toBeTruthy()
+  })
+
+  it('课堂演示入口已接通，并在演示页高亮', async () => {
+    expect(navigationFor('student').find((item) => item.route === 'student-demos')).toBeTruthy()
+    expect(navigationFor('student').find((item) => item.label === '我的课堂').planned).toBeUndefined()
+    expect(navigationFor('teacher').find((item) => item.route === 'teacher-classroom')).toBeTruthy()
+    expect(navigationFor('teacher').find((item) => item.label === '课堂').planned).toBeUndefined()
+
+    const { wrapper } = await setup('student', '/student/demos/1')
+    expect(wrapper.find('a.nav-item--active').text()).toContain('我的课堂')
+    wrapper.unmount()
+
+    const teacher = await setup('teacher', '/teacher/demos/1/present')
+    expect(teacher.wrapper.find('a.nav-item--active').text()).toContain('课堂')
+    teacher.wrapper.unmount()
   })
 })

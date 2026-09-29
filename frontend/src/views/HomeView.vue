@@ -108,7 +108,7 @@ onMounted(() => {
       <SectionCard title="学习与教学模块">
         <div class="module-list">
           <div><AppIcon name="book" /><span>课程知识与教学资源</span><StatusBadge tone="success">已开放</StatusBadge></div>
-          <div><AppIcon name="clock" /><span>课堂演示与时序仿真</span><StatusBadge>待开放</StatusBadge></div>
+          <div><AppIcon name="clock" /><span>课堂演示与时序仿真</span><StatusBadge tone="success">已开放</StatusBadge></div>
           <div><AppIcon name="flask" /><span>实验辅助与验证</span><StatusBadge>待开放</StatusBadge></div>
         </div>
       </SectionCard>
