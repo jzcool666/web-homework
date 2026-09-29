@@ -25,6 +25,7 @@ from .db import create_db_engine, make_session_factory
 from .errors import register_error_handlers
 from .health import bp as health_bp
 from .api_lesson import bp as lesson_bp
+from .api_learning import bp as learning_bp
 from .seed_content import register_content_cli
 from .seed_experiments import register_experiment_cli
 from .store import close_db_session
@@ -80,6 +81,7 @@ def create_app(config_name: str | None = None, overrides: dict | None = None) ->
     app.register_blueprint(content_bp, url_prefix=API_PREFIX)
     app.register_blueprint(experiment_bp, url_prefix=API_PREFIX)
     app.register_blueprint(lesson_bp, url_prefix=API_PREFIX)
+    app.register_blueprint(learning_bp, url_prefix=API_PREFIX)
     app.register_blueprint(attempt_bp, url_prefix=API_PREFIX)
     app.register_blueprint(experiment_stats_bp, url_prefix=API_PREFIX)
 
