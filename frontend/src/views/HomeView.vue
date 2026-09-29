@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 
 import HealthBadge from '@/components/HealthBadge.vue'
+import StudentPreviewTodo from '@/components/StudentPreviewTodo.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import SectionCard from '@/components/ui/SectionCard.vue'
@@ -91,6 +92,8 @@ onMounted(() => {
           </div>
         </template>
       </SectionCard>
+
+      <StudentPreviewTodo v-if="isStudent" />
 
       <SectionCard title="时序逻辑概览">
         <div class="concept">
