@@ -39,6 +39,9 @@
 | 2026-09-29 | SPEC-012实现 | Demo 响应增加只读字段 `experiment`：创建演示时固定的实验快照（id/title/simulator_type/config/steps_md） | APIC 第 2 节 Demo 未含模型类型，学生端无法据此渲染；该字段同时避免依赖可能被撤回为草稿的实验定义 |
 | 2026-09-29 | SPEC-012实现 | 固定 `history` 状态行口径：`seq/op/clock/inputs/q_before/q/rising/step_no` | APIC 第 2 节只写「状态行[]」；SPEC-012 第 4 节第 5 条要求记录时钟、输入、旧 Q、新 Q 与是否有效沿 |
 | 2026-09-29 | SPEC-012实现 | 演示初始 `reveal_next=false`：预测先隐藏，教师显式揭示后才返回 next_q | SPEC-012 第 4 节第 5 条与页面设计「下一状态 [待揭示]」 |
+| 2026-09-29 | SPEC-010实现 | 实现随堂测与测评统计：教师测评页面（建草稿/发布/进度/提前结束/公开反馈/讲评/投屏）与学生作答页的短延迟自动保存、保存确认后提交、刷新恢复与断线提示；新增接口 E057 `GET /analytics/assessment`（含 CSV 导出） | **未新增迁移**，复用 SPEC-009 的 questions/assessments/assessment_items/assessment_roster/submissions/submission_answers，head 仍为 `0006_spec009`；E037—E046 沿用 SPEC-009 实现，未改路径或状态码 |
+| 2026-09-29 | SPEC-010实现 | AssessmentStats 增加 `blank_count`（白卷）与 `unanswered_count`（漏答）两个只读字段，并固定 `option_counts` 形状、`score_buckets.range` 取值与 E057 的 CSV 列顺序 | APIC 第 7 节。SPEC-010 第 4.5 条要求白卷与漏答单列核算、选项分布可对账，原模型的两个字段无法表达 |
+| 2026-09-29 | SPEC-010实现 | 截止最终化的 `submitted_at` 取测评有效截止时间：自然截止取 `ends_at`，教师提前结束时把 `ends_at` 收缩到实际结束时间 | APIC 第 8 节与 SPEC-010 第 4.7 条。避免把访问触发的延迟处理时间算作提交时间，也不需要新增关闭时间列；`ends_at` 始终等于有效截止时间 |
 | 2026-09-29 | SPEC-012实现 | `app/auth.py` 新增 `require_course_access()`，实验与演示沿用与 SPEC-005 相同的课程读取门槛 | 两处以外的模块将重复实现同一选课校验；该函数为纯新增，未改变既有接口行为 |
 | 2026-09-29 | SPEC-012实现 | experiments 不存期望输出；预置实验只提供配置与输入序列（每个模型不少于 4 个有效上升沿） | APIC 第 2 节 Experiment「无期望输出」；期望状态由 SPEC-013 按同一套仿真规则计算 |
 | 2026-09-29 | SPEC-012评审修正 | 演示动作按 `expected_version` 原子条件更新，防止并发旧版本动作互相覆盖；切换实验类型时重验配置和序列；停用班级禁止新演示与控制动作 | SPEC-012、api_experiment.py 与三条回归测试；旧演示可关闭和读取，不改接口路径或迁移 |

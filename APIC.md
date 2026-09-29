@@ -177,7 +177,7 @@ AttendanceRecord 与 Leave 的 `student_display_name`、`student_no` 为只读�
 
 - AttendanceStats：`window, settled_tasks, counts:{present,late,leave,absent}, attendance_rate:number/null, students:[{student_id,counts,attendance_rate}], correlation:{coefficient:number/null,n:int,reason:string/null}`。相关仅用同窗口出勤和百分制平均测评分数均存在的学生，n≥5且两列非恒定才计算 Pearson，说明不代表因果。
 - LearningStats：`window, published_knowledge_count, students:[{student_id,completed_count,completion_rate}], resources:[{resource_id,unique_students,dedup_events}]`。进度是 to 时点前已完成且当前仍完成的记录快照近似，不声称精确历史重建；from只过滤资源事件，响应给出 `progress_basis:"current_completed_before_to"`。资源事件按UTC整日计，from/to须为UTC日边界，非法非整日范围422；页面将日期选择转换为对应UTC日并标注口径。
-- AssessmentStats：`window, assessments:[{id,roster_count,submitted_count,submission_rate,mean_percent}], items:[{item_id,answered_count,correct_count,correct_rate,option_counts}], knowledge:[{knowledge_id,first_attempt_count,first_correct_count,first_accuracy}], score_buckets:[{range,count}]`。空答案算题目机会但各选项不增计。
+- AssessmentStats：`window:{from,to}, assessments:[{id,roster_count,submitted_count,blank_count,submission_rate,mean_percent}], items:[{item_id,answered_count,unanswered_count,correct_count,correct_rate,option_counts}], knowledge:[{knowledge_id,first_attempt_count,first_correct_count,first_accuracy}], score_buckets:[{range,count}]`。空答案算题目机会（计入 answered_count 分母）但各选项不增计；漏答数单列在 unanswered_count，白卷单列在 blank_count，便于与选项分布对账。`option_counts` 是 `{选项key: 被选次数}`，一次选中只计一次。`score_buckets.range` 取 `0-<60`、`60-<70`、`70-<80`、`80-<90`、`90-100`。计入窗口的班级测评是起止区间与 `[from,to)` 有交集的测评；提交率分母是发布时固定的名单，平均分与分数段只含已提交（白卷按 0 分计入）。返回值只有聚合值，不含学生身份。
 - ExperimentStats：`window,published_count,participants,passed_students,pass_rate,attempt_count,experiments:[{experiment_id,participants,passed_students,attempt_count,pass_rate}]`。总通过人数指至少通过一个实验；单实验口径分别给出，不能误写全部实验均通过。
 - Warning：`student_id,score:number/null,level:insufficient/low/medium/high,factors:{attendance?,progress?,accuracy?},available_factors,sample_counts,cluster_label:int/null,reasons:string[],generated_at`。
 - GraphNode：`knowledge_id,title,chapter_id,depth:int,dimension:0/1`；dimension 表示是否根节点集合的成员，供前端同层对齐。
@@ -185,12 +185,12 @@ AttendanceRecord 与 Leave 的 `student_display_name`、`student_no` 为只读�
 - KnowledgeGraph：`nodes:[GraphNode],edges:[GraphEdge],has_cycle:boolean,truncated:boolean`；truncated 为节点超上限被裁剪时为 true。
 - RecognitionTask：`id,class_id,kind:state_table,status:done/failed,created_at,result:{rows:int,cols:int,states:[{row:int,value:int}],transitions:[{from:int,to:int}],confidence:number,requires_review:true}或null,error:{code,message,details}或null`；同步处理完成后才返回任务，status=failed 时 result 为 null 且 error 给出格式原因。
 
-CSV 返回 UTF-8 BOM 文件，包含相同过滤条件的可展开明细，不包含密码、会话或答案；对以 =、+、-、@ 开头的用户输入文本加安全前缀。JSON 字段名和 CSV 列说明在实现测试中固定。
+CSV 返回 UTF-8 BOM 文件，包含相同过滤条件的可展开明细，不包含密码、会话或答案；对以 =、+、-、@ 开头的用户输入文本加安全前缀。JSON 字段名和 CSV 列说明在实现测试中固定。E057 的 CSV 把四个块展开为同一张表，用 `section` 区分（`assessment`／`item`／`knowledge`／`score_bucket`），列顺序固定为 `section,assessment_id,item_id,knowledge_id,range,roster_count,submitted_count,blank_count,submission_rate,mean_percent,answered_count,unanswered_count,correct_count,correct_rate,option_counts,first_attempt_count,first_correct_count,first_accuracy,count`；`option_counts` 在 CSV 中写成 `key=次数;key=次数`。
 
 ## 8 幂等、时间和状态
 
 - 自练在创建时固定 starts_at=当前时间、ends_at=24小时后；仅创建者列入名单。所有作答范围是 `[starts_at,ends_at)`。
-- 活动关闭、结果读取、统计查询和截止后的提交进入同一个幂等 finalize 服务；已开始草稿按最后保存答案评分，未开始者仍记未提交。
+- 活动关闭、结果读取、统计查询和截止后的提交进入同一个幂等 finalize 服务；已开始草稿按最后保存答案评分，未开始者仍记未提交。最终化的 `submitted_at` 取测评的有效截止时间：自然截止取 `ends_at`，教师提前结束时先把 `ends_at` 收缩到实际结束时间，因此统计窗口不会把访问触发的延迟处理时间算成提交时间，也不需要额外的关闭时间列。
 - 最终化已提交试卷不再改分；重复 finalization 返回原结果，无需重新计算。旧草稿保存必须返回409。
 - POST 创建普通资源不保证重复点击幂等，前端须避免重复发送；实验使用 request_key，其他有自然唯一键的动作依约返回原对象或409。
 - 文件上传失败不得保留有效版本记录；落库失败清理本次临时文件。算法执行过程中引用版本变化返回409，不能写入与请求不符的快照。
