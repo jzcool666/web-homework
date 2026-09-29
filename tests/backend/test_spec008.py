@@ -366,12 +366,14 @@ def test_T008_03_preview_is_class_scoped_and_question_snapshot_hides_answers(sch
     assert created.status_code == 201, created.get_data(as_text=True)
     preview = created.get_json()["data"]
     assert preview["class_id"] == school["class_a"]["id"]
+    assert preview["plan_title"] == "预习计划"
     assert preview["due_at"] == STAMP
     assert len(preview["items"]) == 2
 
     # 甲班学生看得到；题目条目只有题干，没有答案或解析
     mine = post_as(app, school["sa1"], "get", f"{API}/preview-assignments?class_id={school['class_a']['id']}")
     assert mine.status_code == 200
+    assert mine.get_json()["data"][0]["plan_title"] == "预习计划"
     items = mine.get_json()["data"][0]["items"]
     question_item = next(item for item in items if item["target_type"] == "question")
     assert question_item["content"] == {"stem_md": "预习题干"}
@@ -467,6 +469,7 @@ def test_T008_04_published_snapshot_survives_plan_edits(school):
     seen = post_as(app, school["sa1"], "get",
                    f"{API}/preview-assignments?class_id={school['class_a']['id']}")
     items = seen.get_json()["data"][0]["items"]
+    assert seen.get_json()["data"][0]["plan_title"] == "发布前标题"
     assert items[0]["content"]["stem_md"] == "原始预习题干"
     assert len(items) == 2
 
@@ -534,3 +537,30 @@ def test_permissions_and_field_validation(school):
     assert post_as(app, school["sa1"], "post", f"{API}/preview-assignments", {
         "class_id": school["class_a"]["id"], "plan_id": plan["id"],
     }).status_code == 403
+
+
+def test_inactive_class_rejects_new_preview_but_keeps_history(school):
+    app = school["app"]
+    plan = post_as(app, school["ta"], "post", f"{API}/lesson-plans", {
+        "title": "停用前预习", "items": [],
+    }).get_json()["data"]
+    first = post_as(app, school["ta"], "post", f"{API}/preview-assignments", {
+        "class_id": school["class_a"]["id"], "plan_id": plan["id"],
+    })
+    assert first.status_code == 201
+
+    disabled = post_as(app, school["admin"], "patch", f"{API}/classes/{school['class_a']['id']}", {
+        "version": school["class_a"]["version"], "active": False,
+    })
+    assert disabled.status_code == 200, disabled.get_data(as_text=True)
+
+    blocked = post_as(app, school["ta"], "post", f"{API}/preview-assignments", {
+        "class_id": school["class_a"]["id"], "plan_id": plan["id"],
+    })
+    assert blocked.status_code == 409
+    assert blocked.get_json()["error"]["code"] == "STATE_CONFLICT"
+
+    history = post_as(app, school["ta"], "get",
+                      f"{API}/preview-assignments?class_id={school['class_a']['id']}")
+    assert history.status_code == 200
+    assert [row["id"] for row in history.get_json()["data"]] == [first.get_json()["data"]["id"]]

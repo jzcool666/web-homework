@@ -340,11 +340,11 @@ onMounted(load)
       <ul v-else class="published">
         <li v-for="preview in previews" :key="preview.id">
           <div class="published__head">
-            <strong>预习 #{{ preview.id }}</strong>
+            <strong>{{ preview.plan_title || `预习 #${preview.id}` }}</strong>
             <StatusBadge tone="neutral">{{ preview.due_at ?? '无期限' }}</StatusBadge>
           </div>
           <p class="published__items">
-            <span v-for="item in preview.items" :key="`${item.target_type}:${item.target_id}`">
+            <span v-for="item in preview.items" :key="item.sort_order">
               {{ previewItemLabel(item) }}
             </span>
           </p>

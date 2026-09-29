@@ -3,7 +3,7 @@
  * 学生首页的预习待办（SPEC-008 E027）。
  *
  * 只读本班预习：先取本人有效班级，再按 class_id 拉预习列表；跨班由后端返回 404。
- * Preview 模型不含备课单标题，待办文案由快照里冻结的条目摘要拼出。
+ * 标题与条目摘要均取自发布时冻结的快照。
  */
 import { computed, onMounted, ref } from 'vue'
 
@@ -62,13 +62,13 @@ onMounted(load)
     <ul v-else class="previews">
       <li v-for="preview in previews" :key="preview.id">
         <div class="previews__head">
-          <strong>第 {{ preview.id }} 次预习 · {{ preview.items.length }} 项</strong>
+          <strong>{{ preview.plan_title || `预习 #${preview.id}` }} · {{ preview.items.length }} 项</strong>
           <StatusBadge :tone="dueState(preview.due_at).tone">
             {{ dueState(preview.due_at).text }}
           </StatusBadge>
         </div>
         <p class="previews__items">
-          <span v-for="item in preview.items" :key="`${item.target_type}:${item.target_id}`">
+          <span v-for="item in preview.items" :key="item.sort_order">
             {{ previewItemLabel(item) }}
           </span>
         </p>

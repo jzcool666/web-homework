@@ -432,7 +432,9 @@ def create_preview_assignment():
     due_at = _timestamp_field(body, "due_at")
 
     session = db_session()
-    _require_class_teacher(session, class_id)
+    school_class = _require_class_teacher(session, class_id)
+    if not school_class.active:
+        raise ApiError("STATE_CONFLICT", "班级已停用，不能发布新预习")
     plan = _own_plan(session, plan_id)
 
     items = _items_of(session, plan.id)
@@ -450,7 +452,7 @@ def create_preview_assignment():
     )
     session.add(preview)
     session.commit()
-    return success(preview_public(preview, from_json(preview.snapshot_json, default={}).get("items", [])), 201)
+    return success(preview_public(preview, from_json(preview.snapshot_json, default={})), 201)
 
 
 # ---- E027 /preview-assignments ----
@@ -480,7 +482,7 @@ def list_preview_assignments():
     rows = session.scalars(stmt.limit(page_size).offset((page - 1) * page_size)).all()
     return success(
         [
-            preview_public(row, from_json(row.snapshot_json, default={}).get("items", []))
+            preview_public(row, from_json(row.snapshot_json, default={}))
             for row in rows
         ],
         page=page,

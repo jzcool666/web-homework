@@ -155,11 +155,12 @@ def plan_public(plan: LessonPlan, items) -> dict:
     }
 
 
-def preview_public(preview: PreviewAssignment, items) -> dict:
+def preview_public(preview: PreviewAssignment, snapshot: dict) -> dict:
     return {
         "id": preview.id,
         "class_id": preview.class_id,
         "plan_id": preview.plan_id,
+        "plan_title": snapshot.get("plan_title", ""),
         "due_at": preview.due_at,
-        "items": items,
+        "items": snapshot.get("items", []),
     }
