@@ -110,7 +110,7 @@
 | 匿名 `GET /chapters`、`/knowledge-points` | 401 |
 | Markdown 含 `<script>` 的正文 | 后端以 JSON 字符串原样返回，`Content-Type: application/json`，不生成 HTML |
 | 前端渲染 `<script>window.__pwned=1</script>`、`<img src=x onerror=alert(1)>` | 转义为文本；DOM 中 script/img 元素 0 个、无 `on*` 属性；`window.__pwned === undefined` |
-| 链接 `[x](javascript:…)` / `data:` / `file:` / 含空白 | 不生成 `<a>`，原样显示为文本 |
+| `javascript:`、`data:`、`file:` 协议或含空白的 Markdown 链接 | 不生成 `<a>`，原样显示为文本 |
 | 过期 `version` 的 PATCH | 409 `VERSION_CONFLICT` |
 
 ### T-005-03 重复收藏只一条，取消后可重新收藏；完成与取消标记一致
@@ -174,3 +174,7 @@
 - `tests/backend/test_migrations.py`：原有回退用例改用显式 `0001_baseline` 而非 `-1`。新增迁移后按步数回退不再表达原意，属必要的测试更新，未放宽任何验收条件。
 - `frontend/src/api/client.js`：新增 `delete` 与 `postForm`（multipart）两个方法；`send` 的既有行为未变。
 - 以上均记录在 [CHG-RB](../../CHG-RB.md) 第 1 节。
+
+## 7 独立评审补充（2026-09-29）
+
+评审修正了三个边界：未入班学生可绕过列表权限写入收藏与进度；只有协议却没有主机名的外链被接受；上传备注不合法时文件先落盘而留下孤立文件。新增针对性回归用例。项目虚拟环境复跑后端 `53 passed`；前端 `26 passed`、构建成功，文档核对与 diff 检查通过。第 2 节 `52 passed` 为初次实现记录，以本节复核结果为准。

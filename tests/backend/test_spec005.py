@@ -310,7 +310,7 @@ def test_T005_01_upload_limits_and_link_rules(school):
     assert download.status_code == 422
 
     # 外链只允许 http/https；javascript: 与 file: 一律拒绝
-    for bad in ("javascript:alert(1)", "file:///etc/passwd", "ftp://example.org/x"):
+    for bad in ("javascript:alert(1)", "file:///etc/passwd", "ftp://example.org/x", "http:///missing-host"):
         rejected = api_call(
             teacher,
             "post",
@@ -319,6 +319,17 @@ def test_T005_01_upload_limits_and_link_rules(school):
             json={"external_url": bad},
         )
         assert rejected.status_code == 422, bad
+
+
+def test_invalid_upload_note_does_not_leave_orphan_file(school):
+    teacher, csrf = login_as(school["app"], "teacher_aaa")
+    resource = create_resource(teacher, csrf).get_json()["data"]
+    upload_dir = school["uploads"] / "resources"
+    before = set(upload_dir.iterdir()) if upload_dir.exists() else set()
+    rejected = upload_version(teacher, csrf, resource["id"], "讲义.png", PNG_V1, note="x" * 201)
+    assert rejected.status_code == 422
+    after = set(upload_dir.iterdir()) if upload_dir.exists() else set()
+    assert after == before
 
 
 # ---- T-005-02：草稿可见性与越权 ----
@@ -392,7 +403,7 @@ def test_T005_02_unenrolled_student_cannot_read_course_content(school):
     app = school["app"]
     teacher, csrf = login_as(app, "teacher_aaa")
     chapter = create_chapter(teacher, csrf).get_json()["data"]
-    create_knowledge(teacher, csrf, chapter["id"])
+    point = create_knowledge(teacher, csrf, chapter["id"]).get_json()["data"]
 
     outsider, outsider_csrf = login_as(app, "stu_x0001")
     for path in ("/chapters", "/knowledge-points", "/resources"):
@@ -400,6 +411,14 @@ def test_T005_02_unenrolled_student_cannot_read_course_content(school):
         assert response.status_code == 403, path
         assert response.get_json()["error"]["code"] == "FORBIDDEN"
     assert outsider.get(f"{API}/knowledge-points/1").status_code == 403
+    assert api_call(
+        outsider, "put", f"{API}/me/favorites/{point['id']}", csrf_token=outsider_csrf,
+        json={},
+    ).status_code == 403
+    assert api_call(
+        outsider, "put", f"{API}/me/learning-progress", csrf_token=outsider_csrf,
+        json={"knowledge_id": point["id"], "completed": True},
+    ).status_code == 403
 
 
 def test_T005_02_anonymous_is_unauthenticated(school):

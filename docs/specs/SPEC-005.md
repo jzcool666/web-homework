@@ -25,6 +25,7 @@ chapters、knowledge_points、knowledge_edges、resources、resource_versions、
 3. 资源仅PDF/PPTX/PNG/JPEG且≤20MiB；随机文件名保存；视频http/https链接不由服务器抓取。
 4. 新版本追加，历史下载仍指向原文件；原始文件名仅显示不拼接磁盘路径。
 5. 资源事件按学生+版本+类型+UTC日去重；完成标记是自报数据，取消完成应清空completed_at。先修关系初始由种子维护并检查无环。
+6. 未入班学生不得通过收藏、进度或资源事件接口绕过课程访问限制；无主机名的外链无效，上传字段校验失败不留孤立文件。
 
 ## 5 验收用例
 

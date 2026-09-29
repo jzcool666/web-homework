@@ -101,8 +101,17 @@ def _optional_http_url(body: dict, name: str, *, required: bool) -> str | None:
     if not isinstance(value, str):
         raise ApiError("VALIDATION_ERROR", "请求字段不合法", {"fields": {name: "必须是字符串"}})
     url = value.strip()
-    scheme = urlsplit(url).scheme.lower()
-    if not url or len(url) > MAX_URL_LEN or scheme not in {"http", "https"}:
+    try:
+        parsed = urlsplit(url)
+        host = parsed.hostname
+    except ValueError:
+        host = None
+        parsed = None
+    if (
+        not url or len(url) > MAX_URL_LEN or parsed is None
+        or parsed.scheme.lower() not in {"http", "https"}
+        or not host or any(char.isspace() for char in url)
+    ):
         raise ApiError(
             "VALIDATION_ERROR",
             "请求字段不合法",
@@ -448,6 +457,7 @@ def _require_student():
         raise ApiError("UNAUTHENTICATED", "请先登录")
     if user.role != "student":
         raise ApiError("FORBIDDEN", "只有学生可以使用学习记录功能")
+    _require_reader()  # 未入班学生不能通过个人写接口绕过课程读取门槛
     return user
 
 
@@ -743,6 +753,7 @@ def _uploaded_version() -> ResourceVersion:
             "FILE_TYPE_UNSUPPORTED", FILE_TYPE_RULE, {"allowed": ["pdf", "pptx", "png", "jpeg"]}
         ) from exc
 
+    note = _note_value(request.form.get("note"))
     stored = store_file(current_app.config["UPLOAD_DIR"], storage.filename, payload)
     return ResourceVersion(
         kind="file",
@@ -751,7 +762,7 @@ def _uploaded_version() -> ResourceVersion:
         mime=stored.mime,
         size_bytes=stored.size_bytes,
         sha256=stored.sha256,
-        note=_note_value(request.form.get("note")),
+        note=note,
     )
 
 
