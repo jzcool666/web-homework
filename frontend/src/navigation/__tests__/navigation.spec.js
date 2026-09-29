@@ -29,6 +29,9 @@ const routes = [
   { path: '/student/assessments/1', name: 'student-assessment', component: { template: '<div />' } },
   { path: '/student/results/1', name: 'student-result', component: { template: '<div />' } },
   { path: '/student/mistakes', name: 'student-mistakes', component: { template: '<div />' } },
+  { path: '/student/experiments', name: 'student-experiments', component: { template: '<div />' } },
+  { path: '/student/experiments/1', name: 'student-experiment', component: { template: '<div />' } },
+  { path: '/student/attempts', name: 'student-attempts', component: { template: '<div />' } },
   { path: '/admin/users', name: 'admin-users', component: { template: '<div />' } },
   { path: '/admin/classes', name: 'admin-classes', component: { template: '<div />' } },
   { path: '/admin/classes/1/enrollments', name: 'admin-enrollments', component: { template: '<div />' } },
@@ -120,5 +123,18 @@ describe('role navigation and shell', () => {
     const teacher = await setup('teacher', '/teacher/demos/1/present')
     expect(teacher.wrapper.find('a.nav-item--active').text()).toContain('课堂')
     teacher.wrapper.unmount()
+  })
+
+  it('实验中心入口已接通，并在预测页与记录页高亮', async () => {
+    expect(navigationFor('student').find((item) => item.route === 'student-experiments')).toBeTruthy()
+    expect(navigationFor('student').find((item) => item.label === '实验中心').planned).toBeUndefined()
+    // 教师端实验管理页仍属计划入口
+    expect(navigationFor('teacher').find((item) => item.label === '实验').planned).toBeTruthy()
+
+    for (const path of ['/student/experiments', '/student/experiments/1', '/student/attempts']) {
+      const { wrapper } = await setup('student', path)
+      expect(wrapper.find('a.nav-item--active').text()).toContain('实验中心')
+      wrapper.unmount()
+    }
   })
 })

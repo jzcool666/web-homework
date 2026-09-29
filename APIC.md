@@ -58,7 +58,7 @@ GET 成功 200、创建 201、PATCH/PUT/动作成功 200、DELETE 成功 200 且
 | SimulatorConfig | initial_q:int 0—15、modulus?:int 2—16（counter 默认16）；d/jk 初态只允许0/1，shift固定4位；复位同步高有效、时钟初始0固定 |
 | SimEvent | op:set/toggle_clock/reset_view；set 带 inputs:{d?:0/1,j?:0/1,k?:0/1,enable?:0/1,serial_in?:0/1,reset?:0/1}；仅允许对应模型字段 |
 | Demo | id、class_id、experiment_id、active:boolean、version、state:{clock,inputs,q,step_no}、history:状态行[]、reveal_next:boolean、next_q:int/null、last_updated:time；next_q为按当前输入计算的下一个有效上升沿状态，预测隐藏时为null |
-| AttemptResult | id、passed:boolean、first_error_index:int/null、expected:int[]、actual:int[]、explanations:string[]、experiment_version:int |
+| AttemptResult | id、experiment_id:int、simulator_type:d/jk/counter/shift、passed:boolean、first_error_index:int/null、expected:int[]、actual:int[]、explanations:string[]、experiment_version:int |
 | QAEntry | id、knowledge_id、question:string≤200、answer_md:string≤10000、source_url:string/null、published:boolean、version |
 
 Question options：单选/多选 2—6 个唯一 key，答案必须在选项内；多选至少 2 个正确项，判断只有 true/false。创建模型的 owner_id 从会话取得，学生端不得提交 owner_id/role/score/correct。
@@ -145,7 +145,7 @@ AttendanceRecord 与 Leave 的 `student_display_name`、`student_no` 为只读�
 | E048 | GET/POST /experiments | U/O | GET knowledge_id?,q?；POST O，Experiment可写字段 | Experiment列表/Experiment |
 | E049 | GET/PATCH /experiments/{id} | U/O | PATCH O，version+可写字段 | Experiment；发布记录更新需保留旧快照 |
 | E050 | POST /experiments/{id}/attempts | S | experiment_version、predictions:int[]、request_key:UUID | AttemptResult；相同key同payload返回原结果，不同payload409 |
-| E051 | GET /me/experiment-attempts | S | experiment_id?,分页 | 本人AttemptResult列表 |
+| E051 | GET /me/experiment-attempts；GET /me/experiment-attempts/{id} | S | 列表：experiment_id?,分页；单条：id | 本人AttemptResult列表或单条；其他学生的记录与不存在的 id 均返回404 |
 | E052 | GET/POST /demo-sessions | T/S | GET class_id,active?；POST仅T class_id,experiment_id | Demo列表/Demo，配置从实验快照初始化；班级已有active则409 |
 | E053 | GET /demo-sessions/{id} | T/S | 无 | Demo；reveal_next=false时不含未执行下一状态与未来轨迹 |
 | E054 | POST /demo-sessions/{id}/actions | T | expected_version、event:SimEvent 或 {op:"set_reveal",value:boolean} 或 {op:"close"} | Demo；后端重算，不允许请求直接指定q；版本冲突409 |
