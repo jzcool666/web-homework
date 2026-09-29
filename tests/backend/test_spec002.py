@@ -200,6 +200,55 @@ def record_for(school, task_id, student_id):
     return next(r for r in records_of(school, task_id) if r["student_id"] == student_id)
 
 
+def test_inactive_class_blocks_new_attendance_actions(school):
+    task = open_task(school)
+    school_class = school["class_a"]
+    disabled = api_call(
+        school["admin_client"], "patch", f"{API}/classes/{school_class['id']}",
+        csrf_token=school["admin_csrf"],
+        json={"version": school_class["version"], "active": False},
+    )
+    assert disabled.status_code == 200
+
+    create = api_call(
+        school["ta"], "post", f"{API}/attendance-tasks", csrf_token=school["ta_csrf"],
+        json={
+            "class_id": school_class["id"], "title": "停用班级签到",
+            "opens_at": stamp(BASE), "late_at": stamp(BASE + timedelta(minutes=5)),
+            "closes_at": stamp(BASE + timedelta(minutes=30)),
+        },
+    )
+    assert create.status_code == 409
+    assert sign_in(school, task_id=task["id"], code=task["code"]).status_code == 409
+    leave = api_call(
+        school["sa1"], "post", f"{API}/leave-requests", csrf_token=school["sa1_csrf"],
+        json={"task_id": task["id"], "reason": "请假"},
+    )
+    assert leave.status_code == 409
+    reset = api_call(
+        school["ta"], "post", f"{API}/attendance-tasks/{task['id']}/code-resets",
+        csrf_token=school["ta_csrf"], json={"version": task["version"]},
+    )
+    assert reset.status_code == 409
+
+
+def test_removed_student_cannot_use_old_task_snapshot(school):
+    task = open_task(school)
+    removed = api_call(
+        school["admin_client"], "put",
+        f"{API}/classes/{school['class_a']['id']}/enrollments",
+        csrf_token=school["admin_csrf"],
+        json={"student_id": school["students"]["stu_a1"]["id"], "active": False},
+    )
+    assert removed.status_code == 200
+    assert sign_in(school, task_id=task["id"], code=task["code"]).status_code == 404
+    leave = api_call(
+        school["sa1"], "post", f"{API}/leave-requests", csrf_token=school["sa1_csrf"],
+        json={"task_id": task["id"], "reason": "请假"},
+    )
+    assert leave.status_code == 404
+
+
 # ---- T-002-01 窗口与服务器时间 ----
 
 def test_T002_01_sign_in_at_opens_at_is_present(school):

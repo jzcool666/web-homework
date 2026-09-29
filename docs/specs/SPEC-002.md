@@ -25,6 +25,7 @@ attendance_tasks、attendance_records、leave_requests；每任务每学生唯�
 3. 截至结束仍pending才转absent；无访问时未结算不显示为已缺勤。统计读取可触发结束任务结算。
 4. 请假结束前申请，审批可在结束后完成；批准将pending/absent改leave。present/late不能改leave，已批准者不能签到。
 5. 重置签到码使旧码立即失效；一分钟5次错误后429。
+6. 停用班级不得新建签到任务、签到、请假或重置签到码；学生离开班级后，不能仅凭发布时的名单快照继续提交新签到或请假，历史记录仍可查询。
 
 ## 5 验收用例
 

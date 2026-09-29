@@ -323,7 +323,9 @@ def create_attendance_task():
         _fields_error("late_at", "必须满足 opens_at ≤ late_at < closes_at")
 
     session = db_session()
-    _require_class_teacher(session, class_id)
+    school_class = _require_class_teacher(session, class_id)
+    if not school_class.active:
+        raise ApiError("STATE_CONFLICT", "已停用的班级不能发布签到任务")
 
     task = AttendanceTask(
         class_id=class_id,
@@ -375,6 +377,9 @@ def sign_in(task_id: int):
     if record is None:
         # 不在本任务名单（含跨班学生）：按跨班对象处理为 404
         raise ApiError("NOT_FOUND", "签到任务不存在")
+    school_class = _require_class_read(session, task.class_id)
+    if not school_class.active:
+        raise ApiError("STATE_CONFLICT", "班级已停用，不能签到")
 
     now = now_utc_dt()
     if not (parse_utc(task.opens_at) <= now < parse_utc(task.closes_at)):
@@ -486,6 +491,8 @@ def reset_attendance_code(task_id: int):
         )
     if parse_utc(task.closes_at) <= now_utc_dt():
         raise ApiError("DEADLINE_PASSED", "签到已结束，不能再重置签到码")
+    if not session.get(SchoolClass, task.class_id).active:
+        raise ApiError("STATE_CONFLICT", "班级已停用，不能重置签到码")
 
     code = new_code()
     task.code_hash = hash_code(task.id, code)  # 旧码立即失效
@@ -563,6 +570,9 @@ def create_leave_request():
         )
     ) is None:
         raise ApiError("NOT_FOUND", "签到任务不存在")
+    school_class = _require_class_read(session, task.class_id)
+    if not school_class.active:
+        raise ApiError("STATE_CONFLICT", "班级已停用，不能申请请假")
 
     if parse_utc(task.closes_at) <= now_utc_dt():
         raise ApiError("DEADLINE_PASSED", "签到已结束，不能再申请请假")
