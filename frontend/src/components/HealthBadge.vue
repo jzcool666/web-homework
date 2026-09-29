@@ -31,15 +31,15 @@ const detail = computed(() => (health.status === 'unavailable' ? health.reason :
 }
 
 .health[data-status='ok'] span:first-child {
-  color: #1b5e20;
+  color: var(--color-success);
 }
 
 .health[data-status='unavailable'] span:first-child {
-  color: #b3261e;
+  color: var(--color-danger);
 }
 
 .health-detail {
-  color: #5f6368;
+  color: var(--color-text-secondary);
   font-size: 0.85rem;
 }
 </style>

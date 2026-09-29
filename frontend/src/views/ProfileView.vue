@@ -3,6 +3,9 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { useAuthStore } from '@/stores/auth'
+import PageHeader from '@/components/ui/PageHeader.vue'
+import SectionCard from '@/components/ui/SectionCard.vue'
+import StatusBadge from '@/components/ui/StatusBadge.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -46,16 +49,15 @@ async function changePassword() {
 </script>
 
 <template>
-  <main v-if="auth.user" class="page">
-    <h1>个人资料</h1>
+  <div v-if="auth.user" class="page page--narrow">
+    <PageHeader eyebrow="账号设置" title="个人资料" />
     <p class="hint">
-      <span class="badge">{{ auth.user.role }}</span>
+      <StatusBadge>{{ { student: '学生', teacher: '教师', admin: '管理员' }[auth.user.role] }}</StatusBadge>
       {{ auth.user.login_name }}
       <template v-if="auth.user.student_no">· 学号 {{ auth.user.student_no }}</template>
     </p>
 
-    <section class="card">
-      <h2>基本资料</h2>
+    <SectionCard title="基本资料">
       <form @submit.prevent="saveProfile">
         <div class="field">
           <label for="display_name">姓名</label>
@@ -65,10 +67,9 @@ async function changePassword() {
         <p v-if="profileOk" class="success">{{ profileOk }}</p>
         <p v-if="profileError" class="error" role="alert">{{ profileError }}</p>
       </form>
-    </section>
+    </SectionCard>
 
-    <section class="card">
-      <h2>修改密码</h2>
+    <SectionCard title="修改密码">
       <p class="hint">修改成功后所有会话立即失效，需要用新密码重新登录。</p>
       <form @submit.prevent="changePassword">
         <div class="field">
@@ -82,6 +83,6 @@ async function changePassword() {
         <button class="primary" type="submit">修改密码</button>
         <p v-if="passwordError" class="error" role="alert">{{ passwordError }}</p>
       </form>
-    </section>
-  </main>
+    </SectionCard>
+  </div>
 </template>

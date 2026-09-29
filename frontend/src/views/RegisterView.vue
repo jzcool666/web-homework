@@ -3,6 +3,8 @@ import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 
 import { useAuthStore } from '@/stores/auth'
+import PageHeader from '@/components/ui/PageHeader.vue'
+import SectionCard from '@/components/ui/SectionCard.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -26,11 +28,11 @@ async function submit() {
 </script>
 
 <template>
-  <main class="page">
-    <h1>学生注册</h1>
-    <p class="hint">公开注册只能创建学生账号；教师与管理员由管理员分配。</p>
+  <div class="page page--narrow">
+    <PageHeader eyebrow="创建账号" title="学生注册" description="公开注册只能创建学生账号；教师与管理员由管理员分配。" />
 
-    <form class="card" @submit.prevent="submit">
+    <SectionCard>
+    <form @submit.prevent="submit">
       <div class="field">
         <label for="login_name">登录名（4—32 位字母、数字或下划线）</label>
         <input id="login_name" v-model="form.login_name" autocomplete="username" required />
@@ -57,5 +59,6 @@ async function submit() {
       <p v-if="error" class="error" role="alert">{{ error }}</p>
       <p class="hint">已有账号？<RouterLink :to="{ name: 'login' }">直接登录</RouterLink></p>
     </form>
-  </main>
+    </SectionCard>
+  </div>
 </template>

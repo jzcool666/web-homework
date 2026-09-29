@@ -3,12 +3,18 @@ import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 
 import { api } from '@/api/client'
+import PageHeader from '@/components/ui/PageHeader.vue'
+import SectionCard from '@/components/ui/SectionCard.vue'
+import StatePanel from '@/components/ui/StatePanel.vue'
+import StatusBadge from '@/components/ui/StatusBadge.vue'
 
 const props = defineProps({ id: { type: String, required: true } })
 
 const classId = Number(props.id)
 const schoolClass = ref(null)
 const enrollments = ref([])
+const loading = ref(false)
+const listError = ref(null)
 const students = ref([])
 const selected = ref('')
 const error = ref(null)
@@ -20,7 +26,8 @@ function studentName(studentId) {
 }
 
 async function load() {
-  error.value = null
+  loading.value = true
+  listError.value = null
   try {
     const [classList, roster, studentList] = await Promise.all([
       api.get('/classes?page_size=100'),
@@ -31,7 +38,9 @@ async function load() {
     enrollments.value = roster
     students.value = studentList
   } catch (err) {
-    error.value = err.message
+    listError.value = err.message
+  } finally {
+    loading.value = false
   }
 }
 
@@ -56,17 +65,14 @@ onMounted(load)
 </script>
 
 <template>
-  <main class="page">
-    <h1>班级名单</h1>
+  <div class="page">
+    <PageHeader eyebrow="基础管理" title="班级名单" description="每名学生最多属于一个有效班级；要换班需先在原班级移出。" />
     <p class="hint">
       <RouterLink :to="{ name: 'admin-classes' }">← 返回班级管理</RouterLink>
       <template v-if="schoolClass"> · {{ schoolClass.name }}</template>
     </p>
-    <p class="hint">每名学生最多属于一个有效班级；要换班需先在原班级移出。</p>
-
-    <section class="card">
-      <h2>加入学生</h2>
-      <form @submit.prevent="enroll(selected, true)">
+    <SectionCard title="加入学生">
+      <form class="admin-form" @submit.prevent="enroll(selected, true)">
         <div class="field">
           <label for="student_id">学生</label>
           <select id="student_id" v-model="selected" required>
@@ -80,10 +86,13 @@ onMounted(load)
       </form>
       <p v-if="notice" class="success">{{ notice }}</p>
       <p v-if="error" class="error" role="alert">{{ error }}</p>
-    </section>
+    </SectionCard>
 
-    <section class="card">
-      <h2>在班学生</h2>
+    <SectionCard title="在班学生">
+      <StatePanel v-if="loading" kind="loading" title="正在读取班级名单" />
+      <StatePanel v-else-if="listError" kind="error" title="班级名单加载失败" :description="listError" />
+      <StatePanel v-else-if="enrollments.length === 0" title="暂无学生" description="选择学生并加入班级后会显示在这里。" />
+      <div v-else class="table-scroll">
       <table>
         <thead>
           <tr>
@@ -102,11 +111,12 @@ onMounted(load)
               <button class="link" type="button" @click="enroll(item.student_id, !item.active)">
                 {{ item.active ? '移出' : '恢复' }}
               </button>
-              <span v-if="!item.active" class="badge off">已移出</span>
+              <StatusBadge v-if="!item.active" tone="danger">已移出</StatusBadge>
             </td>
           </tr>
         </tbody>
       </table>
-    </section>
-  </main>
+      </div>
+    </SectionCard>
+  </div>
 </template>
