@@ -30,6 +30,7 @@ const data = ref(null)
 const loading = ref(false)
 const error = ref(null)
 const listError = ref(null)
+let latestRequest = 0
 
 const filters = computed(() => ({
   classId: classId.value,
@@ -38,9 +39,15 @@ const filters = computed(() => ({
   experimentId: experimentId.value,
 }))
 
-const csvHref = computed(
-  () => `${API_BASE}${statsPath({ ...filters.value, format: 'csv' })}`,
-)
+const csvHref = computed(() => {
+  const window = data.value?.window
+  return `${API_BASE}${statsPath({
+    ...filters.value,
+    from: window?.from ?? filters.value.from,
+    to: window?.to ?? filters.value.to,
+    format: 'csv',
+  })}`
+})
 
 const summaryTiles = computed(() => {
   if (!data.value) return []
@@ -63,19 +70,22 @@ async function loadExperiments() {
 }
 
 async function loadStats() {
+  const requestId = ++latestRequest
   if (!classId.value) {
     data.value = null
+    loading.value = false
     return
   }
   loading.value = true
   error.value = null
+  data.value = null
   try {
-    data.value = await api.get(statsPath(filters.value))
+    const response = await api.get(statsPath(filters.value))
+    if (requestId === latestRequest) data.value = response
   } catch (err) {
-    data.value = null
-    error.value = err.message
+    if (requestId === latestRequest) error.value = err.message
   } finally {
-    loading.value = false
+    if (requestId === latestRequest) loading.value = false
   }
 }
 
@@ -137,7 +147,7 @@ onMounted(async () => {
         <button class="button button--secondary" type="button" @click="resetWindow">
           最近 30 天
         </button>
-        <a v-if="classId" class="button button--secondary" :href="csvHref">导出 CSV</a>
+        <a v-if="classId && data && !loading" class="button button--secondary" :href="csvHref">导出 CSV</a>
       </div>
       <p v-if="classes.length === 0" class="hint">还没有任教的班级，请联系管理员分配。</p>
       <p class="hint">{{ SUMMARY_HINT }}</p>

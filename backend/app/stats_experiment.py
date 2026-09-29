@@ -74,7 +74,7 @@ def summarize_experiment_stats(*, experiments, attempt_rows) -> dict:
     for experiment_id, title in experiments:
         block = per_experiment.get(int(experiment_id), EMPTY_EXPERIMENT_ROW)
         experiment_rows.append({"experiment_id": int(experiment_id), "title": title, **block})
-    # 易错/参与排行：参与人数多的在前，同人参与按 experiment_id 稳定排序
+    # 参与人数多的在前，同人数按 experiment_id 稳定排序
     experiment_rows.sort(key=lambda row: (-row["participants"], row["experiment_id"]))
 
     if frame.empty:

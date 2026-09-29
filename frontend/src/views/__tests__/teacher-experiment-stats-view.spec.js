@@ -106,7 +106,31 @@ describe('TeacherExperimentStatsView', () => {
     const wrapper = await setup()
 
     const csv = wrapper.get('a[href*="format=csv"]')
-    expect(csv.attributes('href')).toBe('/api/v1/analytics/experiment?class_id=1&format=csv')
+    const url = new URL(csv.attributes('href'), 'http://localhost')
+    expect(url.pathname).toBe('/api/v1/analytics/experiment')
+    expect(url.searchParams.get('class_id')).toBe('1')
+    expect(url.searchParams.get('from')).toBe(statsPayload().window.from)
+    expect(url.searchParams.get('to')).toBe(statsPayload().window.to)
+    expect(url.searchParams.get('format')).toBe('csv')
+  })
+
+  it('较早请求晚返回时不覆盖当前班级的统计', async () => {
+    const wrapper = await setup()
+    let resolveOld
+    const oldRequest = new Promise((resolve) => { resolveOld = resolve })
+    api.get.mockImplementation((path) => {
+      if (path.includes('class_id=2')) return oldRequest
+      return Promise.resolve({ ...statsPayload(), participants: 1 })
+    })
+
+    await wrapper.get('#es_class').setValue(2)
+    await wrapper.get('#es_class').setValue(1)
+    await flushPromises()
+    expect(wrapper.findAll('.tile__value')[1].text()).toBe('1')
+
+    resolveOld({ ...statsPayload(), participants: 99 })
+    await flushPromises()
+    expect(wrapper.findAll('.tile__value')[1].text()).toBe('1')
   })
 
   it('切换班级后按新 class_id 重新请求', async () => {

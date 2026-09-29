@@ -490,3 +490,26 @@ def test_total_passed_counts_students_passing_any_experiment(lab):
     assert rows[one["id"]]["pass_rate"] == 0.5
     assert rows[two["id"]]["participants"] == 1
     assert rows[two["id"]]["pass_rate"] == 1.0
+
+
+def test_unpublished_experiment_is_outside_current_stats_scope(lab):
+    one, two = lab["experiment_one"], lab["experiment_two"]
+    assert attempt(lab["student_a"], one, [5, 0, 1, 2]).status_code == 201
+    assert attempt(lab["student_b"], two, [1, 2]).status_code == 201
+
+    teacher, csrf = lab["teacher_a"]
+    withdrawn = api_call(
+        teacher,
+        "patch",
+        f"{API}/experiments/{two['id']}",
+        csrf_token=csrf,
+        json={"version": two["version"], "published": False},
+    )
+    assert withdrawn.status_code == 200
+
+    data = stats(teacher, lab["class_a"]["id"]).get_json()["data"]
+    assert data["published_count"] == 1
+    assert [row["experiment_id"] for row in data["experiments"]] == [one["id"]]
+    assert data["participants"] == 1
+    assert data["attempt_count"] == 1
+    assert scalar(lab["app"], "SELECT COUNT(*) FROM experiment_attempts") == 2

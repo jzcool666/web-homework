@@ -30,6 +30,7 @@
 | 2026-09-29 | SPEC-005实现 | Markdown 渲染由前端 `src/utils/markdown.js` 自行实现：整段先转义、只生成白名单标签，链接仅放行 http/https；未引入新的前端或后端依赖 | 新增前端模块与单测；ADR-008 已要求禁用原始 HTML 并净化输出 |
 | 2026-09-29 | SPEC-014实现 | 实现实验学习统计：E058 的 JSON 与 CSV、教师「实验统计」页面；只读 `experiment_attempts`/`experiments`/`enrollments`，无需新字段，因此未新增迁移 | APIC 路径、字段与状态码按已定义内容实现；新增后端 12 条、前端 13 条用例；执行结果见 SPEC-014 执行报告 |
 | 2026-09-29 | SPEC-014实现 | SPEC-014 第 4 节补充作用域口径：`published_count` 与 `experiments[]` 同为「已发布实验」作用域且条数一致；学生未入班或已退班不计入任何班级统计 | docs/specs/SPEC-014.md 业务规则第 5、6 条；不改 APIC 字段名或类型 |
+| 2026-09-29 | SPEC-014评审修正 | 明确作用域为「当前已发布实验」；取消发布后历史尝试仍在个人记录，但不再计入当前班级统计 | SPEC-014 第 4 节及回归用例，避免把已撤回实验的历史尝试误读为当前班级统计 |
 | 2026-09-29 | SPEC-014实现 | 导航新增教师「实验统计」入口；导航单测补上该路由与高亮断言 | frontend/src/navigation、frontend/src/router 及其测试；SPEC-013 教师端计划入口保持原样 |
 | 2026-09-29 | SPEC-005实现 | `testing` 配置的上传目录改到系统临时目录；测试不再写入仓库内 `instance/uploads` | app/config.py；与 SPEC-000「测试不触碰仓库内 instance/」的隔离原则一致 |
 | 2026-09-29 | SPEC-005实现 | 迁移测试由按步数回退（`-1`）改为显式回退到 `0001_baseline` | tests/backend/test_migrations.py；迁移链随各模块前移后，按步数回退不再表达原意 |
