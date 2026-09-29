@@ -44,13 +44,13 @@ onMounted(() => {
     <template v-if="auth.user">
       <PageHeader :eyebrow="isStudent ? '学习空间' : isTeacher ? '教学空间' : '管理空间'" :title="`你好，${auth.user.display_name}`" :description="isStudent ? '从当前课堂出发，逐步理解时序逻辑。' : isTeacher ? '围绕备课、演示与讲评组织课堂。' : '管理账号、班级和入班关系。'" />
     </template>
-    <PageHeader v-else eyebrow="学海通" title="把时序逻辑学清楚" description="面向教师课堂的数字逻辑学习系统。当前开放课程学习、考勤与班级管理。" />
+    <PageHeader v-else eyebrow="学海通" title="把时序逻辑学清楚" description="面向教师课堂的数字逻辑学习系统。当前开放课程学习、课堂演示、习题训练与考勤。" />
 
     <section class="hero">
       <div class="hero__copy">
         <span class="hero__tag">数字逻辑 · 时序逻辑</span>
         <h2>{{ isTeacher ? '让每一次状态变化，都有清楚的讲解。' : isAdmin ? '从可靠的账号与班级关系开始。' : '从触发器开始，理解时序的节奏。' }}</h2>
-        <p>课程内容围绕 D / JK 触发器、计数器、寄存器与状态转换展开。课堂演示与练习功能将按各 Spec 逐步开放。</p>
+        <p>课程内容围绕 D / JK 触发器、计数器、寄存器与状态转换展开。现在可以观看逐拍演示，也可以做习题训练。</p>
         <RouterLink v-if="auth.user" class="button hero__button" :to="{ name: isAdmin ? 'admin-users' : 'profile' }">
           {{ isAdmin ? '管理账号' : '查看个人资料' }} <AppIcon name="arrow" :size="17" />
         </RouterLink>
@@ -80,12 +80,12 @@ onMounted(() => {
         </template>
         <StatePanel v-else-if="classState === 'loading'" kind="loading" title="正在读取班级信息" />
         <StatePanel v-else-if="classState === 'error'" kind="error" title="班级信息暂时无法读取" :description="classError" />
-        <StatePanel v-else-if="classes.length === 0" :title="isStudent ? '你当前尚未加入班级' : '当前没有任教班级'" :description="isStudent ? '请联系管理员分配班级。分配完成后，这里会显示你的课堂入口。' : '请联系管理员分配班级。课堂相关功能会在后续模块开放。'" />
+        <StatePanel v-else-if="classes.length === 0" :title="isStudent ? '你当前尚未加入班级' : '当前没有任教班级'" description="请联系管理员分配班级。分配完成后，这里会显示你的课堂入口。" />
         <template v-else>
           <div class="class-list">
             <div v-for="schoolClass in classes" :key="schoolClass.id" class="class-row">
               <span class="class-row__icon"><AppIcon name="book" /></span>
-              <div><strong>{{ schoolClass.name }}</strong><small>课程学习与考勤功能已开放</small></div>
+              <div><strong>{{ schoolClass.name }}</strong><small>课程学习、课堂演示、习题训练与考勤已开放</small></div>
               <StatusBadge :tone="schoolClass.active ? 'neutral' : 'warning'">{{ schoolClass.active ? '已分配' : '班级已停用' }}</StatusBadge>
             </div>
           </div>
@@ -99,7 +99,7 @@ onMounted(() => {
             <span class="concept__block">JK<br /><small>触发器</small></span>
             <span class="concept__output">Q<br /><br />Q̅</span>
           </div>
-          <p>概念示意 · 非实时仿真。正式演示与波形数据由 SPEC-012 提供。</p>
+          <p>这里是概念示意。逐拍演示与波形请进入「我的课堂」或教师「课堂」。</p>
         </div>
       </SectionCard>
     </div>
@@ -109,6 +109,7 @@ onMounted(() => {
         <div class="module-list">
           <div><AppIcon name="book" /><span>课程知识与教学资源</span><StatusBadge tone="success">已开放</StatusBadge></div>
           <div><AppIcon name="clock" /><span>课堂演示与时序仿真</span><StatusBadge tone="success">已开放</StatusBadge></div>
+          <div><AppIcon name="check" /><span>题库练习与错题</span><StatusBadge tone="success">已开放</StatusBadge></div>
           <div><AppIcon name="flask" /><span>实验辅助与验证</span><StatusBadge>待开放</StatusBadge></div>
         </div>
       </SectionCard>

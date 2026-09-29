@@ -22,6 +22,11 @@ const routes = [
   { path: '/student/learning', name: 'student-learning', component: { template: '<div />' } },
   { path: '/student/knowledge/1', name: 'student-knowledge', component: { template: '<div />' } },
   { path: '/student/classroom', name: 'student-classroom', component: { template: '<div />' } },
+  { path: '/teacher/questions', name: 'teacher-questions', component: { template: '<div />' } },
+  { path: '/student/practice', name: 'student-practice', component: { template: '<div />' } },
+  { path: '/student/assessments/1', name: 'student-assessment', component: { template: '<div />' } },
+  { path: '/student/results/1', name: 'student-result', component: { template: '<div />' } },
+  { path: '/student/mistakes', name: 'student-mistakes', component: { template: '<div />' } },
   { path: '/admin/users', name: 'admin-users', component: { template: '<div />' } },
   { path: '/admin/classes', name: 'admin-classes', component: { template: '<div />' } },
   { path: '/admin/classes/1/enrollments', name: 'admin-enrollments', component: { template: '<div />' } },
@@ -76,6 +81,20 @@ describe('role navigation and shell', () => {
     expect(navigationFor('teacher').find((item) => item.route === 'teacher-content')).toBeTruthy()
     expect(navigationFor('teacher').find((item) => item.route === 'teacher-attendance')).toBeTruthy()
     expect(navigationFor('admin').find((item) => item.route === 'teacher-content')).toBeTruthy()
+  })
+
+  it('题库与习题训练入口已接通并在子页面高亮', async () => {
+    const teacher = await setup('teacher', '/teacher/questions')
+    expect(teacher.wrapper.findAll('a.nav-item').map((item) => item.text())).toContain('题库')
+    expect(teacher.wrapper.find('a.nav-item--active').text()).toContain('题库')
+    teacher.wrapper.unmount()
+
+    const student = await setup('student', '/student/mistakes')
+    const labels = student.wrapper.findAll('a.nav-item').map((item) => item.text())
+    expect(labels).toContain('习题训练')
+    expect(student.wrapper.find('a.nav-item--active').text()).toContain('习题训练')
+    expect(student.wrapper.find('.topbar__context').text()).toContain('习题训练')
+    student.wrapper.unmount()
   })
 
   it('课堂演示入口已接通，并在演示页高亮', async () => {

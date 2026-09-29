@@ -84,6 +84,36 @@ const routes = [
     meta: { requiresAuth: true, roles: ['student'] },
   },
   {
+    path: '/teacher/questions',
+    name: 'teacher-questions',
+    component: () => import('@/views/TeacherQuestionsView.vue'),
+    meta: { requiresAuth: true, roles: ['teacher'] },
+  },
+  {
+    path: '/student/practice',
+    name: 'student-practice',
+    component: () => import('@/views/StudentPracticeView.vue'),
+    meta: { requiresAuth: true, roles: ['student'] },
+  },
+  {
+    path: '/student/assessments/:id',
+    name: 'student-assessment',
+    component: () => import('@/views/StudentAssessmentView.vue'),
+    meta: { requiresAuth: true, roles: ['student'] },
+  },
+  {
+    path: '/student/results/:submissionId',
+    name: 'student-result',
+    component: () => import('@/views/StudentResultView.vue'),
+    meta: { requiresAuth: true, roles: ['student'] },
+  },
+  {
+    path: '/student/mistakes',
+    name: 'student-mistakes',
+    component: () => import('@/views/StudentMistakesView.vue'),
+    meta: { requiresAuth: true, roles: ['student'] },
+  },
+  {
     path: '/admin/users',
     name: 'admin-users',
     component: () => import('@/views/AdminUsersView.vue'),

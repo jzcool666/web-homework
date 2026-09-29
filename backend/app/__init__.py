@@ -11,6 +11,7 @@ from pathlib import Path
 from flask import Flask, abort, send_from_directory
 
 from .api_admin import bp as admin_bp
+from .api_assessment import bp as assessment_bp
 from .api_attendance import bp as attendance_bp
 from .api_auth import bp as auth_bp
 from .api_content import bp as content_bp
@@ -72,6 +73,7 @@ def create_app(config_name: str | None = None, overrides: dict | None = None) ->
     app.register_blueprint(auth_bp, url_prefix=API_PREFIX)
     app.register_blueprint(admin_bp, url_prefix=API_PREFIX)
     app.register_blueprint(attendance_bp, url_prefix=API_PREFIX)
+    app.register_blueprint(assessment_bp, url_prefix=API_PREFIX)
     app.register_blueprint(content_bp, url_prefix=API_PREFIX)
     app.register_blueprint(experiment_bp, url_prefix=API_PREFIX)
 
