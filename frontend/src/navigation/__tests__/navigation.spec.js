@@ -33,6 +33,7 @@ const routes = [
   { path: '/teacher/lesson-plans', name: 'teacher-lesson-plans', component: { template: '<div />' } },
   { path: '/teacher/analytics/learning', name: 'teacher-learning-analytics', component: { template: '<div />' } },
   { path: '/teacher/analytics/attendance', name: 'teacher-attendance-analytics', component: { template: '<div />' } },
+  { path: '/teacher/warnings', name: 'teacher-warnings', component: { template: '<div />' } },
   { path: '/teacher/assessments', name: 'teacher-assessments', component: { template: '<div />' } },
   { path: '/teacher/assessments/1', name: 'teacher-assessment', component: { template: '<div />' } },
   {
@@ -230,5 +231,18 @@ describe('role navigation and shell', () => {
     const teacher = await setup('teacher', '/teacher/qa')
     expect(teacher.wrapper.find('a.nav-item--active').text()).toContain('课程问答')
     teacher.wrapper.unmount()
+  })
+
+  it('学习预警入口已接通并在预警页高亮', async () => {
+    expect(
+      navigationFor('teacher').find((item) => item.route === 'teacher-warnings'),
+    ).toBeTruthy()
+    expect(
+      navigationFor('teacher').find((item) => item.label === '学习预警').planned,
+    ).toBeUndefined()
+
+    const { wrapper } = await setup('teacher', '/teacher/warnings')
+    expect(wrapper.find('a.nav-item--active').text()).toContain('学习预警')
+    wrapper.unmount()
   })
 })

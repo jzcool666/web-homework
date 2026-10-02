@@ -77,6 +77,12 @@
 | 2026-10-02 | SPEC-007实现 | APIC 错误表 503 增加 `INDEX_UNAVAILABLE`：语料索引重建失败时保留旧索引并让请求显式失败 | SPEC-007 第 4 节第 3 条「失败保留旧索引并显式报错，不返回混合版本」；沿用 `DB_BUSY` 会掩盖真实原因 |
 | 2026-10-02 | SPEC-007实现 | 导航条目由「AI 辅导」（学生）与「智能工具」（教师）改为「课程问答」，两端分别指向 `/student/qa`、`/teacher/qa` | 本模块是文本检索而不是生成式辅导，原名称会让人以为存在未实现的能力；UI 基线第 10 节要求「入口名称不增加业务范围」，改名是收窄口径 |
 | 2026-10-02 | SPEC-007实现 | 依赖新增 `scikit-learn==1.9.1`（连带 scipy、joblib、threadpoolctl） | ADR-007 第 1 条指定 scikit-learn 的 TF-IDF 与余弦检索；沿用 requirements.txt「算法库随对应模块追加」的既有做法（SPEC-010 已追加 numpy/pandas） |
+| 2026-10-02 | SPEC-004实现 | 实现学习预警与分组：新增迁移 `0010_spec004`（warning_snapshots）、接口 E063/E064、`warning_service.py`（规则评分 + KMeans 分组）与教师端「学习预警」页面 | 路径与字段按 APIC/DBD 已定义内容实现；新增后端 18 条、前端 12 条用例；执行结果见 SPEC-004 执行报告 |
+| 2026-10-02 | SPEC-004实现 | APIC 第 7 节补 E063/E064 口径：factors 的权重与「只对可用因素归一化」、三因素的可用门槛、level 是项目规则档位而非校准概率、批次完整性与 E064 的返回形状；并把 Warning 的 `available_factors` 定为名称数组、`sample_counts` 定为逐因素样本量 | APIC、SPEC-004 第 4 节新增第 6、7 条；原文这两处未给类型，实现必须选一种并写明 |
+| 2026-10-02 | SPEC-004实现 | 沿用 SPEC-007 已引入的 `scikit-learn==1.9.1` 做 KMeans 班级分组（ADR-007 第 3 条）；本模块未再新增依赖 | backend/requirements.txt 仅补记 SPEC-004 的用途注释，版本行未变 |
+| 2026-10-02 | SPEC-004实现 | 三个因素沿用既有统计口径：出勤复用 SPEC-003 的按学生出勤率与 `_settle_task` 幂等结算；进度复用 SPEC-006 的完成率快照；首答正确率沿用 SPEC-010「全历史最早已提交作答、再按 submitted_at 落窗」的规则并按学生分组 | `api_warning.py`；未修改 `api_attendance.py`／`api_learning.py`／`api_assessment.py` |
+| 2026-10-02 | SPEC-004实现 | 导航新增教师「学习预警」入口；导航单测补该路由与高亮断言 | frontend/src/navigation、frontend/src/router 及其测试 |
+| 2026-10-02 | SPEC-004实现 | 合入前同步最新 develop：本模块迁移原先接在 `0008_spec008` 之后（revision `0009_spec004`），与并行合入的 SPEC-007 `0009_spec007` 会是同一个父节点的两个 head；已改接为 `0010_spec004`（父 `0009_spec007`） | backend/migrations/versions/0010_spec004_warnings.py；APIC、CHG-RB、README、导航测试的并行改动已一并合并 |
 
 当前没有发布版本、部署记录或实际回滚记录。以下为后续实现必须提供的流程。
 
