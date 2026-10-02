@@ -219,7 +219,7 @@ def _student_map(session, student_ids) -> dict[int, User]:
     return {u.id: u for u in session.scalars(select(User).where(User.id.in_(ids)))}
 
 
-def _settle_task(session, task: AttendanceTask, now: datetime | None = None) -> bool:
+def settle_task(session, task: AttendanceTask, now: datetime | None = None) -> bool:
     """把已结束任务中仍 pending 的记录结算为 absent；幂等，可重复调用。
 
     返回是否已到期。settled_at 只记首次结算时间，重复调用结果完全一致。
@@ -291,7 +291,7 @@ def list_attendance_tasks():
         )
     )
     for task in pending_settlement:
-        _settle_task(session, task)
+        settle_task(session, task)
     session.commit()
 
     stmt = (
@@ -428,7 +428,7 @@ def settle_attendance_task(task_id: int):
     if parse_utc(task.closes_at) > now:
         raise ApiError("DEADLINE_PASSED", "签到尚未结束，不能结算")
 
-    _settle_task(session, task, now)
+    settle_task(session, task, now)
     counts = _task_counts(session, task.id)
     session.commit()
     return success({"settled_at": task.settled_at, "counts": counts})
@@ -459,7 +459,7 @@ def list_attendance_records(task_id: int):
         raise ApiError("FORBIDDEN", "管理员不参与课堂教学操作")
 
     # 读取触发结束任务结算：未结算的 pending 不显示为缺勤，结算后才显示
-    if _settle_task(session, task):
+    if settle_task(session, task):
         session.commit()
 
     stmt = stmt.order_by(AttendanceRecord.created_at.desc(), AttendanceRecord.id.desc())

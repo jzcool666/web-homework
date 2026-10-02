@@ -312,7 +312,7 @@ def _active_class_ids(session, student_id: int) -> list[int]:
     )
 
 
-def _blocked_question_ids(session, student_id: int) -> set[int]:
+def blocked_question_ids(session, student_id: int) -> set[int]:
     """本班已发布（含已结束）但未公开反馈的班级测评所用题目。
 
     结束不等于公开：直到 feedback_released=true 才解除排除，避免学生用自练
@@ -923,7 +923,7 @@ def create_practice_session():
     session = db_session()
     user = current_user()
     _require_student_work_access(session, None, user.id)
-    blocked = _blocked_question_ids(session, user.id)
+    blocked = blocked_question_ids(session, user.id)
     stmt = select(Question).where(Question.published == 1)
 
     if using_mistakes:
@@ -1570,7 +1570,7 @@ def list_mistakes():
             raise ApiError("INVALID_REQUEST", "resolved 取值不合法", {"allowed": ["true", "false"]})
         resolved_filter = raw == "true"
 
-    blocked = _blocked_question_ids(session, user.id)
+    blocked = blocked_question_ids(session, user.id)
     latest: dict[int, dict] = {}
     for question_id, submitted_at, correct, snapshot_json in rows:
         if question_id in blocked:

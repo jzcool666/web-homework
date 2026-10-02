@@ -75,6 +75,15 @@ class BaseConfig:
             values["COOKIE_SECURE"] = _as_bool(v)
         if (v := os.environ.get("SQL_ECHO")) is not None:
             values["SQL_ECHO"] = _as_bool(v)
+        if (v := os.environ.get("RECOGNITION_TIMEOUT_SECONDS")) is not None:
+            # 配置模板里该项留空表示沿用默认值，不能当成 0 秒
+            if v.strip():
+                try:
+                    values["RECOGNITION_TIMEOUT_SECONDS"] = float(v)
+                except ValueError as exc:
+                    raise ValueError(
+                        f"RECOGNITION_TIMEOUT_SECONDS 必须是秒数，收到 {v!r}"
+                    ) from exc
         return values
 
 

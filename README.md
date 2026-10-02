@@ -2,7 +2,7 @@
 
 本项目面向时序逻辑课堂，支持教师备课、逐拍演示、随堂测与讲评，并为学生提供练习、实验和课后复习。
 
-当前版本为设计基线 1.0。工程骨架（SPEC-000）、账号角色与班级权限（SPEC-001）、考勤与请假（SPEC-002）、出勤与风险因素统计（SPEC-003，教师端）、学习预警与分组（SPEC-004，教师端）、课程知识与教学资源（SPEC-005）、学习进度与资源统计（SPEC-006，教师端）、课程检索问答（SPEC-007）、备课与预习发布（SPEC-008）、题库练习与错题（SPEC-009）、随堂测与测评统计（SPEC-010）、约束智能组卷（SPEC-011，教师端）、课堂演示与时序仿真（SPEC-012）、实验辅助与结果验证（SPEC-013，学生端）、实验学习统计（SPEC-014，教师端）、个性化复习推荐（SPEC-015，学生端）、时序逻辑知识图谱与可视化（SPEC-016，学生端与教师端）以及时序逻辑识别辅助（SPEC-017，学生端）已实现并实测通过，其余业务功能由后续 Spec 交付。命令与环境的实际结果见下方执行报告，未执行的项在报告中逐条列出。
+当前版本为设计基线 1.0。工程骨架（SPEC-000）、账号角色与班级权限（SPEC-001）、考勤与请假（SPEC-002）、出勤与风险因素统计（SPEC-003，教师端）、学习预警与分组（SPEC-004，教师端）、课程知识与教学资源（SPEC-005）、学习进度与资源统计（SPEC-006，教师端）、课程检索问答（SPEC-007）、备课与预习发布（SPEC-008）、题库练习与错题（SPEC-009）、随堂测与测评统计（SPEC-010）、约束智能组卷（SPEC-011，教师端）、课堂演示与时序仿真（SPEC-012）、实验辅助与结果验证（SPEC-013，学生端）、实验学习统计（SPEC-014，教师端）、个性化复习推荐（SPEC-015，学生端）、时序逻辑知识图谱与可视化（SPEC-016，学生端与教师端）以及时序逻辑识别辅助（SPEC-017，学生端）已实现并实测通过；18 个模块全部实现，模块级结果见各执行报告，系统集成验收（E2E、权限、部署、负载、备份恢复）见 [D7 集成验收报告](docs/testing/D7-集成验收报告.md)，未执行的项在该报告第 12 节逐条列出。
 
 ## 文档入口
 
@@ -39,6 +39,7 @@
 - [SPEC-015 执行报告](docs/testing/SPEC-015-执行报告.md)
 - [SPEC-016 执行报告](docs/testing/SPEC-016-执行报告.md)
 - [SPEC-017 执行报告](docs/testing/SPEC-017-执行报告.md)
+- [D7 集成验收报告](docs/testing/D7-集成验收报告.md)（E2E／权限／部署／负载／备份恢复，含未完成项）
 
 ## 技术和目录约定
 
@@ -47,17 +48,18 @@
 ```text
 frontend/                 前端工程（SPEC-000 已建立骨架）
 backend/app/              后端工程（SPEC-000 已建立骨架）
-backend/migrations/       数据库迁移（SPEC-000 已建立，业务表由各模块追加）
-tests/backend/            接口和领域测试（SPEC-000 已建立）
-frontend/src/**/__tests__/ 前端组件与仿真逻辑测试（SPEC-012/013 已实现）
-tests/e2e/                页面流程测试，待创建
-scripts/                  初始化及备份脚本，待创建
+backend/migrations/       数据库迁移（SPEC-000 已建立，业务表由各模块追加，当前 head 0011_spec017）
+tests/backend/            接口和领域测试（SPEC-000 已建立，307 条用例）
+tests/e2e/                系统集成验收脚本（D7，对真实运行的服务发 HTTP）
+tests/perf/               课堂负载脚本（D7，模拟数据）
+frontend/src/**/__tests__/ 前端组件与仿真逻辑测试（193 条用例）
+scripts/                  备份与恢复脚本（D7，OPS-02）
 docs/                     设计、规格、测试与检查材料
 ```
 
 ## 环境和配置约定
 
-首版使用可支持所选锁定依赖的 Python 与 Node LTS。已实测并记录：Windows 11（10.0.26200）、Python 3.14.7、Node v24.18.0、npm 11.16.0。运行数据存放在项目外或未跟踪的 `instance/`。配置项：`DATABASE_URL`、`UPLOAD_DIR`、`SECRET_KEY`、`APP_ENV`、`COOKIE_SECURE`、`RECOGNITION_TIMEOUT_SECONDS`（SPEC-017 的单张图片识别限时，默认 5 秒，超时返回 503 且不保留任务）；配置模板 `backend/.env.example` 不含真实密码。开发默认 localhost，局域网部署才设置监听地址。
+首版使用可支持所选锁定依赖的 Python 与 Node LTS。已实测并记录：Windows 11（10.0.26200）、Python 3.14.7、Node v24.18.0、npm 11.16.0。运行数据存放在项目外或未跟踪的 `instance/`。配置项：`DATABASE_URL`、`UPLOAD_DIR`、`SECRET_KEY`、`APP_ENV`、`COOKIE_SECURE`、`RECOGNITION_TIMEOUT_SECONDS`（SPEC-017 的单张图片识别限时，默认 5 秒，超时返回 503 且不保留任务；在 `.env` 中留空即沿用默认值）；配置模板 `backend/.env.example` 不含真实密码。开发默认 localhost，局域网部署才设置监听地址。
 
 SQLite 文件路径必须解析成绝对路径，启用外键、5 秒 busy_timeout；数据库迁移版本由 Alembic 管理。不提交数据库、上传文件、密钥、node_modules、虚拟环境或缓存。
 
@@ -75,12 +77,12 @@ SQLite 文件路径必须解析成绝对路径，启用外键、5 秒 busy_timeo
 
 ## 测试和部署验收
 
-以[测试计划](docs/testing/需求追溯与测试计划.md)验证两班权限、答题截止、统计分母、状态仿真和新环境启动。SQLite 写操作用短事务，课堂并发以实测确定。安装依赖需要网络；安装完成后核心内容、仿真和题库应不依赖外部服务。
+以[测试计划](docs/testing/需求追溯与测试计划.md)验证两班权限、答题截止、统计分母、状态仿真和新环境启动。SQLite 写操作用短事务，课堂并发以实测确定：D7 用 60 个模拟客户端 3 秒轮询 10 分钟测得普通接口 p95 最差 423 ms、统计 37 ms、组卷 25 ms，0 错误、0 数据错写（[D7 集成验收报告](docs/testing/D7-集成验收报告.md) 第 7 节，数据为模拟）。安装依赖需要网络；安装完成后核心内容、仿真和题库应不依赖外部服务。
 
-普通 HTTP 局域网仅用于受控演示；需要真实账号数据的部署应配置 HTTPS 与 Secure Cookie。首次实际课堂使用前完成备份恢复演练。详细回滚步骤见 [CHG-RB](CHG-RB.md)。
+普通 HTTP 局域网仅用于受控演示；需要真实账号数据的部署应配置 HTTPS 与 Secure Cookie（`APP_ENV=production` 默认 `COOKIE_SECURE=1`，此时必须 HTTPS 才能完成登录）。首次实际课堂使用前完成备份恢复演练：`python scripts/backup.py --backend backend` 与 `python scripts/restore.py --backup <备份目录> --backend backend`（备份用 SQLite backup API，不复制写入中的主文件）。详细回滚步骤见 [CHG-RB](CHG-RB.md)，已执行的演练结果见 [D7 集成验收报告](docs/testing/D7-集成验收报告.md) 第 9 节。
 
 ## 版本管理与提交
 
 开发仓库：[web-homework](https://github.com/jzcool666/web-homework)。课程交付时同步 Gitea；地址由项目组补充。采用 main、develop、feature/spec-* 和 hotfix/*，提交及测试关联 Spec 编号。源代码推送不会自动复制平台上的 PR 和 Issue，需要的检查材料应存入 docs。
 
-班级、组号及最终报告模板待补。组长提交成员名单、大作业报告、源码及设计文件；组员设计报告按 `学号_姓名_设计报告.docx` 命名。正式材料依实际实现更新，当前文档不代表功能已验收。
+班级、组号及最终报告模板待补。组长提交成员名单、大作业报告、源码及设计文件；组员设计报告按 `学号_姓名_设计报告.docx` 命名。技术验收（模块与系统集成）已完成，结果见 [D7 集成验收报告](docs/testing/D7-集成验收报告.md)；课程报告、班级组号、Gitea 迁移与独立用户手册仍未完成，该报告第 12 节如实列出。
