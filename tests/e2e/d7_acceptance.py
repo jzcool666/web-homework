@@ -744,8 +744,10 @@ def matrix_checks(base, report: Report, ctx: dict, questions: dict, experiments:
                  (status, payload))
 
     # --- SPEC-004 预警：无批次返回空（T-004-04） ---
-    warnings = alpha.ok("GET", f"{API}/warnings?class_id={cb}")
-    report.check(case, "未生成过的班级预警返回空数组而非假造（E064）",
+    # 用本班一个从未生成过的历史窗口，确认没有批次时返回空数组而不是假造
+    warnings = alpha.ok("GET", f"{API}/warnings?class_id={ca}"
+                               "&from=2020-01-01T00:00:00Z&to=2020-02-01T00:00:00Z")
+    report.check(case, "未生成过的窗口预警返回空数组而非假造（E064）",
                  warnings == [], warnings)
 
     # --- SPEC-015 推荐：冷启动 score=null（T-015-02） ---
@@ -776,6 +778,9 @@ def basic_functions(base, report: Report, ctx: dict, questions: dict):
 
     knowledge = alpha.ok("GET", f"{API}/knowledge-points?page_size=100")
     kid = knowledge[0]["id"]
+    # 自练必须有已发布题目；预置素材只含知识点，D7 的计数器题挂在含"计数器"的知识点上
+    practice_point = next(
+        (k["id"] for k in knowledge if "计数器" in k["title"]), kid)
 
     # --- 课程知识 / 教学资源（SPEC-005） ---
     chapters = student1.ok("GET", f"{API}/chapters")
@@ -867,21 +872,32 @@ def basic_functions(base, report: Report, ctx: dict, questions: dict):
                  csv_data[:3] == b"\xef\xbb\xbf" and b"summary" in csv_data[:400])
 
     # --- 习题与测评：自练 + 错题（SPEC-009） ---
-    practice = student2.ok("POST", f"{API}/practice-sessions", body={"count": 1},
-                           expect=201)
-    psub = student2.ok("POST", f"{API}/assessments/{practice['id']}/submissions",
-                       body={}, expect=201)
-    pitem = student2.ok("GET", f"{API}/assessments/{practice['id']}")["items"][0]
-    psaved = student2.ok("PUT", f"{API}/submissions/{psub['id']}/answers", body={
+    # 甲班有一份已结束但未公开反馈的班级测评（E2E-03），其题目必须被挡在自练之外；
+    # 乙班没有任何班级测评，同一道已发布题对乙班学生可用。
+    status, payload = student2.call("POST", f"{API}/practice-sessions",
+                                    body={"knowledge_ids": [practice_point], "count": 1})
+    report.check("基础-习题测评", "已结束未公开反馈的测评题目不进自练候选（T-009-04）",
+                 status == 422 and payload["error"]["code"] == "INFEASIBLE_PAPER",
+                 (status, payload))
+
+    practice = beta_student.ok("POST", f"{API}/practice-sessions",
+                               body={"knowledge_ids": [practice_point], "count": 1},
+                               expect=201)
+    psub = beta_student.ok("POST", f"{API}/assessments/{practice['id']}/submissions",
+                           body={}, expect=201)
+    pitem = beta_student.ok("GET", f"{API}/assessments/{practice['id']}")["items"][0]
+    psaved = beta_student.ok("PUT", f"{API}/submissions/{psub['id']}/answers", body={
         "version": psub["version"],
         "answers": [{"item_id": pitem["id"], "selected": ["B"]}]})
-    presult = student2.ok("POST", f"{API}/submissions/{psub['id']}/finalization",
-                          body={"version": psaved["version"]})
+    beta_student.ok("POST", f"{API}/submissions/{psub['id']}/finalization",
+                    body={"version": psaved["version"]})
+    presult = beta_student.ok("GET", f"{API}/submissions/{psub['id']}/result")
     report.check("基础-习题测评", "自练即时反馈含答案与解析（T-009-01）",
                  "answer" in presult["items"][0]
                  and presult["feedback_available"] is True, presult.get("score"))
-    mistakes = student2.ok("GET", f"{API}/me/mistakes")
-    report.check("基础-习题测评", "错题本可读（T-009-04）", isinstance(mistakes, list))
+    mistakes = beta_student.ok("GET", f"{API}/me/mistakes")
+    report.check("基础-习题测评", "错题本记录本次答错（T-009-04）",
+                 any(m["question_id"] == pitem["question_id"] for m in mistakes), mistakes)
     return {}
 
 
