@@ -83,6 +83,12 @@
 | 2026-10-02 | SPEC-004实现 | 三个因素沿用既有统计口径：出勤复用 SPEC-003 的按学生出勤率与 `_settle_task` 幂等结算；进度复用 SPEC-006 的完成率快照；首答正确率沿用 SPEC-010「全历史最早已提交作答、再按 submitted_at 落窗」的规则并按学生分组 | `api_warning.py`；未修改 `api_attendance.py`／`api_learning.py`／`api_assessment.py` |
 | 2026-10-02 | SPEC-004实现 | 导航新增教师「学习预警」入口；导航单测补该路由与高亮断言 | frontend/src/navigation、frontend/src/router 及其测试 |
 | 2026-10-02 | SPEC-004实现 | 合入前同步最新 develop：本模块迁移原先接在 `0008_spec008` 之后（revision `0009_spec004`），与并行合入的 SPEC-007 `0009_spec007` 会是同一个父节点的两个 head；已改接为 `0010_spec004`（父 `0009_spec007`） | backend/migrations/versions/0010_spec004_warnings.py；APIC、CHG-RB、README、导航测试的并行改动已一并合并 |
+| 2026-10-02 | SPEC-016实现 | 实现时序逻辑知识图谱：E066/E067/E068 三个只读接口、`graph_service.py`（BFS 最短路、分层 Kahn 拓扑排序、Tarjan 环检测）与「知识图谱」页面（学生端与教师端共用） | **未新增迁移**，DBD 第 5 节末段明确图谱是 `knowledge_edges` 的只读投影、实时计算；复用 SPEC-005 的 chapters/knowledge_points/knowledge_edges 与 SPEC-001 的 enrollments，全量回归时 head 为 `0010_spec004` |
+| 2026-10-02 | SPEC-016实现 | 前端依赖新增 `echarts@6.1.0`（`frontend/package.json` 精确锁定） | ADR-007 第 5 条要求用 ECharts 关系图渲染；README「技术和目录约定」已把 ECharts 列为前端技术栈，这是本模块唯一预期内的新依赖 |
+| 2026-10-02 | SPEC-016实现 | 明确 `GraphNode.depth/dimension` 与 `KnowledgeGraph.truncated`、`has_cycle/cycle_edges` 的语义：未指定 `root_id` 时 depth=0、dimension 标记入度为 0 的根节点集合，裁剪按 `(chapter_id, sort_order, id)`；环只描述本次响应范围内的子图 | APIC 第 2 节只固定字段名与类型，未定义这些语义；T-016-04 要求「节点超限按规则返回 truncated」，需要把规则写死才能测 |
+| 2026-10-02 | SPEC-016实现 | 查询参数错误分类：`depth` 非整数 400、整数越界 422；`chapter_id/root_id/from/to` 指向不存在的对象 404 | SPEC-016 第 4 节新增第 8 条；沿用 APIC 第 1 节「格式错误 400 / 字段错误 422 / 对象不存在 404」，原 Spec 未区分 |
+| 2026-10-02 | SPEC-016实现 | 合入前同步最新 develop（SPEC-004 已合入）：本模块无迁移，链上无分叉；`app/__init__.py`、router、navigation 及其测试、CHG-RB、README 的并行追加改动已合并保留两端 | 导航测试同时保留「学习预警」与「知识图谱」两条入口用例 |
+
 
 当前没有发布版本、部署记录或实际回滚记录。以下为后续实现必须提供的流程。
 
