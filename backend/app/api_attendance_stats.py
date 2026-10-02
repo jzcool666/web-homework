@@ -4,7 +4,7 @@
 - JSON 与 CSV 先算出同一份 payload 再分流，因此导出与页面是同一筛选、同一结果。
 - 窗口按任务 `opens_at` 选择；进入统计前先对已结束任务做幂等结算，
   只纳入已结算任务，进行中的任务不进分母（SPEC-003 第 4 节第 1 条）。
-- 结算复用 SPEC-002 的 `_settle_task`，避免出现第二套结算语义。
+- 结算复用 SPEC-002 的 `settle_task`，避免出现第二套结算语义。
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ from datetime import datetime, timedelta, timezone
 from flask import Blueprint, Response, request
 from sqlalchemy import select
 
-from .api_attendance import _settle_task
+from .api_attendance import settle_task
 from .auth import current_user, roles_required
 from .errors import ApiError, success
 from .models import SchoolClass, User
@@ -114,7 +114,7 @@ def _settle_ended_tasks(session, class_id: int) -> None:
     tasks = list(
         session.scalars(select(AttendanceTask).where(AttendanceTask.class_id == class_id))
     )
-    if any(_settle_task(session, task) for task in tasks):
+    if any(settle_task(session, task) for task in tasks):
         session.commit()
 
 

@@ -16,7 +16,7 @@ from datetime import datetime, timedelta, timezone
 from flask import Blueprint, request
 from sqlalchemy import select
 
-from .api_attendance import _settle_task
+from .api_attendance import settle_task
 from .auth import current_user, roles_required
 from .errors import ApiError, success
 from .models import Enrollment, SchoolClass, User, now_utc
@@ -134,7 +134,7 @@ def _settle_ended_tasks(session, class_id: int) -> None:
     tasks = list(
         session.scalars(select(AttendanceTask).where(AttendanceTask.class_id == class_id))
     )
-    if any(_settle_task(session, task) for task in tasks):
+    if any(settle_task(session, task) for task in tasks):
         session.commit()
 
 

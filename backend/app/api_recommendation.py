@@ -9,7 +9,7 @@
 - 进度：SPEC-006 的 `learning_progress`（只有明确记录才算，缺失不当失败）。
 - 实验：SPEC-014/013 的 `experiment_attempts` 按实验挂载的知识点聚合通过率。
 
-屏蔽题复用 SPEC-009 的既有实现 `api_assessment._blocked_question_ids`（本班已发布
+屏蔽题复用 SPEC-009 的既有实现 `api_assessment.blocked_question_ids`（本班已发布
 或已结束但尚未公开反馈的班级测评所用题）；把「首答聚合」抽成公共函数是评审记录的
 D7 清理项，本模块不顺手改他人模块。
 """
@@ -19,7 +19,7 @@ from __future__ import annotations
 from flask import Blueprint, request
 from sqlalchemy import select
 
-from .api_assessment import _blocked_question_ids
+from .api_assessment import blocked_question_ids
 from .auth import current_user, roles_required
 from .errors import ApiError, success
 from .models_assessment import (
@@ -195,7 +195,7 @@ def my_recommendations():
     per_knowledge, correct_questions = _first_answers(session, student_id)
     experiments = _experiment_stats(session, student_id)
     questions = _practice_questions(
-        session, _blocked_question_ids(session, student_id), correct_questions
+        session, blocked_question_ids(session, student_id), correct_questions
     )
 
     signals: dict[int, dict] = {}
