@@ -10,6 +10,10 @@
   --color-hero-text: #d6e1ff;
   --color-wave-clock: #9cbcff;
   --color-wave-state: #d0a6ff;
+  /* 波形状态色板：每信号一色，颜色之外仍需拍号/行标签编码 */
+  --color-wave-j: #2f9e63;
+  --color-wave-k: #d97a1f;
+  --color-wave-q: #7a5af5;
   --color-grid-surface: #f8fbff;
   --color-grid-line: #eaf0fa;
   --color-bg-page: #f4f7fc;
