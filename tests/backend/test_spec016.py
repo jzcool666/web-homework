@@ -266,6 +266,13 @@ def test_T016_03_shortest_path_and_no_path_is_not_fabricated(school):
                      f"{API}/knowledge-graph/path?from={binary['id']}&to={mod6['id']}")
     assert len(direct.get_json()["data"]["edges"]) == 1
 
+    # 起点与终点相同：单节点、无边，不是「无路径」
+    same = api_get(school["app"], school["student"],
+                   f"{API}/knowledge-graph/path?from={mod6['id']}&to={mod6['id']}").get_json()["data"]
+    assert same["matched"] is True
+    assert [node["knowledge_id"] for node in same["nodes"]] == [mod6["id"]]
+    assert same["edges"] == []
+
 
 # ---- T-016-04 访问控制、depth 校验、超限裁剪与章节过滤 ----
 

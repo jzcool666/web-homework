@@ -55,7 +55,12 @@ function draw() {
   })
   if (!chart) {
     try {
-      chart = echarts.init(canvasEl.value, null, { width: 900, height: 480 })
+      // 用容器实际尺寸；量不到（例如尚未布局的测试环境）时退回固定尺寸
+      const element = canvasEl.value
+      chart = echarts.init(element, null, {
+        width: element.clientWidth || 900,
+        height: element.clientHeight || 480,
+      })
     } catch (err) {
       renderError.value = err?.message || '图形渲染不可用'
       return
