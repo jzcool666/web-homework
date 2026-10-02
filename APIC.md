@@ -23,7 +23,7 @@ GET 成功 200、创建 201、PATCH/PUT/动作成功 200、DELETE 成功 200 且
 | 415 | FILE_TYPE_UNSUPPORTED | 文件类型不支持 |
 | 422 | VALIDATION_ERROR / INFEASIBLE_PAPER | 字段语义或组卷约束不满足 |
 | 429 | RATE_LIMITED | 请求过于频繁，附 Retry-After |
-| 503 | DB_BUSY / SOLVER_TIMEOUT / INDEX_UNAVAILABLE | 暂时不可用，可重试；INDEX_UNAVAILABLE 表示课程检索语料索引重建失败（E061），此时不用旧索引回答新语料 |
+| 503 | DB_BUSY / SOLVER_TIMEOUT / INDEX_UNAVAILABLE / RECOGNITION_TIMEOUT | 暂时不可用，可重试；INDEX_UNAVAILABLE 表示课程检索语料索引重建失败（E061），此时不用旧索引回答新语料；RECOGNITION_TIMEOUT 表示识别超出配置限时（E069），未保留任务 |
 
 权限缩写：U=已登录用户；A=管理员；T=本人任教班级的教师；S=对应班级名单中的学生；O=内容所有者（teacher/admin）。T 不自动包含管理员，管理员需要教学账号才能操作课堂。无 class_id 的学生自练和学习记录仅本人可见。对跨班级资源返回 404，对已知角色不允许的集合操作返回 403。
 
@@ -192,6 +192,8 @@ E063/E064 的口径补充（2026-10-02 随 SPEC-004 实现固定）：factors �
 - GraphEdge：`prerequisite_id,target_id`；方向为先修指向后继。
 - KnowledgeGraph：`nodes:[GraphNode],edges:[GraphEdge],has_cycle:boolean,truncated:boolean`；truncated 为节点超上限被裁剪时为 true。
 - RecognitionTask：`id,class_id,kind:state_table,status:done/failed,created_at,result:{rows:int,cols:int,states:[{row:int,value:int}],transitions:[{from:int,to:int}],confidence:number,requires_review:true}或null,error:{code,message,details}或null`；同步处理完成后才返回任务，status=failed 时 result 为 null 且 error 给出格式原因。
+
+E069/E070 的补充（2026-10-02 随 SPEC-017 实现固定）：E069 是 multipart，字段名为 `image`（PNG/JPEG，单文件 ≤20MiB）、`class_id`、`kind=state_table`；扩展名白名单之外返回 415、超限返回 413。**本接口刻意忽略多出来的 multipart 字段**（例如客户端塞 `passed`/`score`）：T-017-03 要求这类字段被忽略而不是报错，且本模块没有任何客户端可写的判分字段，忽略不会造成字段被覆盖（这是对第 1 节「拒绝未知业务字段」的一处显式例外，已登记 CHG-RB）。学生只能选择本人当前有效班级、教师只能选择本人任教班级，否则 404。处理同步完成并受配置项 `RECOGNITION_TIMEOUT_SECONDS`（默认 5 秒）限制，超时返回 503 `RECOGNITION_TIMEOUT` 且**不保留任务**、可重试，不引入后台队列。E070 允许任务创建者与该任务保存的 `class_id` 的任课教师读取，其余人一律 404（不区分不存在与无权）。`result.states` 按行给出十进制状态值（位序 Q3Q2Q1Q0，最左列为高位），`transitions` 是相邻行推导出的次态对，`confidence` 是各格最高匹配度的最小值；失败任务的 `error.code` 取 `IMAGE_DECODE_FAILED`／`GRID_NOT_DETECTED`／`SHAPE_MISMATCH`／`CELL_NOT_BINARY`／`CELL_UNCERTAIN`，分别对应图片无法解码、未检测到网格、行列数不符、格内非 0/1、字符不确定。识别结果始终是辅助信息（`requires_review:true`），实验判分仍由 SPEC-013 从配置与输入序列重算，不采信识别结论或客户端字段。
 
 E057 的提交、平均分、逐题统计与分数段只计 `submitted_at ∈ [from,to)` 的记录；首答先从全历史确定最早作答，再检查其是否属于本次选中的测评和时间窗口。省略 `from/to` 时，默认窗口的 `to` 取服务器当前秒的下一秒，以覆盖当前秒刚提交的记录；显式传入的 `to` 始终右开。
 

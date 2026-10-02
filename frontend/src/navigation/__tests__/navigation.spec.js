@@ -49,6 +49,7 @@ const routes = [
   { path: '/student/experiments', name: 'student-experiments', component: { template: '<div />' } },
   { path: '/student/experiments/1', name: 'student-experiment', component: { template: '<div />' } },
   { path: '/student/attempts', name: 'student-attempts', component: { template: '<div />' } },
+  { path: '/student/recognition', name: 'student-recognition', component: { template: '<div />' } },
   { path: '/admin/users', name: 'admin-users', component: { template: '<div />' } },
   { path: '/admin/classes', name: 'admin-classes', component: { template: '<div />' } },
   { path: '/admin/classes/1/enrollments', name: 'admin-enrollments', component: { template: '<div />' } },
@@ -263,5 +264,18 @@ describe('role navigation and shell', () => {
     const teacher = await setup('teacher', '/knowledge-graph')
     expect(teacher.wrapper.find('a.nav-item--active').text()).toContain('知识图谱')
     teacher.wrapper.unmount()
+  })
+
+  it('状态表识别入口已接通并在识别页高亮', async () => {
+    expect(
+      navigationFor('student').find((item) => item.route === 'student-recognition'),
+    ).toBeTruthy()
+    expect(
+      navigationFor('student').find((item) => item.label === '状态表识别').planned,
+    ).toBeUndefined()
+
+    const { wrapper } = await setup('student', '/student/recognition')
+    expect(wrapper.find('a.nav-item--active').text()).toContain('状态表识别')
+    wrapper.unmount()
   })
 })

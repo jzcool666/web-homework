@@ -72,6 +72,12 @@ const routes = [
     meta: { requiresAuth: true, roles: ['student'] },
   },
   {
+    path: '/student/recognition',
+    name: 'student-recognition',
+    component: () => import('@/views/StudentRecognitionView.vue'),
+    meta: { requiresAuth: true, roles: ['student'] },
+  },
+  {
     path: '/teacher/attendance',
     name: 'teacher-attendance',
     component: () => import('@/views/TeacherAttendanceView.vue'),
