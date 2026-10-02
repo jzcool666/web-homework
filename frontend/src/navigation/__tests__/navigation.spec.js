@@ -46,6 +46,11 @@ const routes = [
   { path: '/student/assessments/1', name: 'student-assessment', component: { template: '<div />' } },
   { path: '/student/results/1', name: 'student-result', component: { template: '<div />' } },
   { path: '/student/mistakes', name: 'student-mistakes', component: { template: '<div />' } },
+  {
+    path: '/student/recommendations',
+    name: 'student-recommendations',
+    component: { template: '<div />' },
+  },
   { path: '/student/experiments', name: 'student-experiments', component: { template: '<div />' } },
   { path: '/student/experiments/1', name: 'student-experiment', component: { template: '<div />' } },
   { path: '/student/attempts', name: 'student-attempts', component: { template: '<div />' } },
@@ -276,6 +281,20 @@ describe('role navigation and shell', () => {
 
     const { wrapper } = await setup('student', '/student/recognition')
     expect(wrapper.find('a.nav-item--active').text()).toContain('状态表识别')
+    wrapper.unmount()
+  })
+
+  it('复习推荐入口已接通并在推荐页高亮，教师端没有该入口', async () => {
+    const entry = navigationFor('student').find((item) => item.route === 'student-recommendations')
+    expect(entry).toBeTruthy()
+    expect(entry.planned).toBeUndefined()
+    // E065 的角色是 S（学生本人），教师端不应出现这个入口
+    expect(
+      navigationFor('teacher').find((item) => item.label === '复习推荐'),
+    ).toBeUndefined()
+
+    const { wrapper } = await setup('student', '/student/recommendations')
+    expect(wrapper.find('a.nav-item--active').text()).toContain('复习推荐')
     wrapper.unmount()
   })
 })

@@ -18,6 +18,7 @@ export const navigation = {
       route: 'student-practice',
       activeRoutes: ['student-practice', 'student-assessment', 'student-result', 'student-mistakes'],
     },
+    { label: '复习推荐', icon: 'spark', route: 'student-recommendations' },
     {
       label: '实验中心',
       icon: 'flask',

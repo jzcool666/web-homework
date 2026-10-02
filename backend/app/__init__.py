@@ -30,6 +30,7 @@ from .health import bp as health_bp
 from .api_lesson import bp as lesson_bp
 from .api_learning import bp as learning_bp
 from .api_qa import bp as qa_bp
+from .api_recommendation import bp as recommendation_bp
 from .api_warning import bp as warning_bp
 from .api_recognition import bp as recognition_bp
 from .seed_content import register_content_cli
@@ -97,6 +98,7 @@ def create_app(config_name: str | None = None, overrides: dict | None = None) ->
     app.register_blueprint(qa_bp, url_prefix=API_PREFIX)
     app.register_blueprint(warning_bp, url_prefix=API_PREFIX)
     app.register_blueprint(recognition_bp, url_prefix=API_PREFIX)
+    app.register_blueprint(recommendation_bp, url_prefix=API_PREFIX)
 
     register_error_handlers(app)
     register_cli(app)

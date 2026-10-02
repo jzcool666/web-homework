@@ -97,6 +97,10 @@
 | 2026-10-02 | SPEC-017实现 | 导航新增学生「状态表识别」入口；导航单测补该路由与高亮断言 | frontend/src/navigation、frontend/src/router 及其测试 |
 | 2026-10-02 | SPEC-017实现 | 提交格式 v1 样例图片 `docs/testing/样例-状态表格式v1-模6计数器.png`（27KB，与测试同参数生成）与人工核对表 | SPEC-017 第 4 节第 2 条要求实现时制作样例图片与核对表；覆盖矩阵第 6 节的对应待办已勾销 |
 | 2026-10-02 | SPEC-017实现 | 合入前同步最新 develop（SPEC-016 已合入）：本模块迁移接在 `0010_spec004` 之后，链上无分叉；`app/__init__.py`、router、navigation 及其测试、CHG-RB、README 的并行追加改动已合并保留两端 | 导航测试同时保留「知识图谱」与「状态表识别」两条入口用例；SPEC-016 新增的 `echarts@6.1.0` 与本模块的 OpenCV/Pillow 互不影响 |
+| 2026-10-02 | SPEC-015实现 | 实现个性化复习推荐：接口 E065 `GET /me/recommendations`、`recommendation_service.py`（信号归一化与排序）与学生端「复习推荐」页面 | **未新增迁移**，DBD 第 5 节末段明确推荐首版实时计算、不另存汇总表、不持久保存学生隐式画像；复用 SPEC-006 的 learning_progress、SPEC-009 的 submissions/submission_answers/questions、SPEC-014/013 的 experiment_attempts 与 SPEC-005 的 knowledge_points/knowledge_edges，head 仍为 `0011_spec017` |
+| 2026-10-02 | SPEC-015实现 | APIC 第 2 节新增 `Recommendation` 字段模型与 E065 口径补充：`resource_id`/`knowledge_id` 各自含义、`score=null` 表示基础路径条目（不是 0 分）、排序与组装顺序、`limit` 的错误分工 | APIC 原文只给字段名，没有类型语义与排序规则；T-015-02 要求「新用户 score=null」、T-015-03 要求「已掌握被排除」，不写死就无法测 |
+| 2026-10-02 | SPEC-015实现 | 「未完成先修」只认**明确记录**（`completed=0`），无记录的先修不算未完成；「已公开首答」沿用 SPEC-009/010 的 `feedback_released=1` 口径 | SPEC-015 第 4 节新增第 6、7、8 条。第 1 条已写明 p 只取「明确未完成记录」，先修按同一口径才自洽；否则任何薄弱点都会被一串从未打开过的先修挤到后面 |
+| 2026-10-02 | SPEC-015实现 | 屏蔽题复用 SPEC-009 的 `api_assessment._blocked_question_ids`（跨模块导入既有私有函数），未复制第三份实现 | 第 4 节第 4 条的「未公开反馈测评题排除」与 SPEC-009/010 同规则；把「首答聚合」抽成公共函数是评审记录的 D7 清理项，本模块不顺手重构他人模块 |
 
 当前没有发布版本、部署记录或实际回滚记录。以下为后续实现必须提供的流程。
 
