@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import AppIcon from '@/components/ui/AppIcon.vue'
-import { navigationFor, roleLabels } from '@/navigation'
+import { groupedNavigationFor, navigationFor, roleLabels } from '@/navigation'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
@@ -11,11 +11,16 @@ const route = useRoute()
 const router = useRouter()
 const drawerOpen = ref(false)
 const items = computed(() => navigationFor(auth.user?.role))
+const groups = computed(() => groupedNavigationFor(auth.user?.role))
 const roleLabel = computed(() => roleLabels[auth.user?.role] ?? '课程空间')
 const pageLabel = computed(() => {
   if (route.name === 'profile') return '个人资料'
   return items.value.find((item) => item.route === route.name || item.activeRoutes?.includes(route.name))?.label ?? '学习首页'
 })
+
+function isActive(item) {
+  return item.route === route.name || item.activeRoutes?.includes(route.name)
+}
 
 watch(() => route.fullPath, () => { drawerOpen.value = false })
 
@@ -62,17 +67,26 @@ async function signOut() {
     <aside v-if="auth.user" id="app-sidebar" class="sidebar" :class="{ 'sidebar--open': drawerOpen }" aria-label="主导航">
       <div class="sidebar__heading">{{ roleLabel }}</div>
       <nav class="sidebar__nav" aria-label="角色导航">
-        <template v-for="item in items" :key="item.label">
-          <RouterLink v-if="item.route" class="nav-item" :class="{ 'nav-item--active': item.route === route.name || item.activeRoutes?.includes(route.name) }" :to="{ name: item.route }" :aria-current="item.route === route.name || item.activeRoutes?.includes(route.name) ? 'page' : undefined">
-            <AppIcon :name="item.icon" />
-            <span>{{ item.label }}</span>
-          </RouterLink>
-          <span v-else class="nav-item nav-item--planned" :title="`${item.planned} 尚未实现`" aria-disabled="true">
-            <AppIcon :name="item.icon" />
-            <span>{{ item.label }}</span>
-            <small>待开放</small>
-          </span>
-        </template>
+        <div v-for="(group, index) in groups" :key="group.label ?? `group-${index}`" class="nav-group">
+          <div v-if="group.label" class="nav-group__label">{{ group.label }}</div>
+          <template v-for="item in group.items" :key="item.label">
+            <RouterLink
+              v-if="item.route"
+              class="nav-item"
+              :class="{ 'nav-item--active': isActive(item) }"
+              :to="{ name: item.route }"
+              :aria-current="isActive(item) ? 'page' : undefined"
+            >
+              <AppIcon :name="item.icon" />
+              <span>{{ item.label }}</span>
+            </RouterLink>
+            <span v-else class="nav-item nav-item--planned" :title="`${item.planned} 尚未实现`" aria-disabled="true">
+              <AppIcon :name="item.icon" />
+              <span>{{ item.label }}</span>
+              <small>待开放</small>
+            </span>
+          </template>
+        </div>
       </nav>
       <div class="sidebar__footer">
         <span class="sidebar__signal" aria-hidden="true"></span>
