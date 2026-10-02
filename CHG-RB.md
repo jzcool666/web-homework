@@ -65,6 +65,8 @@
 | 2026-09-29 | SPEC-006实现 | 固定 E056 的统计口径：默认窗口截止到当前 UTC 日的下一日 00:00；分母只算当前已发布知识点、为 0 时完成率为 null；`completed_at` 为空或晚于 `to` 不计分子；`chapter_id` 同时收窄进度与资源两侧；`resources` 只列窗口内有去重事件的资料；退班学生不计当前进度名单但保留历史访问 | APIC 第 7 节。SPEC-006 第 4 节要求「当前快照近似」「from 只过滤资源事件」「UTC 整日边界」，原文字未覆盖这些边界 |
 | 2026-09-29 | SPEC-006实现 | CSV 与 JSON 在同一处算出同一份 payload、共用同一套权限校验后才分流；CSV 生成复用 `stats_assessment` 的 `to_csv`／`csv_safe` | SPEC-006 第 4 节第 4 条「CSV与同筛选JSON一致」；避免出现第二份公式注入防护实现 |
 | 2026-09-29 | SPEC-006独立评审 | 历史资源事件按入班日至退班日的 UTC 日范围归属，避免转班后的访问继续计入旧班；CSV 固定包含 summary 行 | 现有事件只有日期、入班表只有一组起止时间，同日转班或反复入班不能精确归属；空班级导出仍须保留分母和窗口元数据 |
+| 2026-10-02 | SPEC-011实现 | 实现约束智能组卷：接口 E062 `POST /paper-generations`、`generation_service.py`（确定性分支定界）与教师「智能组卷」页面 | **未新增迁移**，复用 SPEC-009 的 questions／question_knowledge／assessments／assessment_items／submissions／submission_answers 与 SPEC-001 的 enrollments，head 仍为 `0008_spec008`；结果与候选指纹写入 `assessments.generation_json`，不另设组卷表（DBD 第 5 节末段） |
+| 2026-10-02 | SPEC-011实现 | 组卷求解由设计基线的 SciPy `milp` 改为确定性分支定界（DFS + 递减上界剪枝、固定遍历顺序）；并把「已公开历史首答」明确为目标班级**已提交**首答（拉普拉斯平滑错误率，无历史取 1/2） | ADR-007 第 2 条、SPEC-011 第 2/4 节与执行报告；E062 输入输出字段、路径、状态码均未变，未新增依赖，同种子可复现 |
 
 当前没有发布版本、部署记录或实际回滚记录。以下为后续实现必须提供的流程。
 

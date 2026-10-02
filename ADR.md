@@ -45,7 +45,7 @@ flowchart LR
 ## ADR-007 六项轻量算法
 
 1. 问答：scikit-learn TF-IDF，字符 2—4 gram，余弦检索，最多 3 条来源。参考 [TfidfVectorizer](https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html)。不接收费外部服务；相似度不当作正确概率。
-2. 组卷：NumPy 建立覆盖与难度矩阵，SciPy `milp` 进行二元约束选题。候选最多 500，题量最多 30，求解限时 2 秒；超时和数学无解必须区分，参考 [SciPy milp](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.milp.html)。相比简单随机抽题增加一个求解步骤，换取约束可检验性。
+2. 组卷：约束选题的数学模型为二元整数规划（NumPy 建立覆盖与难度矩阵、SciPy `milp` 求解是设计基线方案，参考 [SciPy milp](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.milp.html)）。本工程不引入外部求解器依赖，实现改用等价的**确定性分支定界**（深度优先 + 递减上界剪枝，遍历顺序与平局判定固定）：候选最多 500，题量最多 30，求解限时 2 秒；超时和数学无解必须区分，相同种子与题库必然同结果。相比简单随机抽题增加一个求解步骤，换取约束可检验性。
 3. 预警：Pandas 聚合，NumPy 加权评分，数据充分时用 scikit-learn KMeans 补充班级分组描述；不把无监督分组当作挂科预测。冷启动仅提供规则评分或样本不足。
 4. 推荐：按错题、进度和实验表现计算内容排序，输出原因与对应知识点；无需训练复杂模型。
 5. 知识图谱：在 knowledge_edges 先修关系上做图遍历（BFS 最短路、拓扑排序、按深度子图裁剪与环检测），使用标准库与 NumPy，不引入图数据库；前端用 ECharts 关系图渲染。不做通用知识本体或从文本自动抽取关系。
