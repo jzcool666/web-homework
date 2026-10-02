@@ -1,6 +1,6 @@
 # SPEC-016 执行报告
 
-日期：2026-10-02。对象：SPEC-016 时序逻辑知识图谱与可视化。提交：`cdb3c74`（分支 `feature/spec-016`，基线 `origin/develop` `5c5eae7`）。
+日期：2026-10-02。对象：SPEC-016 时序逻辑知识图谱与可视化。提交：`feaa76e`（实现）、`d0340f0`（画布尺寸与路径边界修正）、`6dc49a6`（文档）；分支 `feature/spec-016`，基线 `origin/develop` `221afce`（rebase 后）。
 性质：本报告记录实际执行过的命令与结果，只覆盖 SPEC-016（E066/E067/E068 与「知识图谱」页面）。章节、知识点与先修关系由 SPEC-005 交付、本模块只读复用，未重写；不包含尚未实现的后续模块。
 
 ## 1 环境
@@ -42,14 +42,14 @@ Running upgrade 0007_spec013 -> 0008_spec008 ... -> 0009_spec007
 
 | # | 命令 | 退出码 | 结果 |
 | --- | --- | --- | --- |
-| 1 | `python -m pytest -q` | 0 | `262 passed in 1300.25s`（全量回归，含 SPEC-016 新增 7 条，既有模块用例继续通过） |
-| 2 | `python -m pytest tests/backend/test_spec016.py -q` | 0 | `7 passed in 24.46s`（补上「起点与终点相同」断言后的复跑） |
+| 1 | `python -m pytest -q` | 0 | `280 passed in 1125.84s`（**rebase 到含 SPEC-004 的最新 develop 后**的全量回归：262 条为 rebase 前本分支的值，另 18 条来自 SPEC-004；含 SPEC-016 7 条） |
+| 2 | `python -m pytest tests/backend/test_spec016.py -q` | 0 | `7 passed in 28.40s`（rebase 后复跑） |
 
 前端（`frontend/`）：
 
 | # | 命令 | 退出码 | 结果 |
 | --- | --- | --- | --- |
-| 3 | `npm run test:unit` | 0 | 24 个测试文件、`163 passed`（SPEC-016 新增 1 个文件 13 条：4 条纯函数 + 9 条页面/降级；navigation 同步补齐路由与 1 条入口用例） |
+| 3 | `npm run test:unit` | 0 | 26 个测试文件、`174 passed`（SPEC-016 新增 1 个文件 13 条：4 条纯函数 + 9 条页面/降级；navigation 同步补齐路由与 1 条入口用例。26/174 为 rebase 合入 SPEC-004 后的复跑值） |
 | 4 | `npm run build` | 0 | 构建成功，产出 `KnowledgeGraphView-*.js`（491.19 kB，gzip 165.67 kB）——ECharts 随该路由懒加载，不进首屏 |
 
 文档与其他：
