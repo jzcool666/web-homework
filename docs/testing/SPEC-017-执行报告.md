@@ -1,6 +1,7 @@
 # SPEC-017 执行报告
 
-日期：2026-10-02。对象：SPEC-017 时序逻辑识别辅助。提交：`65e3a0b`（分支 `feature/spec-017`，基线 `develop` `221afce`；报告随后续文档提交入库）。
+日期：2026-10-02。对象：SPEC-017 时序逻辑识别辅助。提交：`164975e`（实现）与 `bc6d9d6`（报告），分支 `feature/spec-017`。
+基线：开工时 `develop` = `221afce`；**实现完成后并行 PR #43（SPEC-016）合入，`develop` 前移到 `57f35bc`，本分支已 rebase 到该提交并重跑受影响测试**。
 性质：本报告记录实际执行过的命令与结果，只覆盖 SPEC-017（E069/E070、recognition_tasks 与学生端识别页）。未实现或未执行的项在第 6 节逐条列出。
 
 ## 1 环境
@@ -18,11 +19,22 @@
 | # | 命令 | 退出码 | 结果 |
 | --- | --- | --- | --- |
 | 1 | `python -m pytest tests/backend/test_spec017.py -q` | 0 | `20 passed` |
-| 2 | `python -m pytest tests/backend -q` | 0 | `293 passed`（全量回归，整轮 1392.22 秒 ≈ 23 分 12 秒） |
-| 3 | `npm run test:unit`（frontend） | 0 | 27 个测试文件、`170 passed`（SPEC-017 新增 11 条） |
+| 2 | `python -m pytest tests/backend -q`（rebase 前，`develop` `221afce`） | 0 | `293 passed`（整轮 1392.22 秒 ≈ 23 分 12 秒） |
+| 3 | `npm run test:unit`（frontend，rebase 前） | 0 | 27 个测试文件、`170 passed`（SPEC-017 新增 11 条） |
 | 4 | `npm run build`（frontend） | 0 | 构建成功，产物含 `StudentRecognitionView` 分块 |
 | 5 | `git diff --check` | 0 | 无空白错误 |
 | 6 | 文档一致性检查（项目外 `开发工作区/tools/check_docs.py`） | 0 | 未发现问题：接口 71 条、模块用例 72 条、相对链接 239 条有效 |
+
+### rebase 后的复测（`develop` `57f35bc`，含并行合入的 SPEC-016）
+
+| # | 命令 | 退出码 | 结果 |
+| --- | --- | --- | --- |
+| 7 | `python -m pytest tests/backend/test_spec017.py tests/backend/test_migrations.py -q` | 0 | `24 passed`（本模块用例 + 迁移链用例） |
+| 8 | `python -m pytest tests/backend -q` | 0 | `300 passed`（整轮 1115.48 秒 ≈ 18 分 35 秒；含 SPEC-016 与本模块的全部用例） |
+| 9 | `npm ci` → `npm run test:unit` | 0 | 28 个测试文件、`184 passed`（含 SPEC-016 新增的用例；其 ECharts 组件在 jsdom 下会打印 `getContext` 未实现的告警，属既有现象，不影响结论） |
+| 10 | `npm run build` | 0 | 构建成功（产物含 `KnowledgeGraphView` 与 `StudentRecognitionView` 两个分块） |
+
+rebase 的冲突文件：`CHG-RB.md`、`README.md`、`frontend/src/navigation/__tests__/navigation.spec.js`，均按「两端都保留」合并；`app/__init__.py`、router、navigation、覆盖矩阵自动合并成功。SPEC-016 未新增迁移，本模块的 `0011_spec017` 仍接在 `0010_spec004` 之后，链上无分叉。
 
 **迁移**：新增 `0011_spec017`（recognition_tasks），父 `0010_spec004`。合并后的升级链为 `…→0009_spec007→0010_spec004→0011_spec017`，已在新建库上实跑通过；`test_migration_round_trip` 只回退一步并断言前一个模块的 `warning_snapshots` 保留。
 
@@ -65,6 +77,8 @@
 落库核对（直接查 SQLite）：`recognition_tasks` 两行——`done` 行有 `result_json`、`error_json` 为空；`failed` 行 `result_json` 为空、有 `error_json`，符合「失败任务不保留有效 result」。两张图片都以随机名落在 `UPLOAD_DIR/recognition/`（`00b4c02e….png`、`c12bd0d1….png`），文件名不含原始名。
 
 方法学限制：应用内浏览器面板常为 0×0 或最小化，基于坐标的点击与截图不可靠，且**原生文件选择框无法驱动**；上述流程改用页面自身的处理函数与 `DataTransfer` 构造 File 驱动，与用户操作走同一条代码路径与同一组 HTTP 请求。**本轮没有可提供的截图**，不作已截图的记录。
+
+rebase 到 `57f35bc` 后重新跑了一遍同样的浏览器流程，结果一致（`识别完成 · 置信度 89.3% · 7 行 × 4 列`；空白图片 → `未检测到网格`），并确认导航里「知识图谱」与「状态表识别」两个入口同时存在。
 
 ## 5 逐条验收
 
