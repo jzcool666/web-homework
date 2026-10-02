@@ -72,6 +72,11 @@
 | 2026-10-02 | SPEC-003实现 | 导航新增教师「出勤统计」入口；导航单测补该路由与高亮断言 | frontend/src/navigation、frontend/src/router 及其测试 |
 | 2026-10-02 | SPEC-011实现 | 实现约束智能组卷：接口 E062 `POST /paper-generations`、`generation_service.py`（确定性分支定界）与教师「智能组卷」页面 | **未新增迁移**，复用 SPEC-009 的 questions／question_knowledge／assessments／assessment_items／submissions／submission_answers 与 SPEC-001 的 enrollments，head 仍为 `0008_spec008`；结果与候选指纹写入 `assessments.generation_json`，不另设组卷表（DBD 第 5 节末段） |
 | 2026-10-02 | SPEC-011实现 | 组卷求解由设计基线的 SciPy `milp` 改为确定性分支定界（DFS + 递减上界剪枝、固定遍历顺序）；并把「已公开历史首答」明确为目标班级**已提交**首答（拉普拉斯平滑错误率，无历史取 1/2） | ADR-007 第 2 条、SPEC-011 第 2/4 节与执行报告；E062 输入输出字段、路径、状态码均未变，未新增依赖，同种子可复现 |
+| 2026-10-02 | SPEC-007实现 | 实现课程检索问答：新增迁移 `0009_spec007`（qa_entries）、接口 E059/E060/E061、`retrieval.py` 语料索引（字符 2—4 gram TF-IDF 余弦）、`seed-qa` 语料种子（16 条）与教师语料管理、学生提问页面 | 字段与路径按 APIC/DBD 已定义内容实现；检索在库内语料上进行，未接入任何外部大模型服务 |
+| 2026-10-02 | SPEC-007实现 | 索引语料构成固定为：每个已发布知识点一条标题语料 + 一条正文档，每条已发布问答条目一条文档；命中按知识点归并取最高分，摘要始终取有内容的语料 | 标题与长正文合并后再归一化会稀释短查询的余弦，实测使「时钟上升沿的作用是什么」等改述查询排不进 Top3。标题语料只参与打分，不改变返回字段 |
+| 2026-10-02 | SPEC-007实现 | APIC 错误表 503 增加 `INDEX_UNAVAILABLE`：语料索引重建失败时保留旧索引并让请求显式失败 | SPEC-007 第 4 节第 3 条「失败保留旧索引并显式报错，不返回混合版本」；沿用 `DB_BUSY` 会掩盖真实原因 |
+| 2026-10-02 | SPEC-007实现 | 导航条目由「AI 辅导」（学生）与「智能工具」（教师）改为「课程问答」，两端分别指向 `/student/qa`、`/teacher/qa` | 本模块是文本检索而不是生成式辅导，原名称会让人以为存在未实现的能力；UI 基线第 10 节要求「入口名称不增加业务范围」，改名是收窄口径 |
+| 2026-10-02 | SPEC-007实现 | 依赖新增 `scikit-learn==1.9.1`（连带 scipy、joblib、threadpoolctl） | ADR-007 第 1 条指定 scikit-learn 的 TF-IDF 与余弦检索；沿用 requirements.txt「算法库随对应模块追加」的既有做法（SPEC-010 已追加 numpy/pandas） |
 
 当前没有发布版本、部署记录或实际回滚记录。以下为后续实现必须提供的流程。
 

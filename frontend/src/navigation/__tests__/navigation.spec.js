@@ -20,6 +20,8 @@ const routes = [
     component: { template: '<div />' },
   },
   { path: '/teacher/classroom', name: 'teacher-classroom', component: { template: '<div />' } },
+  { path: '/teacher/qa', name: 'teacher-qa', component: { template: '<div />' } },
+  { path: '/student/qa', name: 'student-qa', component: { template: '<div />' } },
   { path: '/teacher/demos/1', name: 'teacher-demo', component: { template: '<div />' } },
   { path: '/teacher/demos/1/present', name: 'teacher-demo-present', component: { template: '<div />' } },
   { path: '/student/demos', name: 'student-demos', component: { template: '<div />' } },
@@ -210,5 +212,23 @@ describe('role navigation and shell', () => {
     const { wrapper } = await setup('teacher', '/teacher/analytics/attendance')
     expect(wrapper.find('a.nav-item--active').text()).toContain('出勤统计')
     wrapper.unmount()
+  })
+
+  it('课程问答入口已接通，教师端与学生端各自高亮', async () => {
+    // 条目名从「AI 辅导 / 智能工具」改为「课程问答」：本模块是文本检索，不是生成式辅导
+    for (const role of ['student', 'teacher']) {
+      expect(navigationFor(role).find((item) => item.label === '课程问答')).toBeTruthy()
+      expect(navigationFor(role).find((item) => item.label === '课程问答').planned).toBeUndefined()
+    }
+    expect(navigationFor('student').find((item) => item.label === 'AI 辅导')).toBeUndefined()
+    expect(navigationFor('teacher').find((item) => item.label === '智能工具')).toBeUndefined()
+
+    const student = await setup('student', '/student/qa')
+    expect(student.wrapper.find('a.nav-item--active').text()).toContain('课程问答')
+    student.wrapper.unmount()
+
+    const teacher = await setup('teacher', '/teacher/qa')
+    expect(teacher.wrapper.find('a.nav-item--active').text()).toContain('课程问答')
+    teacher.wrapper.unmount()
   })
 })
