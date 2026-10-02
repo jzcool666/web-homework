@@ -114,6 +114,7 @@ onMounted(() => {
           <div><AppIcon name="clock" /><span>课堂演示与时序仿真</span><StatusBadge tone="success">已开放</StatusBadge></div>
           <div><AppIcon name="check" /><span>题库练习与错题</span><StatusBadge tone="success">已开放</StatusBadge></div>
           <div><AppIcon name="flask" /><span>实验辅助与验证</span><StatusBadge tone="success">已开放</StatusBadge></div>
+          <div><AppIcon name="spark" /><span>课程检索问答</span><StatusBadge tone="success">已开放</StatusBadge></div>
         </div>
       </SectionCard>
       <SectionCard title="系统连接">

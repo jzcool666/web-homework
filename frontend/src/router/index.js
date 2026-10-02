@@ -180,6 +180,18 @@ const routes = [
     meta: { requiresAuth: true, roles: ['admin'] },
     props: true,
   },
+  {
+    path: '/teacher/qa',
+    name: 'teacher-qa',
+    component: () => import('@/views/TeacherQaView.vue'),
+    meta: { requiresAuth: true, roles: ['teacher'] },
+  },
+  {
+    path: '/student/qa',
+    name: 'student-qa',
+    component: () => import('@/views/StudentQaView.vue'),
+    meta: { requiresAuth: true, roles: ['student'] },
+  },
 ]
 
 const router = createRouter({

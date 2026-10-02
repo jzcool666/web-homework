@@ -32,6 +32,8 @@ ERROR_STATUS = {
     "RATE_LIMITED": 429,
     "DB_BUSY": 503,
     "SOLVER_TIMEOUT": 503,
+    # SPEC-007：课程检索语料索引重建失败，保留旧索引并让请求显式失败
+    "INDEX_UNAVAILABLE": 503,
 }
 
 

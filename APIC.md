@@ -23,7 +23,7 @@ GET 成功 200、创建 201、PATCH/PUT/动作成功 200、DELETE 成功 200 且
 | 415 | FILE_TYPE_UNSUPPORTED | 文件类型不支持 |
 | 422 | VALIDATION_ERROR / INFEASIBLE_PAPER | 字段语义或组卷约束不满足 |
 | 429 | RATE_LIMITED | 请求过于频繁，附 Retry-After |
-| 503 | DB_BUSY / SOLVER_TIMEOUT | 暂时不可用，可重试 |
+| 503 | DB_BUSY / SOLVER_TIMEOUT / INDEX_UNAVAILABLE | 暂时不可用，可重试；INDEX_UNAVAILABLE 表示课程检索语料索引重建失败（E061），此时不用旧索引回答新语料 |
 
 权限缩写：U=已登录用户；A=管理员；T=本人任教班级的教师；S=对应班级名单中的学生；O=内容所有者（teacher/admin）。T 不自动包含管理员，管理员需要教学账号才能操作课堂。无 class_id 的学生自练和学习记录仅本人可见。对跨班级资源返回 404，对已知角色不允许的集合操作返回 403。
 

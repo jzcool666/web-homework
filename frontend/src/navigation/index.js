@@ -25,7 +25,7 @@ export const navigation = {
       activeRoutes: ['student-experiments', 'student-experiment', 'student-attempts'],
     },
     { label: '学习分析', icon: 'chart', planned: 'SPEC-006' },
-    { label: 'AI 辅导', icon: 'spark', planned: 'SPEC-007' },
+    { label: '课程问答', icon: 'spark', route: 'student-qa' },
     { label: '知识图谱', icon: 'network', planned: 'SPEC-016' },
   ],
   teacher: [
@@ -44,7 +44,7 @@ export const navigation = {
     { label: '实验统计', icon: 'chart', route: 'teacher-experiment-stats' },
     { label: '考勤与请假', icon: 'calendar', route: 'teacher-attendance' },
     { label: '学情分析', icon: 'chart', route: 'teacher-learning-analytics' },
-    { label: '智能工具', icon: 'spark', planned: 'SPEC-007' },
+    { label: '课程问答', icon: 'spark', route: 'teacher-qa' },
   ],
   admin: [
     { label: '管理首页', icon: 'home', route: 'home' },

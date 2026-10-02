@@ -2,7 +2,7 @@
 
 本项目面向时序逻辑课堂，支持教师备课、逐拍演示、随堂测与讲评，并为学生提供练习、实验和课后复习。
 
-当前版本为设计基线 1.0。工程骨架（SPEC-000）、账号角色与班级权限（SPEC-001）、考勤与请假（SPEC-002）、课程知识与教学资源（SPEC-005）、学习进度与资源统计（SPEC-006，教师端）、备课与预习发布（SPEC-008）、题库练习与错题（SPEC-009）、随堂测与测评统计（SPEC-010）、课堂演示与时序仿真（SPEC-012）、实验辅助与结果验证（SPEC-013，学生端）以及实验学习统计（SPEC-014，教师端）已实现并实测通过，其余业务功能由后续 Spec 交付。命令与环境的实际结果见下方执行报告，未执行的项在报告中逐条列出。
+当前版本为设计基线 1.0。工程骨架（SPEC-000）、账号角色与班级权限（SPEC-001）、考勤与请假（SPEC-002）、课程知识与教学资源（SPEC-005）、学习进度与资源统计（SPEC-006，教师端）、课程检索问答（SPEC-007）、备课与预习发布（SPEC-008）、题库练习与错题（SPEC-009）、随堂测与测评统计（SPEC-010）、课堂演示与时序仿真（SPEC-012）、实验辅助与结果验证（SPEC-013，学生端）以及实验学习统计（SPEC-014，教师端）已实现并实测通过，其余业务功能由后续 Spec 交付。命令与环境的实际结果见下方执行报告，未执行的项在报告中逐条列出。
 
 ## 文档入口
 
@@ -26,6 +26,7 @@
 - [SPEC-002 执行报告](docs/testing/SPEC-002-执行报告.md)
 - [SPEC-005 执行报告](docs/testing/SPEC-005-执行报告.md)
 - [SPEC-006 执行报告](docs/testing/SPEC-006-执行报告.md)
+- [SPEC-007 执行报告](docs/testing/SPEC-007-执行报告.md)
 - [SPEC-008 执行报告](docs/testing/SPEC-008-执行报告.md)
 - [SPEC-009 执行报告](docs/testing/SPEC-009-执行报告.md)
 - [SPEC-010 执行报告](docs/testing/SPEC-010-执行报告.md)
@@ -64,7 +65,7 @@ SQLite 文件路径必须解析成绝对路径，启用外键、5 秒 busy_timeo
 2. 配置环境变量（模板见 `backend/.env.example`），执行 `python -m flask --app app:create_app db upgrade`（工作目录 backend）。
 3. 开发时后端监听 localhost:5000，前端 `npm run dev` 使用 Vite 代理 `/api`；测试命令为根目录 `python -m pytest tests/backend`、前端 `npm run test:unit` 和 `npm run build`（pytest 路径已在 `pytest.ini` 配置）。
 4. 部署时先 `npm run build`，再以 `waitress-serve --listen=0.0.0.0:5000 wsgi:app`（工作目录 backend）启动，后端同源提供 `frontend/dist`；不使用 Flask 开发服务器承担实际课堂访问。`APP_ENV=production` 时必须提供 `DATABASE_URL` 与 `SECRET_KEY`。
-5. 管理员初始化（SPEC-001，已提供）：迁移后在工作目录 backend 执行 `python -m flask --app app:create_app init-admin --login-name <登录名> --password <口令>`。公开注册只允许学生，首个管理员的登录名一经占用即拒绝重建。课程内容种子（SPEC-005，已提供）：`python -m flask --app app:create_app seed-content --owner-login <教师登录名>`，写入六单元 12 知识点、先修关系与一份外链资料，可重复执行且不会重置已有内容。预置实验（SPEC-012，已提供）：`python -m flask --app app:create_app seed-experiments --owner-login <教师登录名>`，写入 D、JK、模 6 计数器与 4 位移位寄存器四个实验定义，需先有课程知识点。面向课堂的完整样例命令 `seed-demo` 属各业务模块，尚未提供。
+5. 管理员初始化（SPEC-001，已提供）：迁移后在工作目录 backend 执行 `python -m flask --app app:create_app init-admin --login-name <登录名> --password <口令>`。公开注册只允许学生，首个管理员的登录名一经占用即拒绝重建。课程内容种子（SPEC-005，已提供）：`python -m flask --app app:create_app seed-content --owner-login <教师登录名>`，写入六单元 12 知识点、先修关系与一份外链资料，可重复执行且不会重置已有内容。预置实验（SPEC-012，已提供）：`python -m flask --app app:create_app seed-experiments --owner-login <教师登录名>`，写入 D、JK、模 6 计数器与 4 位移位寄存器四个实验定义，需先有课程知识点。问答语料（SPEC-007，已提供）：`python -m flask --app app:create_app seed-qa --owner-login <教师登录名>`，写入 16 条已发布问答条目，需先有课程知识点。面向课堂的完整样例命令 `seed-demo` 属各业务模块，尚未提供。
 
 ## 测试和部署验收
 
