@@ -26,6 +26,10 @@ instance/
 *.db-shm
 uploads/
 
+# 备份产物（OPS-02 演练在仓库外或本目录进行，不进入交付包）
+backups/
+backup-*/
+
 # 密钥与环境配置，模板不提交真实口令
 .env
 .env.*
