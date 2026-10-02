@@ -89,6 +89,14 @@
 | 2026-10-02 | SPEC-016实现 | 查询参数错误分类：`depth` 非整数 400、整数越界 422；`chapter_id/root_id/from/to` 指向不存在的对象 404 | SPEC-016 第 4 节新增第 8 条；沿用 APIC 第 1 节「格式错误 400 / 字段错误 422 / 对象不存在 404」，原 Spec 未区分 |
 | 2026-10-02 | SPEC-016实现 | 合入前同步最新 develop（SPEC-004 已合入）：本模块无迁移，链上无分叉；`app/__init__.py`、router、navigation 及其测试、CHG-RB、README 的并行追加改动已合并保留两端 | 导航测试同时保留「学习预警」与「知识图谱」两条入口用例 |
 
+| 2026-10-02 | SPEC-017实现 | 实现时序逻辑识别辅助：新增迁移 `0011_spec017`（recognition_tasks）、接口 E069/E070、`recognition_service.py`（OpenCV/Pillow 灰度化、Otsu 二值化、网格切分、0/1 模板比对）与学生端「状态表识别」页面 | 按 APIC/DBD/ADR-007 第 6 条实现；新增后端 20 条、前端 11 条用例；格式 v1 样例图片与人工核对表见执行报告 |
+| 2026-10-02 | SPEC-017实现 | APIC 第 7 节补 E069/E070 细节：multipart 字段名（`image`/`class_id`/`kind`）、413/415、配置项 `RECOGNITION_TIMEOUT_SECONDS` 与 503、失败任务的五个错误码、states/transitions/confidence 形状、读取权限按任务保存的 class_id 核对 | APIC 第 1、7 节与 SPEC-017 第 4 节新增第 8、9 条 |
+| 2026-10-02 | SPEC-017实现 | E069 **显式忽略**多出来的 multipart 字段（如客户端塞 `passed`/`score`）：T-017-03 要求这类字段被忽略而不是报错 | 对 APIC 第 1 节「拒绝未知业务字段」的一处显式例外；本模块没有客户端可写的判分字段，忽略不会造成字段被覆盖 |
+| 2026-10-02 | SPEC-017实现 | 新增依赖 `opencv-python-headless==5.0.0.93` 与 `Pillow==12.3.0` | ADR-007 第 6 条要求 OpenCV/Pillow；服务端无需 GUI 组件，故用体积更小的 headless 版；未引入其他依赖 |
+| 2026-10-02 | SPEC-017实现 | 新增配置项 `RECOGNITION_TIMEOUT_SECONDS`（默认 5 秒）与错误码 `RECOGNITION_TIMEOUT`：识别超时返回 503，并删除刚写入的图片、不保留任务 | app/config.py、app/errors.py、api_recognition.py；SPEC-017 第 4 节第 7 条 |
+| 2026-10-02 | SPEC-017实现 | 导航新增学生「状态表识别」入口；导航单测补该路由与高亮断言 | frontend/src/navigation、frontend/src/router 及其测试 |
+| 2026-10-02 | SPEC-017实现 | 提交格式 v1 样例图片 `docs/testing/样例-状态表格式v1-模6计数器.png`（27KB，与测试同参数生成）与人工核对表 | SPEC-017 第 4 节第 2 条要求实现时制作样例图片与核对表；覆盖矩阵第 6 节的对应待办已勾销 |
+| 2026-10-02 | SPEC-017实现 | 合入前同步最新 develop（SPEC-016 已合入）：本模块迁移接在 `0010_spec004` 之后，链上无分叉；`app/__init__.py`、router、navigation 及其测试、CHG-RB、README 的并行追加改动已合并保留两端 | 导航测试同时保留「知识图谱」与「状态表识别」两条入口用例；SPEC-016 新增的 `echarts@6.1.0` 与本模块的 OpenCV/Pillow 互不影响 |
 
 当前没有发布版本、部署记录或实际回滚记录。以下为后续实现必须提供的流程。
 

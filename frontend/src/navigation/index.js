@@ -24,6 +24,7 @@ export const navigation = {
       route: 'student-experiments',
       activeRoutes: ['student-experiments', 'student-experiment', 'student-attempts'],
     },
+    { label: '状态表识别', icon: 'flask', route: 'student-recognition' },
     { label: '学习分析', icon: 'chart', planned: 'SPEC-006' },
     { label: '课程问答', icon: 'spark', route: 'student-qa' },
     { label: '知识图谱', icon: 'network', route: 'knowledge-graph' },

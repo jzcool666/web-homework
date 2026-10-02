@@ -58,6 +58,8 @@ class BaseConfig:
     UPLOAD_DIR = "instance/uploads"
     COOKIE_SECURE = False
     SQL_ECHO = False
+    # SPEC-017：单张状态表图片的识别限时（秒）；超时返回 503 且不保留任务
+    RECOGNITION_TIMEOUT_SECONDS = 5.0
 
     @classmethod
     def from_env(cls) -> dict:
@@ -129,7 +131,15 @@ def load_config(config_name: str | None = None, overrides: dict | None = None) -
     config_cls = CONFIG_BY_NAME[name]
 
     settings: dict[str, object] = {}
-    for key in ("APP_ENV", "SECRET_KEY", "DATABASE_URL", "UPLOAD_DIR", "COOKIE_SECURE", "SQL_ECHO"):
+    for key in (
+        "APP_ENV",
+        "SECRET_KEY",
+        "DATABASE_URL",
+        "UPLOAD_DIR",
+        "COOKIE_SECURE",
+        "SQL_ECHO",
+        "RECOGNITION_TIMEOUT_SECONDS",
+    ):
         settings[key] = getattr(config_cls, key)
     if name == "testing":
         settings["DATABASE_URL"] = TestingConfig.default_database_url()
