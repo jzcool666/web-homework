@@ -210,6 +210,12 @@ const routes = [
     component: () => import('@/views/StudentQaView.vue'),
     meta: { requiresAuth: true, roles: ['student'] },
   },
+  {
+    path: '/knowledge-graph',
+    name: 'knowledge-graph',
+    component: () => import('@/views/KnowledgeGraphView.vue'),
+    meta: { requiresAuth: true, roles: ['student', 'teacher'] },
+  },
 ]
 
 const router = createRouter({

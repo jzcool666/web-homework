@@ -26,7 +26,7 @@ export const navigation = {
     },
     { label: '学习分析', icon: 'chart', planned: 'SPEC-006' },
     { label: '课程问答', icon: 'spark', route: 'student-qa' },
-    { label: '知识图谱', icon: 'network', planned: 'SPEC-016' },
+    { label: '知识图谱', icon: 'network', route: 'knowledge-graph' },
   ],
   teacher: [
     { label: '教学首页', icon: 'home', route: 'home' },
@@ -48,6 +48,7 @@ export const navigation = {
     { label: '学习预警', icon: 'chart', route: 'teacher-warnings' },
     { label: '智能组卷', icon: 'spark', route: 'teacher-paper-generation' },
     { label: '课程问答', icon: 'spark', route: 'teacher-qa' },
+    { label: '知识图谱', icon: 'network', route: 'knowledge-graph' },
   ],
   admin: [
     { label: '管理首页', icon: 'home', route: 'home' },

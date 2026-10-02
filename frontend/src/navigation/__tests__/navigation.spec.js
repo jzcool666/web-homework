@@ -22,6 +22,7 @@ const routes = [
   { path: '/teacher/classroom', name: 'teacher-classroom', component: { template: '<div />' } },
   { path: '/teacher/qa', name: 'teacher-qa', component: { template: '<div />' } },
   { path: '/student/qa', name: 'student-qa', component: { template: '<div />' } },
+  { path: '/knowledge-graph', name: 'knowledge-graph', component: { template: '<div />' } },
   { path: '/teacher/demos/1', name: 'teacher-demo', component: { template: '<div />' } },
   { path: '/teacher/demos/1/present', name: 'teacher-demo-present', component: { template: '<div />' } },
   { path: '/student/demos', name: 'student-demos', component: { template: '<div />' } },
@@ -244,5 +245,23 @@ describe('role navigation and shell', () => {
     const { wrapper } = await setup('teacher', '/teacher/warnings')
     expect(wrapper.find('a.nav-item--active').text()).toContain('学习预警')
     wrapper.unmount()
+  })
+
+  it('知识图谱入口已接通，教师端与学生端各自高亮', async () => {
+    // 原设计里「知识图谱」是 planned 占位（SPEC-016 未实现），接通后必须去掉 planned
+    for (const role of ['student', 'teacher']) {
+      const entry = navigationFor(role).find((item) => item.label === '知识图谱')
+      expect(entry).toBeTruthy()
+      expect(entry.route).toBe('knowledge-graph')
+      expect(entry.planned).toBeUndefined()
+    }
+
+    const student = await setup('student', '/knowledge-graph')
+    expect(student.wrapper.find('a.nav-item--active').text()).toContain('知识图谱')
+    student.wrapper.unmount()
+
+    const teacher = await setup('teacher', '/knowledge-graph')
+    expect(teacher.wrapper.find('a.nav-item--active').text()).toContain('知识图谱')
+    teacher.wrapper.unmount()
   })
 })
