@@ -43,6 +43,7 @@ export const navigation = {
     { label: '实验', icon: 'flask', planned: 'SPEC-013 教师端' },
     { label: '实验统计', icon: 'chart', route: 'teacher-experiment-stats' },
     { label: '考勤与请假', icon: 'calendar', route: 'teacher-attendance' },
+    { label: '出勤统计', icon: 'chart', route: 'teacher-attendance-analytics' },
     { label: '学情分析', icon: 'chart', route: 'teacher-learning-analytics' },
     { label: '智能工具', icon: 'spark', planned: 'SPEC-007' },
   ],
