@@ -162,6 +162,12 @@ const routes = [
     meta: { requiresAuth: true, roles: ['teacher'] },
   },
   {
+    path: '/teacher/paper-generations',
+    name: 'teacher-paper-generation',
+    component: () => import('@/views/TeacherPaperGenerationView.vue'),
+    meta: { requiresAuth: true, roles: ['teacher'] },
+  },
+  {
     path: '/teacher/assessments/:id',
     name: 'teacher-assessment',
     component: () => import('@/views/TeacherAssessmentDetailView.vue'),

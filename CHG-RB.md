@@ -70,6 +70,8 @@
 | 2026-10-02 | SPEC-003实现 | APIC 第 7 节补充 E055 口径：窗口按 `opens_at` 且只含已结算任务、`students` 为窗口内的历史名单、成绩只取非 practice 且 `submitted_at` 在窗口内的提交、CSV 列顺序与 `summary`/`student`/`correlation` 三个 section | APIC、SPEC-003 第 4 节新增第 5、6 条；原文只说「同班历史名单」与「同窗口」，未固定这些边界 |
 | 2026-10-02 | SPEC-003实现 | 统计接口复用 SPEC-002 的 `_settle_task` 做幂等结算，不另写一套结算语义 | `api_attendance_stats.py` 跨模块引用既有结算函数；未修改 `api_attendance.py`，避免与并行模块冲突 |
 | 2026-10-02 | SPEC-003实现 | 导航新增教师「出勤统计」入口；导航单测补该路由与高亮断言 | frontend/src/navigation、frontend/src/router 及其测试 |
+| 2026-10-02 | SPEC-011实现 | 实现约束智能组卷：接口 E062 `POST /paper-generations`、`generation_service.py`（确定性分支定界）与教师「智能组卷」页面 | **未新增迁移**，复用 SPEC-009 的 questions／question_knowledge／assessments／assessment_items／submissions／submission_answers 与 SPEC-001 的 enrollments，head 仍为 `0008_spec008`；结果与候选指纹写入 `assessments.generation_json`，不另设组卷表（DBD 第 5 节末段） |
+| 2026-10-02 | SPEC-011实现 | 组卷求解由设计基线的 SciPy `milp` 改为确定性分支定界（DFS + 递减上界剪枝、固定遍历顺序）；并把「已公开历史首答」明确为目标班级**已提交**首答（拉普拉斯平滑错误率，无历史取 1/2） | ADR-007 第 2 条、SPEC-011 第 2/4 节与执行报告；E062 输入输出字段、路径、状态码均未变，未新增依赖，同种子可复现 |
 
 当前没有发布版本、部署记录或实际回滚记录。以下为后续实现必须提供的流程。
 

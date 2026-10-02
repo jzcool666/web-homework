@@ -33,6 +33,11 @@ const routes = [
   { path: '/teacher/analytics/attendance', name: 'teacher-attendance-analytics', component: { template: '<div />' } },
   { path: '/teacher/assessments', name: 'teacher-assessments', component: { template: '<div />' } },
   { path: '/teacher/assessments/1', name: 'teacher-assessment', component: { template: '<div />' } },
+  {
+    path: '/teacher/paper-generations',
+    name: 'teacher-paper-generation',
+    component: { template: '<div />' },
+  },
   { path: '/student/practice', name: 'student-practice', component: { template: '<div />' } },
   { path: '/student/assessments/1', name: 'student-assessment', component: { template: '<div />' } },
   { path: '/student/results/1', name: 'student-result', component: { template: '<div />' } },
@@ -176,6 +181,22 @@ describe('role navigation and shell', () => {
     const { wrapper } = await setup('teacher', '/teacher/experiment-stats')
     expect(wrapper.find('a.nav-item--active').text()).toContain('实验统计')
     wrapper.unmount()
+  })
+
+  it('智能组卷入口已接通并高亮', async () => {
+    expect(
+      navigationFor('teacher').find((item) => item.route === 'teacher-paper-generation'),
+    ).toBeTruthy()
+
+    const { wrapper } = await setup('teacher', '/teacher/paper-generations')
+    const labels = wrapper.findAll('a.nav-item').map((item) => item.text())
+    expect(labels).toContain('智能组卷')
+    expect(wrapper.find('a.nav-item--active').text()).toContain('智能组卷')
+    wrapper.unmount()
+
+    const student = await setup('student')
+    expect(student.wrapper.findAll('a.nav-item').map((item) => item.text())).not.toContain('智能组卷')
+    student.wrapper.unmount()
   })
 
   it('出勤统计入口已接通并在统计页高亮', async () => {
