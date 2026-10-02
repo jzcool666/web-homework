@@ -14,6 +14,7 @@ from .api_admin import bp as admin_bp
 from .api_assessment import bp as assessment_bp
 from .api_attempt import bp as attempt_bp
 from .api_attendance import bp as attendance_bp
+from .api_attendance_stats import bp as attendance_stats_bp
 from .api_auth import bp as auth_bp
 from .api_content import bp as content_bp
 from .api_experiment import bp as experiment_bp
@@ -85,6 +86,7 @@ def create_app(config_name: str | None = None, overrides: dict | None = None) ->
     app.register_blueprint(learning_bp, url_prefix=API_PREFIX)
     app.register_blueprint(attempt_bp, url_prefix=API_PREFIX)
     app.register_blueprint(experiment_stats_bp, url_prefix=API_PREFIX)
+    app.register_blueprint(attendance_stats_bp, url_prefix=API_PREFIX)
     app.register_blueprint(generation_bp, url_prefix=API_PREFIX)
 
     register_error_handlers(app)

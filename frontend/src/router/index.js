@@ -114,6 +114,12 @@ const routes = [
     meta: { requiresAuth: true, roles: ['teacher'] },
   },
   {
+    path: '/teacher/analytics/attendance',
+    name: 'teacher-attendance-analytics',
+    component: () => import('@/views/TeacherAttendanceAnalyticsView.vue'),
+    meta: { requiresAuth: true, roles: ['teacher'] },
+  },
+  {
     path: '/teacher/lesson-plans',
     name: 'teacher-lesson-plans',
     component: () => import('@/views/TeacherLessonPlansView.vue'),

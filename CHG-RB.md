@@ -65,6 +65,11 @@
 | 2026-09-29 | SPEC-006实现 | 固定 E056 的统计口径：默认窗口截止到当前 UTC 日的下一日 00:00；分母只算当前已发布知识点、为 0 时完成率为 null；`completed_at` 为空或晚于 `to` 不计分子；`chapter_id` 同时收窄进度与资源两侧；`resources` 只列窗口内有去重事件的资料；退班学生不计当前进度名单但保留历史访问 | APIC 第 7 节。SPEC-006 第 4 节要求「当前快照近似」「from 只过滤资源事件」「UTC 整日边界」，原文字未覆盖这些边界 |
 | 2026-09-29 | SPEC-006实现 | CSV 与 JSON 在同一处算出同一份 payload、共用同一套权限校验后才分流；CSV 生成复用 `stats_assessment` 的 `to_csv`／`csv_safe` | SPEC-006 第 4 节第 4 条「CSV与同筛选JSON一致」；避免出现第二份公式注入防护实现 |
 | 2026-09-29 | SPEC-006独立评审 | 历史资源事件按入班日至退班日的 UTC 日范围归属，避免转班后的访问继续计入旧班；CSV 固定包含 summary 行 | 现有事件只有日期、入班表只有一组起止时间，同日转班或反复入班不能精确归属；空班级导出仍须保留分母和窗口元数据 |
+| 2026-10-02 | SPEC-003实现 | 实现出勤与风险因素统计：接口 E055 `GET /analytics/attendance`（JSON 与 CSV）、`stats_attendance.py`（Pandas 分组与 Pearson）与教师端「出勤统计」页面 | **未新增迁移**，复用 SPEC-002 的 attendance_tasks／attendance_records／enrollments 与 SPEC-009/010 的 assessments／submissions，head 仍为 `0008_spec008`；新增后端 11 条、前端 17 条用例；执行结果见 SPEC-003 执行报告 |
+| 2026-10-02 | SPEC-003实现 | `AttendanceStats.students[]` 增加只读联表字段 `student_no`／`display_name` | APIC 第 7 节。教师需要认出学生，而 GET /users 仅管理员可用（与 SPEC-002 增加 `student_display_name` 同一理由）。增量读取字段，不改变表结构 |
+| 2026-10-02 | SPEC-003实现 | APIC 第 7 节补充 E055 口径：窗口按 `opens_at` 且只含已结算任务、`students` 为窗口内的历史名单、成绩只取非 practice 且 `submitted_at` 在窗口内的提交、CSV 列顺序与 `summary`/`student`/`correlation` 三个 section | APIC、SPEC-003 第 4 节新增第 5、6 条；原文只说「同班历史名单」与「同窗口」，未固定这些边界 |
+| 2026-10-02 | SPEC-003实现 | 统计接口复用 SPEC-002 的 `_settle_task` 做幂等结算，不另写一套结算语义 | `api_attendance_stats.py` 跨模块引用既有结算函数；未修改 `api_attendance.py`，避免与并行模块冲突 |
+| 2026-10-02 | SPEC-003实现 | 导航新增教师「出勤统计」入口；导航单测补该路由与高亮断言 | frontend/src/navigation、frontend/src/router 及其测试 |
 | 2026-10-02 | SPEC-011实现 | 实现约束智能组卷：接口 E062 `POST /paper-generations`、`generation_service.py`（确定性分支定界）与教师「智能组卷」页面 | **未新增迁移**，复用 SPEC-009 的 questions／question_knowledge／assessments／assessment_items／submissions／submission_answers 与 SPEC-001 的 enrollments，head 仍为 `0008_spec008`；结果与候选指纹写入 `assessments.generation_json`，不另设组卷表（DBD 第 5 节末段） |
 | 2026-10-02 | SPEC-011实现 | 组卷求解由设计基线的 SciPy `milp` 改为确定性分支定界（DFS + 递减上界剪枝、固定遍历顺序）；并把「已公开历史首答」明确为目标班级**已提交**首答（拉普拉斯平滑错误率，无历史取 1/2） | ADR-007 第 2 条、SPEC-011 第 2/4 节与执行报告；E062 输入输出字段、路径、状态码均未变，未新增依赖，同种子可复现 |
 
