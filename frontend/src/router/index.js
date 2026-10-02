@@ -114,6 +114,12 @@ const routes = [
     meta: { requiresAuth: true, roles: ['teacher'] },
   },
   {
+    path: '/teacher/analytics/attendance',
+    name: 'teacher-attendance-analytics',
+    component: () => import('@/views/TeacherAttendanceAnalyticsView.vue'),
+    meta: { requiresAuth: true, roles: ['teacher'] },
+  },
+  {
     path: '/teacher/lesson-plans',
     name: 'teacher-lesson-plans',
     component: () => import('@/views/TeacherLessonPlansView.vue'),
@@ -153,6 +159,12 @@ const routes = [
     path: '/teacher/assessments',
     name: 'teacher-assessments',
     component: () => import('@/views/TeacherAssessmentsView.vue'),
+    meta: { requiresAuth: true, roles: ['teacher'] },
+  },
+  {
+    path: '/teacher/paper-generations',
+    name: 'teacher-paper-generation',
+    component: () => import('@/views/TeacherPaperGenerationView.vue'),
     meta: { requiresAuth: true, roles: ['teacher'] },
   },
   {
