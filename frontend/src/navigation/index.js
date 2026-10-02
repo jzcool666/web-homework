@@ -45,6 +45,7 @@ export const navigation = {
     { label: '考勤与请假', icon: 'calendar', route: 'teacher-attendance' },
     { label: '出勤统计', icon: 'chart', route: 'teacher-attendance-analytics' },
     { label: '学情分析', icon: 'chart', route: 'teacher-learning-analytics' },
+    { label: '学习预警', icon: 'chart', route: 'teacher-warnings' },
     { label: '智能组卷', icon: 'spark', route: 'teacher-paper-generation' },
     { label: '课程问答', icon: 'spark', route: 'teacher-qa' },
   ],
