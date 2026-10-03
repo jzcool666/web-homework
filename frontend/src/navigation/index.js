@@ -38,6 +38,7 @@ export const navigation = {
       activeRoutes: ['student-experiments', 'student-experiment', 'student-attempts'],
       group: '练习与实验',
     },
+    { label: '实验箱与电路测评', icon: 'flask', route: 'student-labs', activeRoutes: ['student-labs', 'lab-session', 'lab-upload', 'student-lab-records', 'lab-attempt'], group: '练习与实验' },
     { label: '状态表识别', icon: 'flask', route: 'student-recognition', group: '练习与实验' },
     { label: '复习推荐', icon: 'spark', route: 'student-recommendations', group: '学习提升' },
     { label: '学习分析', icon: 'chart', route: 'student-analytics', group: '学习提升' },
@@ -63,6 +64,7 @@ export const navigation = {
       activeRoutes: ['teacher-assessments', 'teacher-assessment'],
       group: '内容与测评',
     },
+    { label: '实验箱与电路测评', icon: 'flask', route: 'teacher-labs', activeRoutes: ['teacher-labs', 'lab-session', 'teacher-lab-records', 'lab-attempt'], group: '内容与测评' },
     { label: '实验', icon: 'flask', planned: 'SPEC-013 教师端', group: '内容与测评' },
     {
       label: '学情分析',

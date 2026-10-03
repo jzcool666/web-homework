@@ -21,6 +21,7 @@ from .api_experiment import bp as experiment_bp
 from .api_experiment_stats import bp as experiment_stats_bp
 from .api_generation import bp as generation_bp
 from .api_graph import bp as graph_bp
+from .api_lab import bp as lab_bp
 from .auth import register_session_hooks
 from .cli import register_cli
 from .config import REPO_ROOT, load_config, sqlite_file_path
@@ -36,6 +37,8 @@ from .api_recognition import bp as recognition_bp
 from .seed_content import register_content_cli
 from .seed_experiments import register_experiment_cli
 from .seed_qa import register_qa_cli
+from .seed_labs import register_lab_cli
+from .lab_worker import register_worker_cli
 from .store import close_db_session
 
 __version__ = "0.1.0"
@@ -99,12 +102,15 @@ def create_app(config_name: str | None = None, overrides: dict | None = None) ->
     app.register_blueprint(warning_bp, url_prefix=API_PREFIX)
     app.register_blueprint(recognition_bp, url_prefix=API_PREFIX)
     app.register_blueprint(recommendation_bp, url_prefix=API_PREFIX)
+    app.register_blueprint(lab_bp, url_prefix=API_PREFIX)
 
     register_error_handlers(app)
     register_cli(app)
     register_content_cli(app)
     register_experiment_cli(app)
     register_qa_cli(app)
+    register_lab_cli(app)
+    register_worker_cli(app)
     register_session_hooks(app)
     app.teardown_appcontext(close_db_session)
     _register_frontend(app)

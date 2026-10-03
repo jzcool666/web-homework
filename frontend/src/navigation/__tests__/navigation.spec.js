@@ -8,6 +8,13 @@ import { navigationFor } from '@/navigation'
 import { useAuthStore } from '@/stores/auth'
 
 const routes = [
+  { path: '/student/labs', name: 'student-labs', component: { template: '<div />' } },
+  { path: '/teacher/labs', name: 'teacher-labs', component: { template: '<div />' } },
+  { path: '/labs/sessions/1', name: 'lab-session', component: { template: '<div />' } },
+  { path: '/student/labs/1/upload', name: 'lab-upload', component: { template: '<div />' } },
+  { path: '/student/lab-records', name: 'student-lab-records', component: { template: '<div />' } },
+  { path: '/teacher/lab-records', name: 'teacher-lab-records', component: { template: '<div />' } },
+  { path: '/lab-attempts/1', name: 'lab-attempt', component: { template: '<div />' } },
   { path: '/student/analytics', name: 'student-analytics', component: { template: '<div />' } },
   { path: '/', name: 'home', component: { template: '<div />' } },
   { path: '/login', name: 'login', component: { template: '<div />' } },
@@ -75,6 +82,22 @@ async function setup(role, path = '/') {
 
 describe('role navigation and shell', () => {
   beforeEach(() => vi.restoreAllMocks())
+
+  it('新版分组导航保留实验箱入口，接线、上传和结果页均高亮', async () => {
+    for (const [role, paths, group] of [
+      ['student', ['/student/labs', '/labs/sessions/1', '/student/labs/1/upload', '/student/lab-records', '/lab-attempts/1'], '练习与实验'],
+      ['teacher', ['/teacher/labs', '/labs/sessions/1', '/teacher/lab-records', '/lab-attempts/1'], '内容与测评'],
+    ]) {
+      for (const path of paths) {
+        const { wrapper } = await setup(role, path)
+        const active = wrapper.find('a.nav-item--active')
+        expect(active.text()).toContain('实验箱与电路测评')
+        expect(active.element.closest('.nav-group').textContent).toContain(group)
+        expect(wrapper.find('.topbar__context').text()).toContain('实验箱与电路测评')
+        wrapper.unmount()
+      }
+    }
+  })
 
   it('学生已实现入口可点击且看不到管理员入口，教师计划入口不可点击', async () => {
     const { wrapper } = await setup('student')
