@@ -1,9 +1,10 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 const props = defineProps({ rows: { type: Array, default: () => [] } })
 const maximum = computed(() =>
-  Math.max(1, ...props.rows.map((row) => row.submitted)),
+  Math.max(2, ...props.rows.map((row) => row.submitted)),
 )
+const selected = ref(null)
 function path(key) {
   return props.rows
     .map(
@@ -40,7 +41,7 @@ function path(key) {
         stroke-width="2"
       />
       <path :d="path('passed')" fill="none" stroke="#35b57b" stroke-width="2" />
-      <g v-for="(row, index) in rows" :key="row.day">
+      <g v-for="(row, index) in rows" :key="row.day" tabindex="0" :aria-label="`${row.day} 提交 ${row.submitted} 次，通过 ${row.passed} 次`" @focus="selected = row" @mouseenter="selected = row" @mouseleave="selected = null" @blur="selected = null">
         <circle
           :cx="40 + index * 48"
           :cy="135 - (row.submitted / maximum) * 100"
@@ -51,6 +52,7 @@ function path(key) {
             {{ row.day }}：提交 {{ row.submitted }} 次，通过 {{ row.passed }} 次
           </title>
         </circle>
+        <circle :cx="40 + index * 48" :cy="135 - (row.passed / maximum) * 100" r="2.5" fill="#35b57b" />
         <text
           :x="40 + index * 48"
           y="159"
@@ -62,7 +64,7 @@ function path(key) {
         </text>
       </g>
     </svg>
-    <figcaption>按记录创建时间统计（UTC），重复尝试各计一次。</figcaption>
+    <figcaption>{{ selected ? `${selected.day}：提交 ${selected.submitted} 次，通过 ${selected.passed} 次` : '按记录创建时间统计（UTC），重复尝试各计一次。' }}</figcaption>
   </figure>
 </template>
 <style scoped>

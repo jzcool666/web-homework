@@ -24,7 +24,15 @@ body {
 }
 .topbar__context {
   font-size: 12px;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
 }
+.user-link__name { font-size: 12px; line-height: 1.35; }
+.user-link__name small { display: block; font-size: 10px; color: var(--color-text-secondary); font-weight: 400; margin-top: 2px; }
+.topbar__logout { font-size: 11px; }
 .sidebar {
   padding: 14px 8px;
 }
@@ -264,6 +272,13 @@ button.primary {
   border-radius: 8px;
   background: #f8fbff;
 }
+.student-greeting { position: relative; isolation: isolate; overflow: hidden; }
+.student-greeting::after { content: ''; position: absolute; z-index: -1; width: 215px; height: 95px; right: 80px; bottom: -28px; opacity: .6; background: linear-gradient(140deg, transparent 10%, #d6e6ff 10% 35%, transparent 35% 40%, #dfebff 40% 65%, transparent 65% 70%, #d0e1ff 70%); border-radius: 12px; transform: skewY(-9deg); }
+.student-greeting .button { position: relative; z-index: 1; }
+.analytics-metrics .metric-card:nth-child(2) .metric-card__icon { color: #258d78; background: #e8f8f1; }
+.analytics-metrics .metric-card:nth-child(3) .metric-card__icon { color: #dc9641; background: #fff5e5; }
+.analytics-metrics .metric-card:nth-child(4) .metric-card__icon { color: #765dd6; background: #f1edff; }
+.analytics-metrics .metric-card { box-shadow: none; }
 @media (max-width: 1050px) {
   .ref-workspace {
     grid-template-columns: 200px minmax(0, 1fr);

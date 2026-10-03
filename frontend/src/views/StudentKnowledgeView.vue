@@ -237,12 +237,12 @@ watch(
       <section
         v-show="activeTab === 'concept'"
         id="knowledge-panel-concept"
-        class="ref-grid"
+        class="knowledge-concept"
         role="tabpanel"
         aria-labelledby="knowledge-tab-concept"
       >
-        <SectionCard title="电路结构"
-          ><template v-if="relatedExperiments.length"
+        <SectionCard title="电路结构" class="concept-structure"><div class="concept-columns">
+          <div><template v-if="relatedExperiments.length"
             ><CircuitPreview :kind="relatedExperiments[0].simulator_type" />
             <p class="hint">
               {{ relatedExperiments[0].title }} · 根据关联实验模型绘制
@@ -251,9 +251,8 @@ watch(
             v-else
             title="暂无关联电路"
             description="当前知识点没有关联实验，先阅读右侧课程内容。"
-        /></SectionCard>
-        <SectionCard title="概念与原理"
-          ><section class="markdown" v-html="bodyHtml"></section>
+        /></div>
+        <article><h3>工作原理</h3><section class="markdown" v-html="bodyHtml"></section>
           <p v-if="!point.body_md" class="hint">暂无正文内容。</p>
           <p v-if="point.source_url" class="hint">
             来源：<a
@@ -262,8 +261,7 @@ watch(
               rel="noopener noreferrer"
               >原始资料 ↗</a
             >
-          </p></SectionCard
-        >
+          </p></article></div></SectionCard>
       </section>
       <section
         v-show="activeTab === 'circuit'"
@@ -359,6 +357,7 @@ watch(
             <TimingPreview
               :kind="experiment.simulator_type"
               :checkpoints="experiment.checkpoints ?? []"
+              :events="experiment.input_sequence ?? null"
             />
           </div>
           <p v-if="!relatedExperiments.length" class="hint">
@@ -415,12 +414,13 @@ watch(
         >
       </section>
       <div class="ref-grid knowledge-bottom">
-        <SectionCard title="从概念到实验"
+        <SectionCard title="时序波形与实验"
           ><template v-if="relatedExperiments.length"
             ><h3>{{ relatedExperiments[0].title }}</h3>
             <TimingPreview
               :kind="relatedExperiments[0].simulator_type"
               :checkpoints="relatedExperiments[0].checkpoints ?? []"
+              :events="relatedExperiments[0].input_sequence ?? null"
             /><RouterLink
               class="button button--secondary"
               :to="{
@@ -476,6 +476,14 @@ watch(
   gap: 16px;
   max-width: none;
 }
+.concept-columns { display: grid; grid-template-columns: minmax(210px, 1fr) minmax(0, 1.1fr); gap: 28px; align-items: center; }
+.concept-columns > div { min-width: 0; }
+.concept-columns > article h3 { font-size: 14px; }
+.concept-columns .markdown { font-size: 12px; }
+.concept-columns .markdown :deep(p) { margin-block: 8px; }
+.concept-columns .markdown :deep(th), .concept-columns .markdown :deep(td) { padding: 7px 11px; font-size: 12px; }
+.concept-columns :deep(.circuit-preview) { max-width: 260px; padding: 20px; }
+@media (max-width: 620px) { .concept-columns { grid-template-columns: 1fr; gap: 16px; } }
 .breadcrumb {
   margin: 0;
   font-size: 11px;

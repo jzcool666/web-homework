@@ -5,7 +5,8 @@ import { useAuthStore } from '@/stores/auth'
 import { useStudentOverview } from '@/composables/useStudentOverview'
 import { chapterCompletion } from '@/utils/learningInsights'
 import StudentPreviewTodo from '@/components/StudentPreviewTodo.vue'
-import RecommendationList from '@/components/home/RecommendationList.vue'
+import ReviewSpotlight from '@/components/home/ReviewSpotlight.vue'
+import { featuredKnowledge } from '@/utils/learningWorkspace'
 import CircuitPreview from '@/components/home/CircuitPreview.vue'
 import TimingPreview from '@/components/home/TimingPreview.vue'
 import ChapterProgress from '@/components/home/ChapterProgress.vue'
@@ -41,7 +42,7 @@ const preview = computed(
   () =>
     (data.value.experiments ?? []).find(
       (row) => row.knowledge_id === target.value?.id,
-    ) ?? data.value.experiments?.[0],
+    ) ?? data.value.experiments?.find(row => row.simulator_type === 'jk') ?? data.value.experiments?.[0],
 )
 const done = computed(
   () =>
@@ -51,10 +52,11 @@ const done = computed(
         .map((row) => row.knowledge_id),
     ),
 )
+const featured = computed(() => featuredKnowledge(data.value.points ?? [], data.value.experiments ?? []))
 </script>
 <template>
   <div class="dashboard dashboard--student">
-    <PageHeader
+    <PageHeader class="student-greeting"
       :title="`你好，${auth.user?.display_name ?? ''} 👋`"
       description="继续学习时序逻辑，把每一次状态变化弄明白。"
     >
@@ -163,14 +165,18 @@ const done = computed(
             </p>
             <div v-else class="knowledge-tiles">
               <RouterLink
-                v-for="point in data.points.slice(0, 4)"
+                v-for="point in featured"
                 :key="point.id"
                 :to="{ name: 'student-knowledge', params: { id: point.id } }"
                 :class="{ 'knowledge-tile--current': point.id === target?.id }"
                 ><svg viewBox="0 0 40 34" aria-hidden="true">
-                  <path d="M2 10H11M2 24H11M29 10H38M29 24H38" />
-                  <rect x="11" y="4" width="18" height="26" rx="3" />
-                  <path d="m11 19 4 3-4 3" /></svg
+                  <template v-if="point.kind">
+                    <path d="M2 10H11M2 24H11M29 10H38M29 24H38" />
+                    <rect x="11" y="4" width="18" height="26" rx="3" />
+                    <text x="20" y="20" text-anchor="middle">{{ { d: 'D', jk: 'JK', counter: 'CTR', shift: 'SR' }[point.kind] }}</text>
+                  </template>
+                  <template v-else><circle cx="9" cy="23" r="4"/><circle cx="20" cy="9" r="4"/><circle cx="31" cy="23" r="4"/><path d="m11 19 6-7m6 0 6 7M13 23h14"/></template>
+                </svg
                 ><strong>{{ point.title }}</strong
                 ><span>{{
                   errors.progress
@@ -186,9 +192,7 @@ const done = computed(
           </SectionCard>
           <div class="ref-grid">
             <SectionCard title="复习建议"
-              ><RecommendationList
-                :items="(data.recommendations ?? []).slice(0, 2)"
-              />
+                ><ReviewSpotlight :item="data.recommendations?.[0]" />
               <p v-if="errors.recommendations" class="error" role="alert">
                 {{ errors.recommendations }}
               </p>
@@ -214,8 +218,10 @@ const done = computed(
               <CircuitPreview :kind="preview.simulator_type" />
               <h3 class="logic-overview__timing">输入时序采样</h3>
               <TimingPreview
+                compact
                 :kind="preview.simulator_type"
                 :checkpoints="preview.checkpoints ?? []"
+                :events="preview.input_sequence ?? null"
               /><RouterLink
                 class="button button--primary"
                 :to="{ name: 'student-experiment', params: { id: preview.id } }"
@@ -290,9 +296,11 @@ const done = computed(
 .student-home-main,
 .student-home-side {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 14px;
   min-width: 0;
 }
+.student-home-main > *, .student-home-side > * { min-width: 0; }
 .continue-card {
   background: linear-gradient(100deg, #f1f6ff, #fff 75%);
   border-left: 4px solid #86afff;
@@ -349,6 +357,7 @@ const done = computed(
   stroke-width: 1.2;
   fill: none;
 }
+.knowledge-tiles svg text { fill: #537ac5; stroke: none; font: 7px var(--font-mono); }
 .knowledge-tiles strong {
   font-size: 11px;
   line-height: 1.5;
@@ -369,7 +378,8 @@ const done = computed(
   color: white;
 }
 .logic-overview > .circuit-preview {
-  max-width: none;
+  max-width: 260px;
+  margin-inline: auto;
 }
 .logic-overview__timing {
   margin-top: 20px;
@@ -382,7 +392,7 @@ const done = computed(
   margin: 14px 0 0;
   font-size: 10px;
 }
-@media (max-width: 1100px) {
+@media (max-width: 960px) {
   .student-home-layout {
     grid-template-columns: 1fr;
   }

@@ -1,12 +1,15 @@
 <script setup>
 import { computed } from 'vue'
 import { inputsFor, inputLabel, stepPath } from '@/utils/demo'
+import { inputTimeline } from '@/utils/learningWorkspace'
 const props = defineProps({
   checkpoints: { type: Array, default: null },
   kind: { type: String, default: 'jk' },
+  events: { type: Array, default: null },
+  compact: Boolean,
 })
 // 缺省是明确标注的 JK 教学样例；真实检查点只绘制已下发输入，不产生标准 Q。
-const sample = computed(() => props.checkpoints === null)
+const sample = computed(() => props.checkpoints === null && props.events === null)
 const rows = computed(() =>
   sample.value
     ? [
@@ -15,13 +18,15 @@ const rows = computed(() =>
         { label: 'K', levels: [0, 0, 0, 0, 1, 1, 1, 1] },
         { label: 'Q', levels: [0, 0, 0, 1, 1, 0, 0, 1] },
       ]
-    : inputsFor(props.kind).map((name) => ({
+    : props.events !== null ? inputTimeline(props.events, props.kind) : inputsFor(props.kind).map((name) => ({
         label: inputLabel(name),
         levels: props.checkpoints.map((row) => row.inputs?.[name] ?? 0),
       })),
 )
 const count = computed(() => rows.value[0]?.levels.length ?? 0)
-const width = computed(() => 55 + Math.max(count.value, 1) * 26)
+const compactView = computed(() => props.compact && count.value <= 32)
+const width = computed(() => compactView.value ? 320 : 55 + Math.max(count.value, 1) * 26)
+const slot = computed(() => compactView.value ? 265 / Math.max(count.value, 1) : 26)
 const colors = ['#3564ff', '#35b57b', '#efa546', '#9374e8']
 </script>
 <template>
@@ -30,18 +35,18 @@ const colors = ['#3564ff', '#35b57b', '#efa546', '#9374e8']
     <div v-else class="timing-preview__scroll">
       <svg
         :viewBox="`0 0 ${width} ${rows.length * 32 + 24}`"
-        :style="{ minWidth: `${Math.min(width, 600)}px` }"
+        :style="{ minWidth: compactView ? undefined : `${Math.min(width, 600)}px` }"
         role="img"
         :aria-label="
           sample
             ? 'JK 触发器教学时序示例'
-            : '实验检查点的输入采样，不包含标准状态'
+            : events !== null ? '固定输入事件的时钟与输入波形，不包含标准状态' : '实验检查点的输入采样，不包含标准状态'
         "
       >
         <path
           v-for="i in count"
           :key="i"
-          :d="`M${45 + (i - 1) * 26} 0V${rows.length * 32}`"
+          :d="`M${45 + (i - 1) * slot} 0V${rows.length * 32}`"
           stroke="#e8eef9"
           stroke-dasharray="3 3"
         />
@@ -54,14 +59,15 @@ const colors = ['#3564ff', '#35b57b', '#efa546', '#9374e8']
             {{ row.label }}
           </text>
           <path
-            :d="stepPath(row.levels, { yHigh: 5, yLow: 26 })"
+            :d="stepPath(row.levels, { slot, yHigh: 5, yLow: 26 })"
             transform="translate(45 0)"
             :stroke="colors[index % colors.length]"
             stroke-width="1.6"
+            vector-effect="non-scaling-stroke"
             fill="none"
           />
         </g>
-        <g v-if="!sample">
+        <g v-if="!sample && !compactView">
           <text
             v-for="i in count"
             :key="i"
@@ -79,7 +85,7 @@ const colors = ['#3564ff', '#35b57b', '#efa546', '#9374e8']
       {{
         sample
           ? '教学示例 · 初态 Q=0，非当前实验答案'
-          : '有效上升沿的输入采样 · 输出由你预测'
+          : events !== null ? '固定输入序列 · CLK 为实际切换时钟 · 输出由你预测' : '有效上升沿的输入采样 · 输出由你预测'
       }}
     </figcaption>
   </figure>

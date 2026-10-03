@@ -175,6 +175,22 @@ describe('学生逐拍预测页', () => {
     expect(wrapper.text()).toContain('你填了 0110（6）')
   })
 
+  it('提交中的预测与已保存结果锁定，重新作答才恢复编辑', async () => {
+    let release
+    api.post.mockReturnValue(new Promise(resolve => { release = resolve }))
+    const wrapper = await setup()
+    await fill(wrapper, [5, 0, 1, 2])
+    await submitButton(wrapper).trigger('click')
+    expect(wrapper.findAll('input[type="number"]').every(input => input.element.disabled)).toBe(true)
+    expect(wrapper.get('select[aria-label="当前拍预测 Q"]').element.disabled).toBe(true)
+    release(structuredClone(PASSED))
+    await flushPromises()
+    expect(wrapper.findAll('input[type="number"]').every(input => input.element.disabled)).toBe(true)
+    await wrapper.findAll('button').find(button => button.text() === '重新作答').trigger('click')
+    expect(wrapper.findAll('input[type="number"]').every(input => !input.element.disabled && input.element.value === '')).toBe(true)
+    expect(api.post.mock.calls[0][1].predictions).toEqual([5, 0, 1, 2])
+  })
+
   it('网络失败后重试复用同一个 request_key', async () => {
     api.post.mockRejectedValueOnce(new TypeError('Failed to fetch'))
     api.post.mockResolvedValueOnce(structuredClone(PASSED))

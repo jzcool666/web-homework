@@ -18,7 +18,7 @@ import SectionCard from '@/components/ui/SectionCard.vue'
 import StatePanel from '@/components/ui/StatePanel.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
 import { ApiError, api } from '@/api/client'
-import CircuitPreview from '@/components/home/CircuitPreview.vue'
+import PredictionConsole from '@/components/experiment/PredictionConsole.vue'
 import AttemptComparison from '@/components/experiment/AttemptComparison.vue'
 import TimingPreview from '@/components/home/TimingPreview.vue'
 import { formatBits, modelLabel } from '@/utils/demo'
@@ -90,6 +90,7 @@ async function load() {
 }
 
 function setAnswer(index, value) {
+  if (submitting.value || result.value !== null) return
   pendingKey.value = null
   const next = [...answers.value]
   next[index] = value
@@ -191,10 +192,8 @@ onUnmounted(() => {
         </template>
       </PageHeader>
 
-      <SectionCard title="实验条件" class="experiment-conditions">
-        <div class="experiment-intro">
-          <CircuitPreview :kind="simulatorType" />
-          <div>
+      <SectionCard title="电路与输入控制" class="experiment-conditions">
+        <PredictionConsole :experiment="experiment" :answers="answers" :locked="submitting || result !== null" @answer="setAnswer" />
             <dl class="conditions">
               <div>
                 <dt>初态 Q</dt>
@@ -221,12 +220,10 @@ onUnmounted(() => {
               <summary>实验说明与步骤</summary>
               <pre class="steps">{{ experiment.steps_md }}</pre>
             </details>
-          </div>
-        </div>
       </SectionCard>
 
       <SectionCard title="输入时序采样" class="experiment-timing"
-        ><TimingPreview :kind="simulatorType" :checkpoints="checkpoints" />
+        ><TimingPreview compact :kind="simulatorType" :checkpoints="checkpoints" :events="experiment.input_sequence ?? null" />
         <details class="input-events">
           <summary>查看固定输入事件序列</summary>
           <div class="table-scroll">
@@ -282,6 +279,7 @@ onUnmounted(() => {
               :value="answers[checkpoint.index]"
               :aria-label="checkpointLabel(checkpoint.index)"
               :data-checkpoint="checkpoint.index"
+              :disabled="submitting || result !== null"
               @input="setAnswer(checkpoint.index, $event.target.value)"
             />
           </li>
@@ -418,6 +416,10 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.experiment-conditions .conditions { display: flex; flex-wrap: wrap; gap: 12px 25px; padding-top: 14px; margin-top: 14px; border-top: 1px solid var(--color-border); font-size: 11px; }
+.experiment-conditions .conditions > div { display: flex; gap: 8px; align-items: center; }
+.experiment-conditions .conditions dt { color: var(--color-text-secondary); }
+.experiment-conditions .conditions dd { margin: 0; }
 .experiment-page {
   width: 100%;
   display: grid;
