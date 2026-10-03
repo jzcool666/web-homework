@@ -110,7 +110,7 @@ onMounted(async () => {
 
 <template>
   <div class="page">
-    <PageHeader
+    <PageHeader icon="chart" :steps="['选择班级与日期', '生成快照', '查看原因与建议']"
       eyebrow="学情"
       title="学习预警"
       description="按班级显式生成一次快照，查看每名学生的风险因素、证据与班级分组。快照不随数据自动更新。"

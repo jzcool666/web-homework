@@ -91,7 +91,7 @@ onMounted(async () => {
 
 <template>
   <div class="page">
-    <PageHeader
+    <PageHeader icon="chart"
       eyebrow="学情"
       title="学情分析"
       description="按班级查看学习进度快照与资源访问分布。两个面板的口径不同，页面分别标注，导出 CSV 与屏幕上的筛选条件一致。"

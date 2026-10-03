@@ -82,7 +82,7 @@ onMounted(async () => {
 
 <template>
   <div class="page">
-    <PageHeader
+    <PageHeader icon="network" :steps="['上传规定格式', '等待识别', '人工核对次态']"
       eyebrow="实验"
       title="状态表识别"
       description="上传规定格式的时序状态表图片，系统读出状态序列与次态转换，供你与手工推导核对。"

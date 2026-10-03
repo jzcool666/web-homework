@@ -8,6 +8,7 @@
 import { computed, onMounted, ref } from 'vue'
 
 import { api } from '@/api/client'
+import PageHeader from '@/components/ui/PageHeader.vue'
 import { useAuthStore } from '@/stores/auth'
 import { renderMarkdown } from '@/utils/markdown'
 
@@ -200,11 +201,7 @@ onMounted(() => {
 
 <template>
   <main class="page wide">
-    <h1>课程内容管理</h1>
-    <p class="hint">
-      内容在本系统内共享：教师只能修改本人创建的内容，但可以引用他人已发布的内容。
-      资源版本只追加，历史版本保持可下载。
-    </p>
+    <PageHeader icon="book" title="课程内容管理" description="按章节整理知识点和资料。已发布内容供课程学习与备课使用；本人内容可编辑，资料历史版本保留。" :steps="['整理章节', '编写知识点', '添加资料与发布']" />
 
     <p v-if="notice" class="success">{{ notice }}</p>
     <p v-if="error" class="error" role="alert">{{ error }}</p>
@@ -229,7 +226,8 @@ onMounted(() => {
         <button class="primary" type="submit">新建章节</button>
       </form>
 
-      <table>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="课程内容数据表，可横向滚动">
+<table>
         <thead>
           <tr>
             <th>ID</th>
@@ -258,6 +256,7 @@ onMounted(() => {
           </tr>
         </tbody>
       </table>
+</div>
     </section>
 
     <section class="card">
@@ -317,7 +316,8 @@ onMounted(() => {
         </div>
       </div>
 
-      <table>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="课程内容数据表，可横向滚动">
+<table>
         <thead>
           <tr>
             <th>ID</th>
@@ -346,6 +346,7 @@ onMounted(() => {
           </tr>
         </tbody>
       </table>
+</div>
     </section>
 
     <section class="card">

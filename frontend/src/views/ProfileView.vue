@@ -50,7 +50,7 @@ async function changePassword() {
 
 <template>
   <div v-if="auth.user" class="page page--narrow">
-    <PageHeader eyebrow="账号设置" title="个人资料" />
+    <PageHeader icon="people" eyebrow="账号设置" title="个人资料" />
     <p class="hint">
       <StatusBadge>{{ { student: '学生', teacher: '教师', admin: '管理员' }[auth.user.role] }}</StatusBadge>
       {{ auth.user.login_name }}

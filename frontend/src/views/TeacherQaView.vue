@@ -134,7 +134,7 @@ onMounted(load)
 
 <template>
   <div class="qa-page">
-    <PageHeader
+    <PageHeader icon="book" :steps="['维护问答', '核对来源', '发布进入检索']"
       eyebrow="教师空间"
       title="课程问答语料"
       description="维护课程检索问答的来源条目。只有已发布条目会进入检索索引；撤回后下一次查询就不再返回。"

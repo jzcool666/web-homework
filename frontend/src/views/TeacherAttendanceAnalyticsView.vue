@@ -92,7 +92,7 @@ onMounted(async () => {
 
 <template>
   <div class="page">
-    <PageHeader
+    <PageHeader icon="chart"
       eyebrow="学情"
       title="出勤统计"
       description="按班级与时间窗口查看出勤分布、学生明细和出勤与成绩的相关分析。窗口按任务开始时间选择，进行中的任务不计入。"

@@ -66,7 +66,7 @@ onMounted(load)
 
 <template>
   <div class="page">
-    <PageHeader eyebrow="基础管理" title="班级名单" description="每名学生最多属于一个有效班级；要换班需先在原班级移出。" />
+    <PageHeader icon="people" :steps="['选择学生', '加入班级', '核对名单']" eyebrow="基础管理" title="班级名单" description="每名学生最多属于一个有效班级；要换班需先在原班级移出。" />
     <p class="hint">
       <RouterLink :to="{ name: 'admin-classes' }">← 返回班级管理</RouterLink>
       <template v-if="schoolClass"> · {{ schoolClass.name }}</template>

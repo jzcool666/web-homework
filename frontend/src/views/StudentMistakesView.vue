@@ -97,7 +97,7 @@ onMounted(load)
 
 <template>
   <div class="page">
-    <PageHeader
+    <PageHeader icon="check" :steps="['筛选错题', '选择重练', '提交后看新结果']"
       eyebrow="学习与练习"
       title="错题本"
       description="按题目记录最近一次已公开反馈的判定与最早答错时间。重练答对只会把状态改为已纠正，不会改变首答统计，历史错误仍然可查。"

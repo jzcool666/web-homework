@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 
 import { api } from '@/api/client'
+import PageHeader from '@/components/ui/PageHeader.vue'
 import {
   LEAVE_STATUS_LABEL,
   PHASE_LABEL,
@@ -106,7 +107,7 @@ onMounted(load)
 
 <template>
   <main class="page">
-    <h1>我的课堂</h1>
+    <PageHeader icon="calendar" title="签到与请假" description="使用教师当堂公布的签到码，或提交本次任务的请假申请。结果以服务器记录为准。" :steps="['选择课堂任务', '签到或申请请假', '核对本人记录']" />
 
     <template v-if="classes.length === 0">
       <p class="hint">尚未分配班级，请联系任课教师或管理员。</p>
@@ -122,7 +123,8 @@ onMounted(load)
 
       <section class="card">
         <h2>签到任务</h2>
-        <table>
+        <div class="table-scroll" tabindex="0" role="region" aria-label="本人课堂数据表，可横向滚动">
+<table>
           <thead>
             <tr>
               <th>标题</th>
@@ -144,6 +146,7 @@ onMounted(load)
             </tr>
           </tbody>
         </table>
+</div>
         <p v-if="tasks.length === 0" class="hint">本班还没有签到任务。</p>
       </section>
 

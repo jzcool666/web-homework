@@ -107,7 +107,7 @@ onMounted(async () => {
 
 <template>
   <div class="page">
-    <PageHeader
+    <PageHeader icon="chart"
       eyebrow="学情"
       title="实验统计"
       description="按班级、时间窗口与实验查看参与人数、通过人数、尝试次数与通过率。统计只包含本班当前有效在册学生。"

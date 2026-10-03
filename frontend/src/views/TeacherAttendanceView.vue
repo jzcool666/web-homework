@@ -3,6 +3,7 @@ import { initialClassId } from '@/utils/overview'
 import { computed, onMounted, ref } from 'vue'
 
 import { api } from '@/api/client'
+import PageHeader from '@/components/ui/PageHeader.vue'
 import {
   LEAVE_STATUS_LABEL,
   PHASE_LABEL,
@@ -162,11 +163,7 @@ onMounted(async () => {
 
 <template>
   <main class="page">
-    <h1>考勤与请假</h1>
-    <p class="hint">
-      以服务器时间为准：opens_at 起可签到，达到 late_at 记迟到，closes_at 起拒绝签到。
-      六位签到码只在发布和重置时显示一次，库内只保存散列。
-    </p>
+    <PageHeader icon="calendar" title="考勤与请假" description="选择班级并设定签到时段，向学生公布六位签到码。到达迟到时间会记迟到，结束后不能签到；新码只在发布或重置时显示一次。" :steps="['发起签到', '公布签到码', '审批请假与结算']" />
 
     <section class="card">
       <h2>选择班级</h2>
@@ -184,7 +181,7 @@ onMounted(async () => {
 
     <section class="card">
       <h2>发起签到</h2>
-      <form @submit.prevent="createTask">
+      <form class="attendance-create" @submit.prevent="createTask">
         <div class="field">
           <label for="task_title">标题</label>
           <input id="task_title" v-model="form.title" maxlength="100" required />
@@ -216,7 +213,8 @@ onMounted(async () => {
 
     <section class="card">
       <h2>签到任务</h2>
-      <table>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="考勤数据表，可横向滚动">
+<table>
         <thead>
           <tr>
             <th>标题</th>
@@ -249,12 +247,14 @@ onMounted(async () => {
           </tr>
         </tbody>
       </table>
+</div>
       <p v-if="tasks.length === 0" class="hint">该班还没有签到任务。</p>
     </section>
 
     <section v-if="openTask" class="card">
       <h2>「{{ openTask.title }}」名单</h2>
-      <table>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="考勤数据表，可横向滚动">
+<table>
         <thead>
           <tr>
             <th>学号</th>
@@ -272,10 +272,12 @@ onMounted(async () => {
           </tr>
         </tbody>
       </table>
+</div>
       <p v-if="records.length === 0" class="hint">名单为空。</p>
 
       <h3>请假申请</h3>
-      <table>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="考勤数据表，可横向滚动">
+<table>
         <thead>
           <tr>
             <th>学号</th>
@@ -301,12 +303,17 @@ onMounted(async () => {
           </tr>
         </tbody>
       </table>
+</div>
       <p v-if="taskLeaves.length === 0" class="hint">该任务没有请假申请。</p>
     </section>
   </main>
 </template>
 
 <style scoped>
+.attendance-create { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 16px; }
+.attendance-create > .field:first-child { grid-column: 1 / -1; }
+.attendance-create > button { justify-self: start; }
+@media (max-width: 650px) { .attendance-create { grid-template-columns: 1fr; } }
 h2 {
   font-size: 1.05rem;
   margin: 0 0 0.75rem;

@@ -69,7 +69,7 @@ onMounted(init);
 
 <template>
   <div class="lab-records">
-    <PageHeader
+    <PageHeader icon="flask"
       :title="teacher ? '实验记录与统计' : '我的实验记录'"
       description="实验箱接线与Logisim文件分别统计，系统故障不计入得分或通过率。"
     >

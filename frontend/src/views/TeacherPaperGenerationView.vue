@@ -134,7 +134,7 @@ onMounted(async () => {
 
 <template>
   <div class="page">
-    <PageHeader
+    <PageHeader icon="spark" :steps="['设置条件', '查看组卷结果', '采用后发布']"
       eyebrow="智能工具"
       title="约束智能组卷"
       description="在已发布题库（最多 500 题）中按题量、难度配额与知识点下限量选题，参考本班历史首答提升针对性；相同种子与题库必然得到同一结果。生成的是草稿，需在测评页确认后发布。"

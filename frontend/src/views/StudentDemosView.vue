@@ -44,7 +44,7 @@ onMounted(load)
 
 <template>
   <div class="demos-page">
-    <PageHeader
+    <PageHeader icon="layers"
       eyebrow="学习空间"
       title="我的课堂"
       description="跟随教师投屏的演示：只看当前状态与已执行的时序波形，预测未揭示时不会提前显示下一状态。"

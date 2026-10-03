@@ -7,14 +7,14 @@
  * 画布初始化失败（例如无 2D 上下文的环境）时降级为清单 + 明确提示，
  * 不静默变成一块空白。
  */
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { GraphChart } from 'echarts/charts'
 import { LegendComponent, TooltipComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import * as echarts from 'echarts/core'
 
-import { buildGraphOption, nodeListLabel } from '@/utils/knowledgeGraph'
+import { buildGraphOption, graphLayout, nodeListLabel } from '@/utils/knowledgeGraph'
 
 echarts.use([GraphChart, TooltipComponent, LegendComponent, CanvasRenderer])
 
@@ -25,6 +25,7 @@ const props = defineProps({
 
 const canvasEl = ref(null)
 const renderError = ref(null)
+const extent = computed(() => graphLayout(props.graph?.nodes ?? [], props.graph?.edges ?? []))
 let chart = null
 
 /** 没有 2D 上下文时 ECharts 会在动画帧里异步抛错，所以在初始化前先探测。 */
@@ -68,6 +69,7 @@ function draw() {
   }
   if (!chart) return
   try {
+    chart.resize({ width: extent.value.width, height: extent.value.height })
     chart.setOption(option, true)
     renderError.value = null
   } catch (err) {
@@ -76,7 +78,7 @@ function draw() {
 }
 
 function resize() {
-  if (chart) chart.resize()
+  if (chart) chart.resize({ width: extent.value.width, height: extent.value.height })
 }
 
 onMounted(() => {
@@ -97,7 +99,10 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="graph-chart">
-    <div ref="canvasEl" class="graph-chart__canvas" role="img" aria-label="知识点先修关系图"></div>
+    <p class="hint">箭头从先修知识指向后继知识；蓝色粗线表示选中的路径。可在图中缩放、拖动查看，悬停卡片读取完整标题。</p>
+    <div class="graph-chart__viewport" tabindex="0" aria-label="可滚动的先修关系图">
+      <div ref="canvasEl" class="graph-chart__canvas" :style="{ width: `${extent.width}px`, height: `${extent.height}px` }" role="img" aria-label="知识点先修关系图"></div>
+    </div>
     <p v-if="renderError" class="hint hint--warning">
       当前环境无法绘制关系图（{{ renderError }}）；下方文字清单是同一份数据，可照常阅读。
     </p>
@@ -108,12 +113,9 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+.graph-chart__viewport { width: 100%; max-height: 620px; overflow: auto; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: #f8fbff; }
 .graph-chart__canvas {
-  width: 100%;
-  height: 480px;
-  border: 1px solid var(--color-border, #d8dbe0);
-  border-radius: var(--radius-md, 8px);
-  background: var(--color-surface, #fff);
+  background: radial-gradient(#dfe8f5 1px, transparent 1px) 0 0 / 18px 18px;
 }
 
 .node-list {
