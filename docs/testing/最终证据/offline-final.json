@@ -1,0 +1,30 @@
+{
+  "checks": [
+    {
+      "name": "Initial answer saved",
+      "passed": true
+    },
+    {
+      "name": "Offline shows unsaved state",
+      "passed": true
+    },
+    {
+      "name": "Offline change is not reported saved",
+      "passed": true
+    },
+    {
+      "name": "Reconnect auto-saves dirty answer",
+      "passed": true
+    },
+    {
+      "name": "Reload restores reconnected answer",
+      "passed": true
+    },
+    {
+      "name": "No JavaScript exceptions",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "offlineSeconds": 10
+}

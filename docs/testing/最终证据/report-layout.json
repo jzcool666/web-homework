@@ -1,0 +1,37 @@
+[
+  {
+    "file": "24201606_孙之宁_设计报告.docx",
+    "pages": 2,
+    "method": "Word原生PDF导出，Poppler渲染，逐页目视检查",
+    "inspected": true,
+    "sha256": "3e80c68a4f298e35ebef212829e6be58cab4eef78c3c8b892367614422a0e22a"
+  },
+  {
+    "file": "24201613_尹仕铭_设计报告.docx",
+    "pages": 2,
+    "method": "Word原生PDF导出，Poppler渲染，逐页目视检查",
+    "inspected": true,
+    "sha256": "e2f4d8af1d6905cecf155431d5e4bc91acc11b31519b2ce55530119a74d07a74"
+  },
+  {
+    "file": "24201615_吴亚峰_设计报告.docx",
+    "pages": 2,
+    "method": "Word原生PDF导出，Poppler渲染，逐页目视检查",
+    "inspected": true,
+    "sha256": "820b410dfa7e83ef515441587871d613fe147c481f2bdd603b4f0633ed43a8aa"
+  },
+  {
+    "file": "24201616_艾成斌_设计报告.docx",
+    "pages": 2,
+    "method": "Word原生PDF导出，Poppler渲染，逐页目视检查",
+    "inspected": true,
+    "sha256": "c57fcb66a67917199ad369582c49f1ea1c2b6dc02a275c8db80523a7776ed2b9"
+  },
+  {
+    "file": "242016班_第待定组_大作业报告.docx",
+    "pages": 7,
+    "method": "Word原生PDF导出，Poppler渲染，逐页目视检查",
+    "inspected": true,
+    "sha256": "32f0ff3682604ff90d855c39c55aeea589c1611358078f148ce320671e5d4343"
+  }
+]

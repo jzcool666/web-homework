@@ -1,0 +1,51 @@
+{
+  "source_commit": "cd2be306edfbf3ea4274700ca8253781e4c680ba",
+  "steps": [
+    {
+      "step": "01-source",
+      "exit": 0,
+      "seconds": 1.2
+    },
+    {
+      "step": "02-venv",
+      "exit": 0,
+      "seconds": 6.9
+    },
+    {
+      "step": "03-dependencies",
+      "exit": 0,
+      "seconds": 76.7
+    },
+    {
+      "step": "04-migration",
+      "exit": 0,
+      "seconds": 20.4
+    },
+    {
+      "step": "05-demo",
+      "exit": 0,
+      "seconds": 4.3
+    },
+    {
+      "step": "06-npm-ci",
+      "exit": 0,
+      "seconds": 8.9
+    },
+    {
+      "step": "07-front-build",
+      "exit": 0,
+      "seconds": 2.6
+    },
+    {
+      "step": "08-production-http",
+      "exit": 0,
+      "health": {
+        "status": "ok",
+        "version": "0.1.0"
+      },
+      "deep_link": 200,
+      "local_asset": 200,
+      "threads": 4
+    }
+  ]
+}
