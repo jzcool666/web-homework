@@ -1,4 +1,5 @@
 <script setup>
+import { initialClassId } from '@/utils/overview'
 /**
  * 教师测评管理（SPEC-010，E037/E039 的课堂入口）。
  *
@@ -65,7 +66,7 @@ async function loadAssessments() {
 
 async function loadClasses() {
   classes.value = await api.get('/classes?page_size=100')
-  if (!classId.value && classes.value.length > 0) classId.value = classes.value[0].id
+  if (!classId.value) classId.value = initialClassId(classes.value)
 }
 
 async function createDraft() {

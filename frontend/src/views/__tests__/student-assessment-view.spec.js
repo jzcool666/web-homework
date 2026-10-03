@@ -53,6 +53,33 @@ describe('学生作答自动保存', () => {
   afterEach(() => {
     vi.restoreAllMocks()
   })
+  it('题号切换保留两题答案，提交前保存完整答案集', async () => {
+    const second = { ...assessment.items[0], id: 8, position: 2, stem_md: '第二题' }
+    api.get.mockResolvedValue({ ...structuredClone(assessment), items: [...structuredClone(assessment.items), second] })
+    api.put.mockResolvedValue({ ...submission, version: 2, saved_at: '10:00:00' })
+    const wrapper = await setup()
+    await wrapper.findAll('input[type="radio"]')[0].trigger('change')
+    await wrapper.findAll('button').find(button => button.text() === '下一题').trigger('click')
+    expect(wrapper.text()).toContain('第二题')
+    await wrapper.findAll('input[type="radio"]')[1].trigger('change')
+    await wrapper.findAll('button').find(button => button.text() === '上一题').trigger('click')
+    expect(wrapper.findAll('input[type="radio"]')[0].element.checked).toBe(true)
+    await wrapper.findAll('button').find(button => button.text() === '立即保存').trigger('click')
+    await flushPromises()
+    expect(api.put.mock.calls[0][1].answers).toEqual([{ item_id: 7, selected: ['A'] }, { item_id: 8, selected: ['B'] }])
+    wrapper.unmount()
+  })
+  it('保存失败时不发最终提交请求，保留选择供重试', async () => {
+    api.put.mockRejectedValue(new Error('断线'))
+    const wrapper = await setup()
+    await wrapper.findAll('input[type="radio"]')[0].trigger('change')
+    await wrapper.findAll('button').find(button => button.text() === '提交并判分').trigger('click')
+    await flushPromises()
+    expect(api.post.mock.calls.some(call => call[0].includes('finalization'))).toBe(false)
+    expect(wrapper.findAll('input[type="radio"]')[0].element.checked).toBe(true)
+    expect(wrapper.text()).toContain('保存失败')
+    wrapper.unmount()
+  })
 
   it('编辑发生在保存请求进行中时，下一次保存使用新版本和最新答案', async () => {
     const first = deferred()

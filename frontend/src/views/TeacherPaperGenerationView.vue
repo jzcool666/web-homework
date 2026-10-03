@@ -1,4 +1,5 @@
 <script setup>
+import { initialClassId } from '@/utils/overview'
 /**
  * 约束智能组卷（SPEC-011，E062）。
  *
@@ -69,7 +70,7 @@ function removeMinimum(index) {
 
 async function loadClasses() {
   classes.value = await api.get('/classes?page_size=100')
-  if (!classId.value && classes.value.length > 0) classId.value = classes.value[0].id
+  if (!classId.value) classId.value = initialClassId(classes.value)
 }
 
 async function loadKnowledgePoints() {

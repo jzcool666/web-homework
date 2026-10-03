@@ -1,4 +1,5 @@
 <script setup>
+import { initialClassId } from '@/utils/overview'
 /**
  * 教师课堂入口（SPEC-012 E052）。
  *
@@ -38,7 +39,7 @@ async function load() {
     ])
     classes.value = classList
     experiments.value = experimentList
-    if (!classId.value) classId.value = classList[0]?.id ?? ''
+    if (!classId.value) classId.value = initialClassId(classList)
     if (!experimentId.value) experimentId.value = experimentList[0]?.id ?? ''
     demos.value = classId.value
       ? await api.get(`/demo-sessions?class_id=${classId.value}&page_size=100`)

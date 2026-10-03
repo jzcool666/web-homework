@@ -1,4 +1,5 @@
 <script setup>
+import { initialClassId } from '@/utils/overview'
 import { computed, onMounted, ref } from 'vue'
 
 import { api } from '@/api/client'
@@ -44,7 +45,7 @@ const records = computed(() =>
 async function loadClasses() {
   try {
     classes.value = await api.get('/classes?page_size=100')
-    if (!classId.value && classes.value.length > 0) classId.value = classes.value[0].id
+    if (!classId.value) classId.value = initialClassId(classes.value)
   } catch (err) {
     error.value = err.message
   }

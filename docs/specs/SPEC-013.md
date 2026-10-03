@@ -8,7 +8,7 @@
 
 ## 2 接口契约
 
-E050提交 experiment_version/predictions/request_key；E051本人历史列表与单条查询（他人记录404）；AttemptResult含expected和first_error_index。
+E050提交 experiment_version/predictions/request_key；E051本人历史列表与单条查询（他人记录404）；AttemptResult含expected和first_error_index，另返回只读created_at（RFC3339 UTC），用于本人实验活动的日期统计，重试与历史读取保持原创建时间。
 
 接口完整字段、角色缩写、状态码和公共错误定义见 [APIC](../../APIC.md)。所有写操作按公共规则校验会话、CSRF和对象权限；列表/导出同样不能越权。匿名401、角色拒绝403、跨班对象404、字段错误422、状态/版本冲突409；本模块特有错误以 APIC 为准。
 

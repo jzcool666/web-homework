@@ -6,9 +6,10 @@
  * 服务端会排除本班已发布但未公开反馈的班级测评用题，避免绕过反馈策略。
  */
 import { onMounted, ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 
 import { api } from '@/api/client'
+import { readAll } from '@/api/pagination'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import SectionCard from '@/components/ui/SectionCard.vue'
 import StatePanel from '@/components/ui/StatePanel.vue'
@@ -21,6 +22,7 @@ const loading = ref(false)
 const listError = ref(null)
 const error = ref(null)
 const notice = ref(null)
+const route = useRoute()
 
 const filter = ref({ knowledge_id: '', difficulty: '', count: 5 })
 
@@ -35,14 +37,15 @@ async function load() {
   listError.value = null
   try {
     const [pointList, list] = await Promise.all([
-      api.get('/knowledge-points?page_size=100'),
-      api.get('/assessments?page_size=100'),
+      readAll('/knowledge-points'),
+      readAll('/assessments'),
     ])
     points.value = pointList
     assessments.value = list
     // E042 要求必须给出过滤条件或错题题目，没有「任意题」模式；默认选第一个知识点
     if (!filter.value.knowledge_id && pointList.length > 0) {
-      filter.value.knowledge_id = pointList[0].id
+      const requested = Number(route?.query?.knowledge_id)
+      filter.value.knowledge_id = pointList.find(point => point.id === requested)?.id ?? pointList[0].id
     }
   } catch (err) {
     listError.value = err.message

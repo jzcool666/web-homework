@@ -8,6 +8,7 @@ import { navigationFor } from '@/navigation'
 import { useAuthStore } from '@/stores/auth'
 
 const routes = [
+  { path: '/student/analytics', name: 'student-analytics', component: { template: '<div />' } },
   { path: '/', name: 'home', component: { template: '<div />' } },
   { path: '/login', name: 'login', component: { template: '<div />' } },
   { path: '/register', name: 'register', component: { template: '<div />' } },
@@ -75,13 +76,16 @@ async function setup(role, path = '/') {
 describe('role navigation and shell', () => {
   beforeEach(() => vi.restoreAllMocks())
 
-  it('计划入口不可点击，学生看不到管理员入口', async () => {
+  it('学生已实现入口可点击且看不到管理员入口，教师计划入口不可点击', async () => {
     const { wrapper } = await setup('student')
     expect(wrapper.find('a.nav-item--active').text()).toContain('学习首页')
-    expect(wrapper.findAll('.nav-item--planned').length).toBeGreaterThan(0)
+    expect(wrapper.findAll('.nav-item--planned')).toHaveLength(0)
     expect(wrapper.findAll('a.nav-item').map((item) => item.text())).not.toContain('账号管理')
-    expect(wrapper.find('.nav-item--planned').attributes('aria-disabled')).toBe('true')
     wrapper.unmount()
+    const teacher = await setup('teacher')
+    expect(teacher.wrapper.find('.nav-item--planned').attributes('aria-disabled')).toBe('true')
+    expect(teacher.wrapper.find('.nav-item--planned').text()).toContain('实验')
+    teacher.wrapper.unmount()
   })
 
   it('班级名单仍高亮班级管理，退出返回首页', async () => {
@@ -140,15 +144,15 @@ describe('role navigation and shell', () => {
     teacher.wrapper.unmount()
   })
 
-  it('学情分析只接通教师端，学生端保持待开放', async () => {
+  it('教师班级统计与学生个人学习分析各自接通', async () => {
     const teacher = await setup('teacher', '/teacher/analytics/learning')
     expect(teacher.wrapper.findAll('a.nav-item').map((item) => item.text())).toContain('学情分析')
     expect(teacher.wrapper.find('a.nav-item--active').text()).toContain('学情分析')
     teacher.wrapper.unmount()
 
-    const student = await setup('student')
+    const student = await setup('student', '/student/analytics')
     expect(student.wrapper.findAll('a.nav-item').map((item) => item.text())).not.toContain('学情分析')
-    expect(student.wrapper.findAll('.nav-item--planned').map((item) => item.text()).join(' ')).toContain('学习分析')
+    expect(student.wrapper.find('a.nav-item--active').text()).toContain('学习分析')
     student.wrapper.unmount()
   })
 

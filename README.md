@@ -15,6 +15,9 @@
 - [组员分工表](docs/组员分工表.md)
 - [页面与课堂流程](docs/design/页面与课堂流程.md)
 - [UI 设计基线](docs/design/UI设计基线.md)
+- [UI 实施方案](docs/design/UI实施方案.md)
+- [UI 重构验收记录](docs/testing/UI重构验收记录.md)
+- [六页参考图验收报告](docs/testing/UI参考图验收报告.md)
 - [实施计划](docs/design/实施计划.md)
 - [Spec 索引](docs/specs/README.md)
 - [测试计划与追溯](docs/testing/需求追溯与测试计划.md)
@@ -52,7 +55,7 @@ backend/migrations/       数据库迁移（SPEC-000 已建立，业务表由各
 tests/backend/            接口和领域测试（SPEC-000 已建立，307 条用例）
 tests/e2e/                系统集成验收脚本（D7，对真实运行的服务发 HTTP）
 tests/perf/               课堂负载脚本（D7，模拟数据）
-frontend/src/**/__tests__/ 前端组件与仿真逻辑测试（193 条用例）
+frontend/src/**/__tests__/ 前端组件与仿真逻辑测试（213 条用例）
 scripts/                  备份与恢复脚本（D7，OPS-02）
 docs/                     设计、规格、测试与检查材料
 ```

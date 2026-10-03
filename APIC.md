@@ -58,7 +58,7 @@ GET 成功 200、创建 201、PATCH/PUT/动作成功 200、DELETE 成功 200 且
 | SimulatorConfig | initial_q:int 0—15、modulus?:int 2—16（counter 默认16）；d/jk 初态只允许0/1，shift固定4位；复位同步高有效、时钟初始0固定 |
 | SimEvent | op:set/toggle_clock/reset_view；set 带 inputs:{d?:0/1,j?:0/1,k?:0/1,enable?:0/1,serial_in?:0/1,reset?:0/1}；仅允许对应模型字段 |
 | Demo | id、class_id、experiment_id、active:boolean、version、state:{clock,inputs,q,step_no}、history:状态行[]、reveal_next:boolean、next_q:int/null、last_updated:time；next_q为按当前输入计算的下一个有效上升沿状态，预测隐藏时为null |
-| AttemptResult | id、experiment_id:int、simulator_type:d/jk/counter/shift、passed:boolean、first_error_index:int/null、expected:int[]、actual:int[]、explanations:string[]、experiment_version:int |
+| AttemptResult | id、created_at:RFC3339 UTC（只读创建时间）、experiment_id:int、simulator_type:d/jk/counter/shift、passed:boolean、first_error_index:int/null、expected:int[]、actual:int[]、explanations:string[]、experiment_version:int |
 | QAEntry | id、knowledge_id、question:string≤200、answer_md:string≤10000、source_url:string/null、published:boolean、version |
 
 公开预习条目快照的元素形状（2026-09-29 随 SPEC-008 实现固定）：`{sort_order,target_type,target_id,content}`，`content` 按类型给发布时冻结的内容摘要——`knowledge:{title,excerpt,source_url}`、`resource_version:{resource_title,category,version_no,kind,original_name,mime,size_bytes,external_url,note}`、`question:{stem_md}`（**只有题干**，不含 answer/explanation，也不含选项）、`experiment:{title,simulator_type,steps_md}`。`excerpt` 是知识点正文的前 200 字摘要。备课单条目上限 50 条。
