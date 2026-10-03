@@ -1,0 +1,189 @@
+{
+  "real_engine": "Logisim-evolution 5.0.0",
+  "files": [
+    {
+      "file": "LAB-D-correct.circ",
+      "passed": true,
+      "score": 100.0,
+      "first_failure": null
+    },
+    {
+      "file": "LAB-D-wrong.circ",
+      "passed": false,
+      "score": 0.0,
+      "first_failure": {
+        "checkpoint": 1,
+        "inputs": {
+          "CLK": "0",
+          "CLR_N": "0",
+          "PRE_N": "1",
+          "D": "0"
+        },
+        "expected": {
+          "Q": "0"
+        },
+        "actual": {
+          "Q": "1"
+        },
+        "reason": "电路输出与任务要求不符"
+      }
+    },
+    {
+      "file": "LAB-C6-correct.circ",
+      "passed": true,
+      "score": 100.0,
+      "first_failure": null
+    },
+    {
+      "file": "LAB-C6-wrong.circ",
+      "passed": false,
+      "score": 50.98,
+      "first_failure": {
+        "checkpoint": 18,
+        "inputs": {
+          "CLK": "1",
+          "CLR_N": "1",
+          "EN": "1"
+        },
+        "expected": {
+          "Q": "0000"
+        },
+        "actual": {
+          "Q": "0110"
+        },
+        "reason": "电路输出与任务要求不符"
+      }
+    },
+    {
+      "file": "LAB-S4-correct.circ",
+      "passed": true,
+      "score": 100.0,
+      "first_failure": null
+    },
+    {
+      "file": "LAB-S4-wrong.circ",
+      "passed": false,
+      "score": 6.45,
+      "first_failure": {
+        "checkpoint": 1,
+        "inputs": {
+          "CLK": "0",
+          "CLR_N": "0",
+          "S1": "0",
+          "S0": "0",
+          "SR": "0",
+          "SL": "0",
+          "P": "0000"
+        },
+        "expected": {
+          "Q": "0000"
+        },
+        "actual": {
+          "Q": "1111"
+        },
+        "reason": "电路输出与任务要求不符"
+      }
+    },
+    {
+      "file": "LAB-FSM-correct.circ",
+      "passed": true,
+      "score": 100.0,
+      "first_failure": null
+    },
+    {
+      "file": "LAB-FSM-wrong.circ",
+      "passed": false,
+      "score": 43.75,
+      "first_failure": {
+        "checkpoint": 1,
+        "inputs": {
+          "CLK": "0",
+          "CLR_N": "0"
+        },
+        "expected": {
+          "Q": "00"
+        },
+        "actual": {
+          "Q": "11"
+        },
+        "reason": "电路输出与任务要求不符"
+      }
+    }
+  ],
+  "recognition": {
+    "status": "done",
+    "result": {
+      "rows": 7,
+      "cols": 4,
+      "states": [
+        {
+          "row": 0,
+          "value": 0
+        },
+        {
+          "row": 1,
+          "value": 1
+        },
+        {
+          "row": 2,
+          "value": 2
+        },
+        {
+          "row": 3,
+          "value": 3
+        },
+        {
+          "row": 4,
+          "value": 4
+        },
+        {
+          "row": 5,
+          "value": 5
+        },
+        {
+          "row": 6,
+          "value": 0
+        }
+      ],
+      "transitions": [
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 2,
+          "to": 3
+        },
+        {
+          "from": 3,
+          "to": 4
+        },
+        {
+          "from": 4,
+          "to": 5
+        },
+        {
+          "from": 5,
+          "to": 0
+        }
+      ],
+      "confidence": 0.8933,
+      "requires_review": true
+    }
+  },
+  "invalid_recognition": {
+    "status": "failed",
+    "error": {
+      "code": "GRID_NOT_DETECTED",
+      "message": "未检测到网格",
+      "details": {
+        "row_lines": 0,
+        "col_lines": 0
+      }
+    }
+  }
+}
