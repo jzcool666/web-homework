@@ -168,14 +168,14 @@ AttendanceRecord 与 Leave 的 `student_display_name`、`student_no` 为只读�
 | E062 | POST /paper-generations | T | class_id,title,kind:quiz/homework/exam,count:1—30,difficulty_counts:{easy,medium,hard},knowledge_minimums:[{knowledge_id,min_count}],seed:int | {assessment_id,selected_ids,solver_status,coverage,difficulty_counts,seed}，生成草稿不自动发布 |
 | E063 | POST /warnings/generations | T | class_id,from?,to? | {generated_at,algorithm_version,students:Warning[]}；最长366天，默认30天 |
 | E064 | GET /warnings | T | class_id,from?,to? | 最近同窗口完整批次列表；无批次返回[]，不自动假造 |
-
-E063/E064 缺省窗口（2026-10-04 修正）：省略 from/to 时使用最近30个UTC自然日，to为当前UTC日的下一日00:00，from=to-30天，与教师预警页的默认日期一致。同一UTC日内生成和稍后读取会使用同一窗口；换日后进入新窗口，无新批次时仍返回空。显式from/to保留原有精确时间范围，不要求整日，也不自动改写已有批次。
 | E065 | GET /me/recommendations | S | limit?:1—10（默认5） | {algorithm_version,items:[{kind:knowledge/question,resource_id,knowledge_id,title,score,reasons:string[]}]} |
 | E066 | GET /knowledge-graph | U且有课程访问权 | chapter_id?,root_id?,depth?=1—3 | KnowledgeGraph；只含已发布知识点 |
 | E067 | GET /knowledge-graph/path | U且有课程访问权 | from,to | {matched:boolean,nodes:[GraphNode],edges:[GraphEdge]}；无路径matched=false |
 | E068 | GET /knowledge-graph/topological | U且有课程访问权 | chapter_id? | {order:int[],has_cycle:boolean,cycle_edges:[GraphEdge]}；有环不返回order |
 | E069 | POST /recognition-tasks | S/T | multipart image、class_id、kind:state_table | RecognitionTask；S仅本人有效班级、T仅本人任教班级；413/415；同步处理并限时 |
 | E070 | GET /recognition-tasks/{id} | 创建者/所属班T | 无 | RecognitionTask；以任务保存的class_id核对任课关系，跨班404，失败含格式原因 |
+
+E063/E064 缺省窗口（2026-10-04 修正）：省略 from/to 时使用最近30个UTC自然日，to为当前UTC日的下一日00:00，from=to-30天，与教师预警页的默认日期一致。同一UTC日内生成和稍后读取会使用同一窗口；换日后进入新窗口，无新批次时仍返回空。显式from/to保留原有精确时间范围，不要求整日，也不自动改写已有批次。
 
 统计模型：
 
