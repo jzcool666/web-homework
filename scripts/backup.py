@@ -71,6 +71,23 @@ def index_uploads(upload_dir: Path) -> list[dict]:
     return entries
 
 
+def copy_uploads(source: Path, target: Path) -> None:
+    """Preserve business artifacts, excluding live worker locks/heartbeats.
+
+    Windows cannot copy a locked byte. Runtime liveness is rebuilt by the
+    restored worker and must never be restored as a healthy-worker claim.
+    """
+
+    def ignore(directory, names):
+        return (
+            ["lab-runtime"]
+            if Path(directory) == source and "lab-runtime" in names
+            else []
+        )
+
+    shutil.copytree(source, target, ignore=ignore)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--backend", default="backend", help="backend 目录")
@@ -119,7 +136,7 @@ def main() -> int:
     # 2) 上传文件 + 哈希清单
     copied_uploads = target / "uploads"
     if not args.skip_uploads and upload_dir.exists():
-        shutil.copytree(upload_dir, copied_uploads)
+        copy_uploads(upload_dir, copied_uploads)
     manifest = index_uploads(copied_uploads)
 
     # 3) 版本与迁移号

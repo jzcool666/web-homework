@@ -244,15 +244,15 @@ CSV 返回 UTF-8 BOM 文件，包含相同过滤条件的可展开明细，不�
 
 所有其他接口依本节统一封装和字段模型返回，模块中特有的边界样例及测试编号见对应 Spec。
 
-## 10 实验箱与电路文件测评（待实现）
+## 10 实验箱与电路文件测评（已实现）
 
 关联 FR-20/21、SPEC-018/019，行为及限制见[实验扩展方案](docs/design/实验箱接线与电路测评方案.md)。不改 E048—E058 的旧实验模型或统计分母。下列权限 S 指本人当前有效班级学生，T 指对象保存的 class_id 当前任课教师；历史只读允许已退班的记录创建者，禁用账号无访问。A 不获得教学记录权限。
 
 | 模型 | 字段 |
 | --- | --- |
 | LabTask | id、code:LAB-D/LAB-C6/LAB-S4/LAB-FSM、title、knowledge_id、version、catalog_version、instructions_md、ports:[{label,direction:input/output,width:int}]、board:{chips:[{id,model}],terminals:[{id,label,kind:rail/switch/clock/probe,port:string/null,bit:int/null}]}、catalog:{version,models:[{model,pin_count:int,pins:[{number:int,name,direction:input/output/power/ground,unit:string/null}],units:[{id,kind,input_pins:int[],output_pins:int[]}]}]}；不含私有向量/标准接线 |
-| LabSession | id、task_id、task_version、class_id、owner_id、kind:practice/demo、version、saved_at、board:{wires:[{id,from,to}],switches:终端值映射,power:boolean,clock:0/1}、events:[{seq,action_key,op,payload,received_at}]、state:{status:off/ready/blocked,pins:端点逻辑值映射,outputs:端口位串映射,diagnostics:[{code,message,endpoints:string[]}],trace:公开操作状态行[]}；逻辑值0/1/X/Z，位串高位在前 |
-| LabAttempt | id、task_id、task_code、task_version、class_id、student_id、student_display_name、student_no、mode:wiring/circ、session_id:id/null、created_at、finished_at:time/null、status:queued/running/done/error、score:number/null、passed:boolean/null、passed_checkpoints:int/null、total_checkpoints:int/null、first_failure:{checkpoint:int,inputs:公开端口映射,expected:输出位串映射,actual:输出位串映射,reason:string}/null、error:{code,message}/null、suite_version、engine_version、file:{original_name,size_bytes,sha256}/null；queued/running/error 的成绩和通过字段为null；详情另给只读session_snapshot或null，不给文件路径/命令/私有全向量 |
+| LabSession | id、task_id、task_version、task:只读LabTask快照、class_id、owner_id、kind:practice/demo、version、saved_at、board:{wires:[{id,from,to}],switches:终端值映射,power:boolean,clock:0/1}、events:[{seq,action_key,op,payload,received_at}]、state:{status:off/ready/blocked,pins:端点逻辑值映射,outputs:端口位串映射,diagnostics:[{code,message,endpoints:string[]}],trace:公开操作状态行[]}；逻辑值0/1/X/Z，位串高位在前 |
+| LabAttempt | id、task_id、task_code、task_version、class_id、student_id、student_display_name、student_no、mode:wiring/circ、session_id:id/null、created_at、finished_at:time/null、status:queued/running/done/error、score:number/null、passed:boolean/null、passed_checkpoints:int/null、total_checkpoints:int/null、first_failure:{checkpoint:int,inputs:公开端口映射,expected:输出位串映射,actual:输出位串映射,reason:string}/null、error:{code,message}/null、suite_version、engine_version、file:{original_name,size_bytes,sha256}/null；queued/running/error 的成绩和通过字段为null；详情另给只读task:LabTask快照及session_snapshot或null，不给文件路径/命令/私有全向量 |
 | LabSummary | class_id、tasks:[{task_id,mode,participant_count,attempt_count,passed_student_count,pass_rate:number/null,queued_count,running_count,error_count}]；当前有效在册名单，participant_count按至少一条done去重、attempt_count为done条数、通过人数按任一次passed去重，pass_rate=通过人数/参与人数，无参与null |
 
 LabTask 的 board 只暴露固定器件/终端和目录事实，不提前提供正确导线。knowledge_id 必须对应已发布知识点；任务列表只列已发布任务。任务首版经幂等种子维护，没有开放任务编辑/任意向量上传接口。已停用任务或班级仍可读历史，禁新建/动作/提交；更新种子不得覆盖使用中的版本或改历史。
@@ -264,12 +264,12 @@ LabTask 的 board 只暴露固定器件/终端和目录事实，不提前提供�
 | E071 | GET /lab-tasks | S/T | 常规分页 | LabTask列表，稳定按code；未入班学生404，管理员403 |
 | E072 | GET /lab-tasks/{id} | S/T | 无 | LabTask；已发布且可用任务，无私有测试或答案接线 |
 | E073 | POST /lab-sessions | S/T | task_id、task_version、class_id、request_key:string 8—64 | 201 LabSession；学生practice、教师demo，空箱；同owner同key同载荷200原对象、异载荷409 |
-| E074 | GET /lab-sessions/{id} | 创建者/T | 无 | LabSession；教师读取学生会话只读，本人/本班判定，跨班404 |
+| E074 | GET /lab-sessions/{id} | 创建者/T | at_seq?（0到事件数，省略读最新） | LabSession；教师读取学生会话只读，本人/本班判定，跨班404 |
 | E075 | POST /lab-sessions/{id}/actions | 创建者S/T | version、action_key:string 8—64、op、payload | LabSession；原子版本动作，同key同载荷200原动作时快照、异载荷409，陈旧新动作409；未知动作/客户端state字段422；结构问题保存后state.status=blocked |
 | E076 | POST /lab-attempts/wiring | S | session_id、session_version、task_version、request_key:string 8—64 | 201 LabAttempt(done)；取服务器会话/任务快照；无效结构422、不生成成绩；引擎超时503；同key同载荷200原对象 |
 | E077 | POST /lab-attempts/circ | S | multipart file、task_id、task_version、class_id、request_key:string 8—64 | 202 LabAttempt(queued)，显式状态例外；非circ415、超2MiB413、版本/端口/XML/外部依赖422、限流429、引擎/worker不可用503；同key同文件哈希/任务载荷200原对象，异载荷409 |
 | E078 | GET /lab-attempts | S/T | T必填class_id；task_id?、mode?、status?、student_id?仅T；常规分页 | LabAttempt列表；学生本人、教师本班；S携带student_id/class_id过滤422 |
-| E079 | GET /lab-attempts/{id} | 本人/T | 无 | LabAttempt详情；可轮询队列，不在GET触发运行，跨班/他人404 |
+| E079 | GET /lab-attempts/{id} | 本人/T | at_seq?（仅接线，0到冻结事件数） | LabAttempt详情；可轮询队列，不在GET触发运行，跨班/他人404 |
 | E080 | GET /lab-attempts/{id}/file | 本人/T | 无 | circ附件；wiring无文件404；下载鉴权、防原名注入、不输出storage_key |
 | E081 | GET /lab-tasks/{id}/template | S/T | 无 | 5.0.0 circ模板附件，仅main与指定Pin，无答案；任务不可用404 |
 | E082 | GET /analytics/labs | T | class_id、task_id? | LabSummary；无时间窗、当前在册汇总；S/A403，跨班404，不改变旧E058 |
@@ -278,4 +278,6 @@ E075 payload：connect 为 `{from:string,to:string}`，端点必须在任务目�
 
 E076/E077 的幂等键按student全局唯一并包含mode。新提交必须处于本人当前有效班级；历史读取依保存的class_id与创建者。旧task_version409要求刷新；旧会话不能自动迁移芯片或线，重新创建练习。E076只准practice会话，demo不进入成绩；取得快照后在事务外计算，写成绩前复核session_version/task_version，变化409。E077 XML/库/属性校验在入队前完成，入队事务失败删除本次文件，不留成功记录。
 
-错误补充：422 `CIRCUIT_INVALID`/`CIRCUIT_UNSUPPORTED`/`LAB_LIMIT_EXCEEDED`；503 `LAB_ENGINE_UNAVAILABLE`/`LAB_SIMULATION_TIMEOUT`；429附Retry-After。worker运行失败写attempt.error（例如GRADING_TIMEOUT/GRADING_OUTPUT_INVALID/GRADING_PROCESS_FAILED/WORKER_INTERRUPTED），GET仍返回200对象及null成绩，不能靠HTTP200认定通过。API从不接受q、passed、score、expected、suite或任意文件路径字段；E077未知multipart业务字段同样422，不沿用E069的显式例外。
+错误补充：422 `CIRCUIT_INVALID`/`CIRCUIT_UNSUPPORTED`/`LAB_LIMIT_EXCEEDED`；503 `LAB_ENGINE_UNAVAILABLE`/`LAB_SIMULATION_TIMEOUT`；429附Retry-After。worker运行失败写attempt.error（例如GRADING_TIMEOUT/GRADING_OUTPUT_INVALID/GRADING_PROCESS_FAILED/GRADING_OUTPUT_LIMIT/WORKER_INTERRUPTED），GET仍返回200对象及null成绩，不能靠HTTP200认定通过。API从不接受q、passed、score、expected、suite或任意文件路径字段；E077未知multipart业务字段同样422，不沿用E069的显式例外。
+
+E074/E079 的 at_seq 仅回放已保存过程，不新增或修改事件；服务端重放前N条，0为初始空箱。E079只读取提交时的不可变快照，score不随回放改变。LabSession.task和详情LabAttempt.task提供当时公开目录，使任务更新后旧记录仍可正确显示。
