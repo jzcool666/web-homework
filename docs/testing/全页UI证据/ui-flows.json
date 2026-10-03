@@ -1,0 +1,70 @@
+{
+  "at": "2026-10-03T17:33:00.089Z",
+  "checks": [
+    {
+      "name": "UI generates actual three-group warning",
+      "passed": true
+    },
+    {
+      "name": "One student remains insufficient",
+      "passed": true
+    },
+    {
+      "name": "Solver creates feasible paper through UI",
+      "passed": true
+    },
+    {
+      "name": "Course QA exact corpus query returns source",
+      "passed": true
+    },
+    {
+      "name": "Out-of-domain question has no invented answer",
+      "passed": true
+    },
+    {
+      "name": "Real browser state-table upload recognizes six transitions",
+      "passed": true
+    },
+    {
+      "name": "Recognition still requires human review",
+      "passed": true
+    },
+    {
+      "name": "Autosave remains successful after UI change",
+      "passed": true
+    },
+    {
+      "name": "Refresh restores selected answer",
+      "passed": true
+    },
+    {
+      "name": "Actual submission finalizes once",
+      "passed": true
+    },
+    {
+      "name": "Feedback before release remains hidden",
+      "passed": true
+    },
+    {
+      "name": "Native graph canvas is rendered",
+      "passed": true
+    },
+    {
+      "name": "Mobile graph scroll stays inside chart",
+      "passed": true
+    },
+    {
+      "name": "Mobile navigation closes on page change",
+      "passed": true
+    },
+    {
+      "name": "Publish checkbox is readable compact control",
+      "passed": true
+    },
+    {
+      "name": "No browser page exceptions",
+      "passed": true
+    }
+  ],
+  "errors": []
+}
