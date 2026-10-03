@@ -8,12 +8,12 @@
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 
-import AppIcon from '@/components/ui/AppIcon.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import SectionCard from '@/components/ui/SectionCard.vue'
 import StatePanel from '@/components/ui/StatePanel.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
-import { api } from '@/api/client'
+import { readAll } from '@/api/pagination'
+import CircuitPreview from '@/components/home/CircuitPreview.vue'
 import { modelLabel } from '@/utils/demo'
 import { resultSummary, resultTone } from '@/utils/attempt'
 
@@ -39,8 +39,8 @@ async function load() {
   state.value = 'loading'
   try {
     const [experimentList, attemptList] = await Promise.all([
-      api.get('/experiments?page_size=100'),
-      api.get('/me/experiment-attempts?page_size=100'),
+      readAll('/experiments'),
+      readAll('/me/experiment-attempts'),
     ])
     experiments.value = experimentList
     attempts.value = attemptList
@@ -78,7 +78,7 @@ onMounted(load)
       <SectionCard title="可做的实验">
         <div class="experiment-list">
           <div v-for="experiment in experiments" :key="experiment.id" class="experiment-row">
-            <span class="experiment-row__icon"><AppIcon name="flask" /></span>
+            <CircuitPreview :kind="experiment.simulator_type" />
             <div class="experiment-row__body">
               <strong>{{ experiment.title }}</strong>
               <small>
@@ -121,8 +121,10 @@ onMounted(load)
 <style scoped>
 .experiments-page { width: 100%; }
 .experiments-page .section-card { margin-bottom: var(--space-4); }
-.experiment-list { display: grid; gap: var(--space-3); }
-.experiment-row { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-sm); }
+.experiment-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+.experiment-row { display: flex; flex-direction: column; align-items: stretch; gap: var(--space-3); padding: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+.experiment-row .circuit-preview { align-self: center; }
+@media (max-width: 620px) { .experiment-list { grid-template-columns: 1fr; } }
 .experiment-row__icon { display: grid; place-items: center; width: 2.6rem; height: 2.6rem; border-radius: var(--radius-sm); color: var(--color-primary); background: var(--color-primary-soft); }
 .experiment-row__body { display: grid; gap: 2px; margin-right: auto; }
 .experiment-row__body small { color: var(--color-text-secondary); font-size: var(--font-size-xs); }

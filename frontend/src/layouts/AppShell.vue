@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import AppIcon from '@/components/ui/AppIcon.vue'
@@ -10,6 +10,8 @@ const auth = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 const drawerOpen = ref(false)
+const sidebar = ref(null)
+const menuButton = ref(null)
 const items = computed(() => navigationFor(auth.user?.role))
 const groups = computed(() => groupedNavigationFor(auth.user?.role))
 const roleLabel = computed(() => roleLabels[auth.user?.role] ?? '课程空间')
@@ -23,6 +25,20 @@ function isActive(item) {
 }
 
 watch(() => route.fullPath, () => { drawerOpen.value = false })
+watch(drawerOpen, async open => {
+  await nextTick()
+  if (open) sidebar.value?.querySelector('a.nav-item')?.focus()
+  else menuButton.value?.focus()
+})
+function drawerKey(event) {
+  if (!drawerOpen.value) return
+  if (event.key === 'Escape') { event.preventDefault(); drawerOpen.value = false }
+  if (event.key !== 'Tab') return
+  const links = [...sidebar.value.querySelectorAll('a.nav-item')]
+  const first = links[0], last = links[links.length - 1]
+  if (event.shiftKey && event.target === first) { event.preventDefault(); last?.focus() }
+  else if (!event.shiftKey && event.target === last) { event.preventDefault(); first?.focus() }
+}
 
 async function signOut() {
   try {
@@ -39,7 +55,7 @@ async function signOut() {
     <a class="skip-link" href="#main-content">跳到主要内容</a>
     <header class="topbar">
       <div class="topbar__start">
-        <button v-if="auth.user" class="icon-button topbar__menu" type="button" aria-label="打开导航" :aria-expanded="drawerOpen" aria-controls="app-sidebar" @click="drawerOpen = !drawerOpen">
+        <button v-if="auth.user" ref="menuButton" class="icon-button topbar__menu" type="button" aria-label="打开导航" :aria-expanded="drawerOpen" aria-controls="app-sidebar" @click="drawerOpen = !drawerOpen">
           <AppIcon :name="drawerOpen ? 'close' : 'menu'" />
         </button>
         <RouterLink class="brand" :to="{ name: 'home' }" aria-label="学海通首页">
@@ -64,7 +80,7 @@ async function signOut() {
     </header>
 
     <button v-if="auth.user && drawerOpen" class="sidebar-backdrop" type="button" aria-label="关闭导航" @click="drawerOpen = false"></button>
-    <aside v-if="auth.user" id="app-sidebar" class="sidebar" :class="{ 'sidebar--open': drawerOpen }" aria-label="主导航">
+    <aside v-if="auth.user" id="app-sidebar" ref="sidebar" class="sidebar" :class="{ 'sidebar--open': drawerOpen }" aria-label="主导航" @keydown="drawerKey">
       <div class="sidebar__heading">{{ roleLabel }}</div>
       <nav class="sidebar__nav" aria-label="角色导航">
         <div v-for="(group, index) in groups" :key="group.label ?? `group-${index}`" class="nav-group">
@@ -94,7 +110,7 @@ async function signOut() {
       </div>
     </aside>
 
-    <main id="main-content" class="main-content">
+    <main id="main-content" class="main-content" tabindex="-1">
       <div class="main-content__inner"><slot /></div>
     </main>
   </div>

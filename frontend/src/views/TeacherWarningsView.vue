@@ -1,4 +1,5 @@
 <script setup>
+import { initialClassId } from '@/utils/overview'
 /**
  * 教师学习预警（SPEC-004 E063/E064）。
  *
@@ -50,7 +51,7 @@ const hasUnclustered = computed(() => warnings.value.some((row) => row.cluster_l
 
 async function loadClasses() {
   classes.value = await api.get('/classes?page_size=100')
-  if (!classId.value && classes.value.length > 0) classId.value = classes.value[0].id
+  if (!classId.value) classId.value = initialClassId(classes.value)
 }
 
 async function loadWarnings() {

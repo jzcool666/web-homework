@@ -1,4 +1,5 @@
 <script setup>
+import { initialClassId } from '@/utils/overview'
 /**
  * 教师学情分析：学习进度与资源访问统计（SPEC-006 E056）。
  *
@@ -58,7 +59,7 @@ async function loadOptions() {
   ])
   classes.value = classList
   chapters.value = chapterList
-  if (!classId.value && classList.length > 0) classId.value = classList[0].id
+  if (!classId.value) classId.value = initialClassId(classList)
 }
 
 async function loadStats() {

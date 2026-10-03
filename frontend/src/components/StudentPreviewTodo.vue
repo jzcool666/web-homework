@@ -7,7 +7,7 @@
  */
 import { computed, onMounted, ref } from 'vue'
 
-import { api } from '@/api/client'
+import { readAll } from '@/api/pagination'
 import SectionCard from '@/components/ui/SectionCard.vue'
 import StatePanel from '@/components/ui/StatePanel.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
@@ -17,6 +17,7 @@ const previews = ref([])
 const classId = ref(null)
 const state = ref('loading')
 const error = ref('')
+const expanded = ref(false)
 
 const overdueCount = computed(
   () => previews.value.filter((preview) => dueState(preview.due_at).overdue).length,
@@ -26,15 +27,13 @@ async function load() {
   state.value = 'loading'
   error.value = ''
   try {
-    const classes = await api.get('/classes?page_size=100')
+    const classes = await readAll('/classes')
     if (classes.length === 0) {
       state.value = 'no-class'
       return
     }
     classId.value = classes[0].id
-    previews.value = await api.get(
-      `/preview-assignments?class_id=${classId.value}&page_size=20`,
-    )
+    previews.value = await readAll(`/preview-assignments?class_id=${classId.value}`)
     state.value = 'ready'
   } catch (err) {
     error.value = err.message
@@ -60,7 +59,7 @@ onMounted(load)
       description="教师发布预习后，待办会出现在这里。"
     />
     <ul v-else class="previews">
-      <li v-for="preview in previews" :key="preview.id">
+      <li v-for="preview in (expanded ? previews : previews.slice(0, 3))" :key="preview.id">
         <div class="previews__head">
           <strong>{{ preview.plan_title || `预习 #${preview.id}` }} · {{ preview.items.length }} 项</strong>
           <StatusBadge :tone="dueState(preview.due_at).tone">
@@ -74,6 +73,7 @@ onMounted(load)
         </p>
       </li>
     </ul>
+    <button v-if="state === 'ready' && previews.length > 3" class="button button--secondary" type="button" @click="expanded = !expanded">{{ expanded ? '收起任务' : `展开其余 ${previews.length - 3} 项预习` }}</button>
     <p v-if="state === 'ready' && overdueCount > 0" class="hint">
       有 {{ overdueCount }} 项已过截止时间，仍可查看内容。
     </p>

@@ -9,6 +9,10 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 
 import { api } from '@/api/client'
+import { readAll } from '@/api/pagination'
+import CircuitPreview from '@/components/home/CircuitPreview.vue'
+import SectionCard from '@/components/ui/SectionCard.vue'
+import StatePanel from '@/components/ui/StatePanel.vue'
 import { renderMarkdown } from '@/utils/markdown'
 
 const route = useRoute()
@@ -19,28 +23,42 @@ const favorited = ref(false)
 const completed = ref(false)
 const error = ref(null)
 const notice = ref(null)
+const relatedExperiments = ref([])
+const relatedError = ref('')
+const loading = ref(true)
+let loadRevision = 0
 
 const bodyHtml = computed(() => renderMarkdown(point.value?.body_md ?? ''))
 const knowledgeId = computed(() => Number(route.params.id))
 
 async function load() {
+  const current = ++loadRevision
+  const id = knowledgeId.value
+  loading.value = true
+  relatedExperiments.value = []
+  relatedError.value = ''
   error.value = null
   try {
-    point.value = await api.get(`/knowledge-points/${knowledgeId.value}`)
+    const detail = await api.get(`/knowledge-points/${id}`)
     const [favoriteList, progressList, resourceList, chapterList] = await Promise.all([
-      api.get('/me/favorites?page_size=100'),
-      api.get('/me/learning-progress?page_size=100'),
-      api.get(`/resources?knowledge_id=${knowledgeId.value}&page_size=100`),
-      api.get('/chapters?page_size=100'),
+      readAll('/me/favorites'),
+      readAll('/me/learning-progress'),
+      readAll(`/resources?knowledge_id=${id}`),
+      readAll('/chapters'),
     ])
+    if (current !== loadRevision) return
+    point.value = detail
     favorited.value = favoriteList.some((item) => item.id === knowledgeId.value)
     completed.value =
       progressList.find((item) => item.knowledge_id === knowledgeId.value)?.completed ?? false
     resources.value = resourceList
     chapter.value = chapterList.find((item) => item.id === point.value.chapter_id) ?? null
+    try { const list = await readAll(`/experiments?knowledge_id=${id}`); if (current === loadRevision) relatedExperiments.value = list }
+    catch (err) { if (current === loadRevision) relatedError.value = err.message }
   } catch (err) {
-    error.value = err.message
-    point.value = null
+    if (current === loadRevision) { error.value = err.message; point.value = null }
+  } finally {
+    if (current === loadRevision) loading.value = false
   }
 }
 
@@ -96,6 +114,8 @@ watch(() => route.params.id, (next, previous) => {
 
 <template>
   <main class="page">
+    <nav class="breadcrumb" aria-label="面包屑"><RouterLink :to="{ name: 'student-learning' }">数字逻辑</RouterLink><span aria-hidden="true">/</span><span>{{ chapter?.title ?? '课程' }}</span><span aria-hidden="true">/</span><span>{{ point?.title ?? '知识点' }}</span></nav>
+    <StatePanel v-if="loading" kind="loading" title="正在读取知识点" />
     <p>
       <RouterLink :to="{ name: 'student-learning' }">← 返回学习与收藏</RouterLink>
     </p>
@@ -103,7 +123,7 @@ watch(() => route.params.id, (next, previous) => {
     <p v-if="error" class="error" role="alert">{{ error }}</p>
     <p v-if="notice" class="success">{{ notice }}</p>
 
-    <article v-if="point">
+    <article v-if="point" class="knowledge-content">
       <p class="hint">
         <template v-if="chapter">{{ chapter.title }} · </template>知识点 #{{ point.id }}
       </p>
@@ -123,6 +143,12 @@ watch(() => route.params.id, (next, previous) => {
 
       <!-- bodyHtml 只由 renderMarkdown 生成：输入已整体转义，标签来自白名单 -->
       <section class="markdown" v-html="bodyHtml"></section>
+      <SectionCard title="相关实验与练习">
+        <p v-if="relatedError" class="error" role="alert">相关实验读取失败：{{ relatedError }}</p>
+        <div v-else-if="relatedExperiments.length" class="knowledge-experiments"><article v-for="experiment in relatedExperiments" :key="experiment.id"><CircuitPreview :kind="experiment.simulator_type" /><h3>{{ experiment.title }}</h3><RouterLink class="button button--secondary" :to="{ name: 'student-experiment', params: { id: experiment.id } }">进入实验预测</RouterLink></article></div>
+        <p v-else class="hint">当前知识点暂无关联实验。</p>
+        <RouterLink class="button button--primary" :to="{ name: 'student-practice', query: { knowledge_id: knowledgeId } }">练习这个知识点</RouterLink>
+      </SectionCard>
 
       <p v-if="point.source_url">
         来源：
@@ -168,11 +194,16 @@ watch(() => route.params.id, (next, previous) => {
 </template>
 
 <style scoped>
+.knowledge-content { padding: var(--space-6); background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-card); }
+.knowledge-content > .markdown { max-width: 75ch; margin-block: var(--space-5); }
+.knowledge-content > .section-card { margin-block: var(--space-5); box-shadow: none; }
+@media (max-width: 620px) { .knowledge-content { padding: var(--space-4); } }
 button.secondary {
   padding: 0.45rem 1rem;
   margin-left: 0.4rem;
-  border: 1px solid #bdc1c6;
-  border-radius: 0.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-primary);
   background: #fff;
   cursor: pointer;
 }

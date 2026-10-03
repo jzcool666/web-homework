@@ -18,6 +18,8 @@ import SectionCard from '@/components/ui/SectionCard.vue'
 import StatePanel from '@/components/ui/StatePanel.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
 import { ApiError, api } from '@/api/client'
+import CircuitPreview from '@/components/home/CircuitPreview.vue'
+import AttemptComparison from '@/components/experiment/AttemptComparison.vue'
 import { formatBits, modelLabel } from '@/utils/demo'
 import {
   attemptSummary,
@@ -148,6 +150,7 @@ watch(experimentId, load, { immediate: true })
       </PageHeader>
 
       <SectionCard title="实验条件">
+        <CircuitPreview :kind="simulatorType" />
         <dl class="conditions">
           <div><dt>初态 Q</dt><dd class="mono">{{ formatBits(experiment.config.initial_q ?? 0, simulatorType) }}</dd></div>
           <div v-if="experiment.config.modulus"><dt>模数</dt><dd class="mono">{{ experiment.config.modulus }}</dd></div>
@@ -206,6 +209,7 @@ watch(experimentId, load, { immediate: true })
       </SectionCard>
 
       <SectionCard v-if="result" title="提交结果">
+        <AttemptComparison :result="result" :simulator-type="result.simulator_type ?? simulatorType" />
         <p class="result-head">
           <StatusBadge :tone="resultTone(result)">{{ result.passed ? '通过' : '未通过' }}</StatusBadge>
           <strong>{{ resultSummary(result) }}</strong>

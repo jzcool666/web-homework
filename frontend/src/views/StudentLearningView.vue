@@ -9,6 +9,9 @@ import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 
 import { api } from '@/api/client'
+import { readAll } from '@/api/pagination'
+import PageHeader from '@/components/ui/PageHeader.vue'
+import StatePanel from '@/components/ui/StatePanel.vue'
 
 const chapters = ref([])
 const points = ref([])
@@ -17,6 +20,7 @@ const favorites = ref(new Set())
 const completed = ref(new Map())
 const error = ref(null)
 const notice = ref(null)
+const loading = ref(true)
 
 const grouped = computed(() =>
   chapters.value.map((chapter) => ({
@@ -34,14 +38,15 @@ function isCompleted(pointId) {
 }
 
 async function load() {
+  loading.value = true
   error.value = null
   try {
     const [chapterList, pointList, resourceList, favoriteList, progressList] = await Promise.all([
-      api.get('/chapters?page_size=100'),
-      api.get('/knowledge-points?page_size=100'),
-      api.get('/resources?page_size=100'),
-      api.get('/me/favorites?page_size=100'),
-      api.get('/me/learning-progress?page_size=100'),
+      readAll('/chapters'),
+      readAll('/knowledge-points'),
+      readAll('/resources'),
+      readAll('/me/favorites'),
+      readAll('/me/learning-progress'),
     ])
     chapters.value = chapterList
     points.value = pointList
@@ -50,6 +55,8 @@ async function load() {
     completed.value = new Map(progressList.map((item) => [item.knowledge_id, item.completed]))
   } catch (err) {
     error.value = err.message
+  } finally {
+    loading.value = false
   }
 }
 
@@ -105,10 +112,8 @@ onMounted(load)
 
 <template>
   <main class="page">
-    <h1>学习与收藏</h1>
-    <p class="hint">
-      完成标记是学生自报的学习记录，不代表掌握程度。资源访问按 UTC 日去重统计。
-    </p>
+    <PageHeader eyebrow="课程学习" title="学习与收藏" description="按章节选择知识点。完成标记是自报记录，不代表掌握程度。" />
+    <StatePanel v-if="loading" kind="loading" title="正在读取课程" />
 
     <p v-if="notice" class="success">{{ notice }}</p>
     <p v-if="error" class="error" role="alert">{{ error }}</p>
@@ -116,7 +121,7 @@ onMounted(load)
     <section v-for="group in grouped" :key="group.chapter.id" class="card">
       <h2>{{ group.chapter.title }}</h2>
       <p v-if="group.items.length === 0" class="hint">本章还没有已发布的知识点。</p>
-      <ul class="knowledge">
+      <ul class="course-grid">
         <li v-for="point in group.items" :key="point.id">
           <RouterLink :to="{ name: 'student-knowledge', params: { id: point.id } }">
             {{ point.title }}
@@ -124,12 +129,13 @@ onMounted(load)
           <span class="badge" :class="{ on: isCompleted(point.id) }">
             {{ isCompleted(point.id) ? '已完成' : '未完成' }}
           </span>
-          <button class="link" type="button" @click="toggleFavorite(point)">
+          <div class="knowledge-actions"><button class="link" type="button" @click="toggleFavorite(point)">
             {{ isFavorite(point.id) ? '取消收藏' : '收藏' }}
           </button>
           <button class="link" type="button" @click="toggleCompleted(point)">
             {{ isCompleted(point.id) ? '取消完成' : '标记完成' }}
           </button>
+          </div>
         </li>
       </ul>
     </section>
@@ -168,7 +174,7 @@ onMounted(load)
       </ul>
     </section>
 
-    <section v-if="chapters.length === 0 && !error" class="card">
+    <section v-if="chapters.length === 0 && !error && !loading" class="card">
       <p class="hint">暂时没有可学习的课程内容，请等待教师发布。</p>
     </section>
   </main>

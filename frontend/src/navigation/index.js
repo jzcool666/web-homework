@@ -40,7 +40,7 @@ export const navigation = {
     },
     { label: '状态表识别', icon: 'flask', route: 'student-recognition', group: '练习与实验' },
     { label: '复习推荐', icon: 'spark', route: 'student-recommendations', group: '学习提升' },
-    { label: '学习分析', icon: 'chart', planned: 'SPEC-006', group: '学习提升' },
+    { label: '学习分析', icon: 'chart', route: 'student-analytics', group: '学习提升' },
     { label: '课程问答', icon: 'spark', route: 'student-qa', group: '学习提升' },
     { label: '知识图谱', icon: 'network', route: 'knowledge-graph', group: '学习提升' },
   ],

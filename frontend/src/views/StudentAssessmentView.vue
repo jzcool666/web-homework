@@ -39,6 +39,7 @@ const loading = ref(true)
 const loadError = ref(null)
 const error = ref(null)
 const lastSavedAt = ref(null)
+const currentIndex = ref(0)
 const online = ref(typeof navigator === 'undefined' ? true : navigator.onLine)
 const editRevision = ref(0)
 const savedRevision = ref(0)
@@ -251,8 +252,10 @@ onUnmounted(() => {
           description="已结束的测评不能继续作答；服务端会按最后一次保存的答案判分。"
         />
 
-        <ol v-else class="questions">
-          <li v-for="item in items" :key="item.id">
+        <template v-else>
+        <nav class="question-nav" aria-label="题号导航"><button v-for="(item, index) in items" :key="item.id" type="button" :aria-current="currentIndex === index ? 'step' : undefined" :class="{ 'question-nav--answered': selected(item.id).length }" :aria-label="`第 ${index + 1} 题${selected(item.id).length ? '，已作答' : '，未作答'}`" @click="currentIndex = index">{{ index + 1 }}</button></nav>
+        <ol class="questions" :start="currentIndex + 1">
+          <li v-for="item in items.slice(currentIndex, currentIndex + 1)" :key="item.id">
             <div class="question-head">
               <strong>{{ item.position }}. {{ item.stem_md }}</strong>
               <span class="badge">{{ QUESTION_TYPE_LABEL[item.type] ?? item.type }}</span>
@@ -273,6 +276,8 @@ onUnmounted(() => {
             </div>
           </li>
         </ol>
+        <div class="actions question-paging"><button class="button button--secondary" type="button" :disabled="currentIndex === 0" @click="currentIndex -= 1">上一题</button><span>第 {{ currentIndex + 1 }} / {{ items.length }} 题</span><button class="button button--secondary" type="button" :disabled="currentIndex >= items.length - 1" @click="currentIndex += 1">下一题</button></div>
+        </template>
 
         <div v-if="!closed && assessment.effective_state !== 'upcoming'" class="actions">
           <button class="button button--secondary" type="button" :disabled="saving || submitting" @click="flushSave">
@@ -307,7 +312,8 @@ onUnmounted(() => {
 
 .questions {
   margin: 0;
-  padding-left: 1.25rem;
+  padding-left: 0;
+  list-style: none;
 }
 
 .questions li {
@@ -349,5 +355,11 @@ onUnmounted(() => {
   align-items: center;
   gap: var(--space-3);
   margin-top: var(--space-4);
+  flex-wrap: wrap;
 }
+.question-nav { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-5); }
+.question-nav button { min-width: 2.5rem; min-height: 2.5rem; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-bg-card); color: var(--color-text-primary); }
+.question-nav button.question-nav--answered { background: var(--color-primary-soft); }
+.question-nav button[aria-current] { border-color: var(--color-primary); color: var(--color-primary); box-shadow: inset 0 0 0 1px var(--color-primary); }
+.question-paging { justify-content: space-between; }
 </style>
