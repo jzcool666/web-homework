@@ -3,6 +3,7 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import AppIcon from '@/components/ui/AppIcon.vue'
+import QuickSearch from '@/components/ui/QuickSearch.vue'
 import { groupedNavigationFor, navigationFor, roleLabels } from '@/navigation'
 import { useAuthStore } from '@/stores/auth'
 
@@ -65,6 +66,7 @@ async function signOut() {
       </div>
       <div class="topbar__end">
         <template v-if="auth.user">
+          <QuickSearch />
           <span class="topbar__context">{{ roleLabel }} / {{ pageLabel }}</span>
           <RouterLink class="user-link" :to="{ name: 'profile' }">
             <span class="user-avatar">{{ auth.user.display_name?.slice(0, 1) || '用' }}</span>

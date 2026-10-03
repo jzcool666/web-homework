@@ -1,11 +1,15 @@
 <script setup>
+import { computed, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 import { useStudentOverview } from '@/composables/useStudentOverview'
-import { percent } from '@/utils/overview'
+import { chapterCompletion, attemptActivity } from '@/utils/learningInsights'
 import MetricCard from '@/components/ui/MetricCard.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import SectionCard from '@/components/ui/SectionCard.vue'
 import StatePanel from '@/components/ui/StatePanel.vue'
 import RecommendationList from '@/components/home/RecommendationList.vue'
+import ChapterProgress from '@/components/home/ChapterProgress.vue'
+import ActivityChart from '@/components/home/ActivityChart.vue'
 const {
   data,
   errors,
@@ -16,13 +20,44 @@ const {
   recommended,
   load,
 } = useStudentOverview()
+const activeTab = ref('overview')
+const tabs = [
+  { id: 'overview', title: '完成概览' },
+  { id: 'chapters', title: '章节进度' },
+  { id: 'experiments', title: '实验记录' },
+  { id: 'review', title: '复习建议' },
+]
+const chapters = computed(() =>
+  chapterCompletion(
+    data.value.points ?? [],
+    data.value.progress ?? [],
+    data.value.chapters ?? [],
+  ),
+)
+const activity = computed(() => attemptActivity(data.value.attempts ?? []))
+function tabKey(event) {
+  const index = tabs.findIndex((tab) => tab.id === activeTab.value)
+  const next =
+    event.key === 'ArrowRight'
+      ? (index + 1) % tabs.length
+      : event.key === 'ArrowLeft'
+        ? (index + tabs.length - 1) % tabs.length
+        : event.key === 'Home'
+          ? 0
+          : event.key === 'End'
+            ? tabs.length - 1
+            : -1
+  if (next < 0) return
+  event.preventDefault()
+  activeTab.value = tabs[next].id
+  event.currentTarget.querySelectorAll('button')[next]?.focus()
+}
 </script>
 <template>
-  <div class="dashboard">
+  <div class="dashboard analytics-page">
     <PageHeader
-      eyebrow="学习提升"
       title="学习分析"
-      description="查看当前课程完成情况与复习建议；完成标记是自报记录，不代表掌握程度。"
+      description="查看自己的学习记录，找到下一步值得复习的内容。"
       ><template #actions
         ><button
           class="button button--secondary"
@@ -34,9 +69,29 @@ const {
         </button></template
       ></PageHeader
     >
+    <nav
+      class="tabs"
+      role="tablist"
+      aria-label="学习分析内容"
+      @keydown="tabKey"
+    >
+      <button
+        v-for="tab in tabs"
+        :id="`analysis-tab-${tab.id}`"
+        :key="tab.id"
+        role="tab"
+        type="button"
+        :aria-selected="activeTab === tab.id"
+        :aria-controls="`analysis-panel-${tab.id}`"
+        :tabindex="activeTab === tab.id ? 0 : -1"
+        @click="activeTab = tab.id"
+      >
+        {{ tab.title }}
+      </button>
+    </nav>
     <StatePanel v-if="loading" kind="loading" title="正在读取当前学习记录" />
-    <template v-else
-      ><div class="metric-grid">
+    <template v-else>
+      <div class="metric-grid analytics-metrics">
         <MetricCard
           label="知识点完成"
           :value="
@@ -51,51 +106,161 @@ const {
               ? `${stats.passed} / ${stats.experimentTotal}`
               : null
           "
-          note="至少通过一次 · 按实验去重"
+          note="至少通过一次 · 去重"
           icon="flask"
         /><MetricCard
           label="本次推荐知识点"
           :value="data.recommendations ? recommended.length : null"
-          note="仅本次返回的推荐"
+          note="仅本次返回"
           icon="spark"
+        /><MetricCard
+          label="累计实验提交"
+          :value="data.attempts ? data.attempts.length : null"
+          note="每次尝试各计一次"
+          icon="check"
         />
       </div>
-      <SectionCard title="当前完成情况"
-        ><div
-          v-for="row in [
-            {
-              title: '课程完成',
-              value: learningReady ? stats.learningRatio : null,
-            },
-            {
-              title: '实验通过',
-              value: experimentReady ? stats.experimentRatio : null,
-            },
-          ]"
-          :key="row.title"
-          class="ratio-row"
-        >
-          <strong>{{ row.title }}</strong
-          ><progress
-            v-if="row.value !== null"
-            :value="row.value"
-            max="1"
-            :aria-label="row.title"
-          /><span>{{ percent(row.value) }}</span>
-        </div>
-        <p class="hint">
-          只统计当前已发布内容。未发布内容的历史记录与重复实验尝试不增加分子。
-        </p></SectionCard
-      >
       <p v-for="(message, key) in errors" :key="key" class="error" role="alert">
         部分数据读取失败：{{ message }}
       </p>
-      <SectionCard title="本次复习重点"
-        ><RecommendationList :items="data.recommendations ?? []" />
-        <p class="hint">
-          推荐优先级用于安排复习顺序；基础路径没有分值。这里不提供学习时长、掌握度百分比或历史趋势。
-        </p></SectionCard
-      ></template
-    >
+      <section
+        v-show="activeTab === 'overview'"
+        id="analysis-panel-overview"
+        role="tabpanel"
+        aria-labelledby="analysis-tab-overview"
+        class="ref-grid"
+      >
+        <SectionCard title="章节完成情况"
+          ><ChapterProgress
+            v-if="learningReady && !errors.chapters"
+            :rows="chapters"
+          />
+          <p v-else class="hint">章节完成情况暂不可用。</p>
+          <p class="hint chart-note">
+            按当前已发布知识点统计，自报完成不代表掌握程度。
+          </p></SectionCard
+        >
+        <SectionCard title="近 7 天实验活动"
+          ><ActivityChart v-if="data.attempts" :rows="activity" />
+          <p v-else class="hint">实验活动暂不可用。</p></SectionCard
+        >
+        <SectionCard title="本次复习重点"
+          ><RecommendationList
+            :items="(data.recommendations ?? []).slice(0, 3)"
+          /><RouterLink :to="{ name: 'student-recommendations' }"
+            >查看完整复习建议 →</RouterLink
+          ></SectionCard
+        >
+        <SectionCard title="学习建议"
+          ><div class="study-advice">
+            <span class="study-advice__icon">✦</span>
+            <div>
+              <h3>
+                {{
+                  recommended.length
+                    ? '沿着推荐知识点，逐个巩固'
+                    : '从课程目录开始，按章节复习'
+                }}
+              </h3>
+              <ol>
+                <li>阅读知识点，理解电路与状态变化。</li>
+                <li>完成习题训练，在提交后核对解析。</li>
+                <li>进入实验中心，逐拍预测并验证结果。</li>
+              </ol>
+              <RouterLink
+                class="button button--secondary"
+                :to="{ name: 'student-learning' }"
+                >返回课程学习 →</RouterLink
+              >
+            </div>
+          </div></SectionCard
+        >
+      </section>
+      <section
+        v-show="activeTab === 'chapters'"
+        id="analysis-panel-chapters"
+        role="tabpanel"
+        aria-labelledby="analysis-tab-chapters"
+      >
+        <SectionCard title="章节进度"
+          ><ChapterProgress v-if="learningReady" :rows="chapters" />
+          <p class="hint chart-note">
+            完成记录为自报；历史撤回知识点不计入当前比例。
+          </p></SectionCard
+        >
+      </section>
+      <section
+        v-show="activeTab === 'experiments'"
+        id="analysis-panel-experiments"
+        role="tabpanel"
+        aria-labelledby="analysis-tab-experiments"
+      >
+        <SectionCard title="实验活动"
+          ><ActivityChart v-if="data.attempts" :rows="activity" />
+          <p v-else class="hint">实验活动暂不可用。</p>
+          <RouterLink
+            class="button button--secondary"
+            :to="{ name: 'student-attempts' }"
+            >查看逐次提交记录</RouterLink
+          ></SectionCard
+        >
+      </section>
+      <section
+        v-show="activeTab === 'review'"
+        id="analysis-panel-review"
+        role="tabpanel"
+        aria-labelledby="analysis-tab-review"
+      >
+        <SectionCard title="本次复习建议"
+          ><RecommendationList :items="data.recommendations ?? []" />
+          <p class="hint chart-note">
+            推荐优先级用于安排复习顺序；基础路径没有分值。
+          </p></SectionCard
+        >
+      </section>
+    </template>
   </div>
 </template>
+<style scoped>
+.analytics-metrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.analytics-metrics :deep(.metric-card) {
+  align-items: flex-start;
+}
+.chart-note {
+  margin: 14px 0 0;
+  font-size: 10px;
+}
+.study-advice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+}
+.study-advice__icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  background: #fff4da;
+  color: #d9972f;
+  border-radius: 50%;
+  font-size: 23px;
+}
+.study-advice h3 {
+  font-size: 14px;
+}
+.study-advice ol {
+  color: var(--color-text-secondary);
+  padding-left: 17px;
+  line-height: 2;
+  font-size: 12px;
+}
+@media (max-width: 620px) {
+  .analytics-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+</style>

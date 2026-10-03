@@ -1,0 +1,320 @@
+/* 六页共用视觉规范：紧凑的教学工作区，布局以真实内容自适应。 */
+body {
+  font-size: 14px;
+  background:
+    radial-gradient(ellipse at 80% 0, #e8f2ff, transparent 65%),
+    var(--color-bg-page);
+}
+.topbar {
+  padding-inline: 20px;
+  box-shadow: 0 2px 12px rgb(64 99 160 / 3%);
+}
+.brand__mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+}
+.brand__name {
+  font-size: 19px;
+}
+.brand__name small {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+.topbar__context {
+  font-size: 12px;
+}
+.sidebar {
+  padding: 14px 8px;
+}
+.sidebar__heading {
+  display: none;
+}
+.nav-item {
+  min-height: 36px;
+  margin-inline: 5px;
+  padding: 7px 10px;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.nav-item svg {
+  width: 17px;
+  height: 17px;
+}
+.nav-group__label {
+  font-size: 10px;
+  padding: 7px 12px 3px;
+  letter-spacing: 0.04em;
+}
+.sidebar__footer {
+  font-size: 11px;
+  padding: 12px 10px 0;
+}
+.main-content {
+  padding: calc(var(--topbar-height) + 22px) 24px 28px
+    calc(var(--sidebar-width) + 24px);
+}
+.main-content__inner {
+  max-width: 1320px;
+}
+.page-header {
+  margin-bottom: 18px;
+}
+.page-header .eyebrow {
+  display: none;
+}
+.page-header h1 {
+  font-size: 25px;
+  margin-bottom: 5px;
+}
+.page-header p {
+  font-size: 13px;
+  line-height: 1.6;
+}
+.card,
+.section-card {
+  padding: 18px;
+  margin-bottom: 0;
+}
+.card h2,
+.section-card h2 {
+  font-size: 15px;
+  margin-bottom: 14px;
+}
+.section-card h3 {
+  font-size: 15px;
+  margin-bottom: 10px;
+}
+.button,
+button.primary,
+button.link {
+  min-height: 36px;
+  padding: 7px 13px;
+  font-size: 13px;
+  border-radius: 7px;
+}
+.button--primary,
+button.primary {
+  background: linear-gradient(135deg, #4773ff, #3159ff);
+  box-shadow: 0 3px 8px rgb(53 100 255 / 16%);
+}
+.button--secondary {
+  background: #fafcff;
+}
+.hint {
+  font-size: 12px;
+  line-height: 1.6;
+}
+.dashboard {
+  gap: 14px;
+}
+.dashboard-primary,
+.dashboard-secondary {
+  gap: 14px;
+}
+.metric-grid {
+  gap: 10px;
+}
+.metric-card {
+  padding: 14px;
+  gap: 10px;
+}
+.metric-card strong {
+  font-size: 23px;
+}
+.metric-card__label {
+  font-size: 12px;
+}
+.metric-card small {
+  font-size: 10px;
+  line-height: 1.5;
+}
+.metric-card__icon {
+  width: 33px;
+  height: 33px;
+}
+.overview-list li {
+  padding: 10px 0;
+}
+.overview-list strong {
+  font-size: 13px;
+}
+.overview-list small {
+  font-size: 11px;
+}
+.eyebrow {
+  font-size: 11px;
+}
+.tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: 9px;
+  background: white;
+}
+.tabs button {
+  border: 0;
+  background: transparent;
+  color: var(--color-text-secondary);
+  padding: 9px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  min-height: 36px;
+}
+.tabs button[aria-selected='true'],
+.tabs button[aria-pressed='true'] {
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+  font-weight: 700;
+  box-shadow: inset 0 -2px var(--color-primary);
+}
+.filter-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.filter-pills button {
+  min-height: 34px;
+  padding: 6px 15px;
+  border-radius: 7px;
+  border: 1px solid var(--color-border);
+  background: white;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+.filter-pills button[aria-pressed='true'] {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+.ref-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+}
+.ref-grid > *,
+.dashboard > *,
+.ref-workspace > * {
+  min-width: 0;
+}
+.ref-workspace {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+.workspace-nav {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: white;
+  padding: 14px 8px;
+}
+.workspace-nav h2 {
+  font-size: 14px;
+  margin: 0 8px 12px;
+}
+.workspace-nav button,
+.workspace-nav a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: white;
+  text-align: left;
+  text-decoration: none;
+  font-size: 12px;
+  color: var(--color-text-primary);
+}
+.workspace-nav button[aria-current],
+.workspace-nav a[aria-current] {
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+  box-shadow: inset 2px 0 var(--color-primary);
+}
+.workspace-nav button > div {
+  min-width: 0;
+}
+.workspace-nav button strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.workspace-nav button small {
+  display: block;
+  margin-top: 5px;
+  color: var(--color-text-secondary);
+  font-size: 10px;
+}
+.chart-empty {
+  display: grid;
+  min-height: 130px;
+  place-items: center;
+  color: var(--color-text-secondary);
+  border-radius: 8px;
+  background: #f8fbff;
+}
+@media (max-width: 1050px) {
+  .ref-workspace {
+    grid-template-columns: 200px minmax(0, 1fr);
+  }
+  .brand__name small,
+  .brand__divider {
+    display: none;
+  }
+}
+@media (max-width: 850px) {
+  .main-content {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .ref-grid {
+    grid-template-columns: 1fr;
+  }
+  .ref-workspace {
+    grid-template-columns: 1fr;
+  }
+  .workspace-nav {
+    max-height: 210px;
+    overflow-y: auto;
+  }
+}
+@media (max-width: 520px) {
+  .main-content {
+    padding: calc(var(--topbar-height) + 16px) 12px 24px;
+  }
+  .topbar {
+    padding-inline: 12px;
+  }
+  .page-header h1 {
+    font-size: 23px;
+  }
+  .card,
+  .section-card {
+    padding: 15px;
+  }
+  .metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .metric-card {
+    padding: 12px;
+    flex-wrap: wrap;
+  }
+  .metric-card strong {
+    font-size: 21px;
+  }
+  .tabs button {
+    flex: 1 1 auto;
+    padding: 8px;
+  }
+}

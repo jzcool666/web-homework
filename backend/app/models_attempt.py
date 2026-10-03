@@ -83,6 +83,7 @@ def attempt_public(attempt: ExperimentAttempt) -> dict:
     )
     return {
         "id": attempt.id,
+        "created_at": attempt.created_at,
         "experiment_id": attempt.experiment_id,
         "simulator_type": simulator_type,
         "passed": bool(attempt.passed),

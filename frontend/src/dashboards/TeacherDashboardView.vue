@@ -6,6 +6,7 @@ import { readAll } from '@/api/pagination'
 import { percent, recentAssessment } from '@/utils/overview'
 import { useAuthStore } from '@/stores/auth'
 import ConceptHero from '@/components/home/ConceptHero.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
 import MetricCard from '@/components/ui/MetricCard.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import SectionCard from '@/components/ui/SectionCard.vue'
@@ -29,12 +30,12 @@ const latestStats = computed(() =>
   data.value.analytics?.assessments?.find((row) => row.id === latest.value?.id),
 )
 const quickActions = [
-  { title: '课堂演示', route: 'teacher-classroom' },
-  { title: '创建测评', route: 'teacher-assessments' },
-  { title: '发起签到', route: 'teacher-attendance' },
-  { title: '新建备课', route: 'teacher-lesson-plans' },
-  { title: '查看学情', route: 'teacher-learning-analytics' },
-  { title: '智能组卷', route: 'teacher-paper-generation' },
+  { title: '课堂演示', route: 'teacher-classroom', icon: 'home' },
+  { title: '创建测评', route: 'teacher-assessments', icon: 'check' },
+  { title: '发起签到', route: 'teacher-attendance', icon: 'calendar' },
+  { title: '新建备课', route: 'teacher-lesson-plans', icon: 'book' },
+  { title: '查看学情', route: 'teacher-learning-analytics', icon: 'chart' },
+  { title: '智能组卷', route: 'teacher-paper-generation', icon: 'spark' },
 ]
 async function loadClass() {
   const current = ++revision
@@ -51,6 +52,7 @@ async function loadClass() {
     assessments: () => readAll(`/assessments?class_id=${id}`),
     enrollments: () => readAll(`/classes/${id}/enrollments`),
     warnings: () => readAll(`/warnings?class_id=${id}`),
+    points: () => readAll('/knowledge-points'),
   }
   const results = await Promise.allSettled(
     Object.values(requests).map((get) => get()),
@@ -111,7 +113,14 @@ onMounted(async () => {
       title="让每一次状态变化，都有清楚的讲解。"
       cta-label="进入课堂"
       :cta-to="{ name: 'teacher-classroom', query: { class_id: classId } }"
-    />
+      ><template #actions
+        ><RouterLink
+          class="button hero__secondary"
+          :to="{ name: 'teacher-lesson-plans', query: { class_id: classId } }"
+          >查看备课</RouterLink
+        ></template
+      ></ConceptHero
+    >
     <StatePanel
       v-if="classError"
       kind="error"
@@ -173,12 +182,14 @@ onMounted(async () => {
             v-for="item in quickActions"
             :key="item.route"
             :to="{ name: item.route, query: { class_id: classId } }"
-            >{{ item.title }} <span aria-hidden="true">↗</span></RouterLink
+            ><AppIcon :name="item.icon" :size="21" />{{
+              item.title
+            }}</RouterLink
           >
         </div></SectionCard
       >
     </div>
-    <div v-if="!loading && classId" class="metric-grid">
+    <div v-if="!loading && classId" class="metric-grid metric-grid--teacher">
       <MetricCard
         label="有效入班关系"
         :value="
@@ -207,6 +218,19 @@ onMounted(async () => {
         "
         note="百分制 · 已提交作答"
       />
+      <MetricCard
+        label="进行中测评"
+        :value="
+          data.assessments
+            ? data.assessments.filter(
+                (row) =>
+                  row.kind !== 'practice' && row.effective_state === 'open',
+              ).length
+            : null
+        "
+        note="当前班级 · 尚未结束"
+        icon="clock"
+      />
     </div>
     <div v-if="!loading && classId" class="dashboard-secondary">
       <SectionCard title="知识点首答正确率"
@@ -230,7 +254,10 @@ onMounted(async () => {
             :key="row.knowledge_id"
             class="ratio-row"
           >
-            <span>知识点 #{{ row.knowledge_id }}</span
+            <span>{{
+              data.points?.find((point) => point.id === row.knowledge_id)
+                ?.title ?? `知识点 #${row.knowledge_id}`
+            }}</span
             ><progress
               v-if="row.first_accuracy !== null"
               :value="row.first_accuracy"
@@ -273,3 +300,64 @@ onMounted(async () => {
     </p>
   </div>
 </template>
+<style scoped>
+.dashboard > .metric-grid {
+  order: 1;
+}
+.dashboard > .dashboard-primary {
+  order: 2;
+}
+.dashboard > .dashboard-secondary {
+  order: 3;
+}
+.dashboard > .error {
+  order: 4;
+}
+.metric-grid--teacher {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.metric-grid--teacher :deep(.metric-card) {
+  display: block;
+}
+.metric-grid--teacher :deep(.metric-card__icon) {
+  display: none;
+}
+.quick-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.quick-grid a {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  background: #fafcff;
+  border: 1px solid var(--color-border);
+  font-size: 12px;
+  padding: 12px;
+}
+.quick-grid a svg {
+  color: var(--color-primary);
+}
+.ratio-row {
+  display: grid;
+  grid-template-columns: minmax(70px, 1fr) minmax(60px, 1.6fr) auto;
+  padding: 6px 0;
+  gap: 10px;
+  font-size: 12px;
+}
+.ratio-row > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ratio-row progress {
+  margin: 0;
+}
+@media (max-width: 620px) {
+  .metric-grid--teacher {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .quick-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+</style>

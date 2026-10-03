@@ -113,6 +113,25 @@ describe('学生逐拍预测页', () => {
     expect(wrapper.text()).toContain('EN=1 RESET=0')
   })
 
+  it('切换实验时迟到的旧详情不能覆盖新实验', async () => {
+    let release
+    const old = new Promise(resolve => { release = resolve })
+    api.get.mockImplementation(path => {
+      if (path === '/experiments/1') return old
+      if (path === '/experiments/2') return Promise.resolve({ ...structuredClone(EXPERIMENT), id: 2, title: '第二个实验' })
+      return Promise.resolve([])
+    })
+    const wrapper = await setup()
+    await wrapper.vm.$router.push('/student/experiments/2')
+    await flushPromises()
+    expect(wrapper.text()).toContain('第二个实验')
+    release(structuredClone(EXPERIMENT))
+    await flushPromises()
+    expect(wrapper.text()).toContain('第二个实验')
+    expect(wrapper.text()).not.toContain(EXPERIMENT.title)
+    wrapper.unmount()
+  })
+
   it('提交只带 experiment_version、predictions 与 request_key', async () => {
     api.post.mockResolvedValue(structuredClone(PASSED))
     const wrapper = await setup()

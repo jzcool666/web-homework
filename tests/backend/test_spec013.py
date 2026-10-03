@@ -246,6 +246,8 @@ def test_T013_01_correct_predictions_pass(lab):
     assert result["actual"] == [5, 0, 1, 2]
     assert result["experiment_id"] == experiment["id"], "历史页需要知道记录属于哪个实验"
     assert result["experiment_version"] == experiment["version"]
+    assert result["created_at"] == scalar(lab["app"], "SELECT created_at FROM experiment_attempts")
+    assert result["created_at"].endswith("Z")
     assert len(result["explanations"]) == 4
     assert all("预测正确" in line for line in result["explanations"])
 
@@ -295,6 +297,7 @@ def test_T013_03_forged_fields_are_rejected_and_grading_stays_server_side(lab):
         {"actual": [5, 0, 1, 2]},
         {"input_sequence": []},
         {"first_error_index": None},
+        {"created_at": "2020-01-01T00:00:00Z"},
         {"student_id": lab["student_ids"]["b"]},
         {"experiment_id": experiment["id"]},
     ):
@@ -387,6 +390,9 @@ def test_T013_04_history_is_own_records_only(lab):
     single = student_a.get(f"{API}/me/experiment-attempts/{attempt_id}")
     assert single.status_code == 200
     assert single.get_json()["data"]["id"] == attempt_id
+    timestamp = attempt.get_json()["data"]["created_at"]
+    assert mine.get_json()["data"][0]["created_at"] == timestamp
+    assert single.get_json()["data"]["created_at"] == timestamp
 
     # 另一名学生看不到这条记录
     other = student_b.get(f"{API}/me/experiment-attempts?experiment_id={experiment['id']}")
