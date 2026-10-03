@@ -10,7 +10,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 
 import DemoHistoryTable from '@/components/demo/DemoHistoryTable.vue'
-import DemoStatePanel from '@/components/demo/DemoStatePanel.vue'
+import DemoVisualStage from '@/components/demo/DemoVisualStage.vue'
 import DemoWaveform from '@/components/demo/DemoWaveform.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import SectionCard from '@/components/ui/SectionCard.vue'
@@ -86,7 +86,7 @@ onBeforeUnmount(() => {
     <PageHeader
       :eyebrow="`演示 #${demoId}`"
       :title="demo?.experiment?.title ?? '课堂演示'"
-      description="只读观看：状态由教师操作、服务器重算后同步到这里。"
+      description="跟随教师的操作，看输入如何变成记忆、计数与移位。"
     >
       <template #actions>
         <RouterLink class="button button--secondary" :to="{ name: 'student-demos' }">返回我的课堂</RouterLink>
@@ -114,14 +114,14 @@ onBeforeUnmount(() => {
         <p v-if="!demo.active" class="hint">本次演示已结束，下面保留的是最后一次状态。</p>
       </SectionCard>
 
-      <SectionCard title="当前状态">
-        <DemoStatePanel
+        <DemoVisualStage
           :state="demo.state"
+          :history="demo.history"
+          :config="demo.experiment?.config"
           :next-q="demo.next_q"
           :reveal-next="demo.reveal_next"
           :simulator-type="simulatorType"
         />
-      </SectionCard>
 
       <SectionCard title="时序波形">
         <DemoWaveform :history="demo.history" :simulator-type="simulatorType" />
@@ -139,6 +139,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .student-demo { width: 100%; }
 .student-demo .section-card { margin-bottom: var(--space-4); }
+.student-demo .visual-stage { margin-bottom: var(--space-5); }
 .meta { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; font-size: var(--font-size-sm); color: var(--color-text-secondary); }
 .offline { padding: var(--space-3); border: 1px solid var(--color-danger); border-radius: var(--radius-sm); background: color-mix(in srgb, var(--color-danger) 6%, white); color: var(--color-danger); font-size: var(--font-size-sm); margin-bottom: var(--space-3); }
 .hint { color: var(--color-text-secondary); font-size: var(--font-size-sm); }

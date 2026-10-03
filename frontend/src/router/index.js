@@ -52,7 +52,7 @@ const routes = [
     path: '/teacher/demos/:id/present',
     name: 'teacher-demo-present',
     component: () => import('@/views/TeacherDemoPresentView.vue'),
-    meta: { requiresAuth: true, roles: ['teacher'] },
+    meta: { requiresAuth: true, roles: ['teacher'], presentationLayout: true },
   },
   {
     path: '/student/demos',
