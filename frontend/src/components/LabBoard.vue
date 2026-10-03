@@ -1,6 +1,7 @@
 <script setup>
-import { computed, useId } from "vue";
-import { boardLayout, wirePath } from "@/utils/lab";
+import { computed, ref, useId } from "vue";
+import { boardLayout } from "@/utils/lab";
+import { routeLabWires } from "@/utils/labRouting";
 const props = defineProps({
   task: { type: Object, required: true },
   board: { type: Object, required: true },
@@ -9,7 +10,30 @@ const props = defineProps({
   readonly: Boolean,
 });
 const emit = defineEmits(["endpoint", "wire"]);
-const layout = computed(() => boardLayout(props.task));
+const layout = computed(() =>
+  routeLabWires(props.board.wires, boardLayout(props.task)),
+);
+const hoveredWire = ref("");
+const tracedWire = ref("");
+const activeWire = computed(
+  () =>
+    layout.value.routes.find((wire) => wire.id === hoveredWire.value) ||
+    layout.value.routes.find((wire) => wire.id === tracedWire.value),
+);
+const tracedEndpoints = computed(
+  () =>
+    new Set(
+      activeWire.value ? [activeWire.value.from, activeWire.value.to] : [],
+    ),
+);
+const endpointLabel = (endpoint) =>
+  layout.value.endpoints.find((point) => point.id === endpoint)?.label ??
+  endpoint;
+function selectWire(wire) {
+  if (props.readonly)
+    tracedWire.value = tracedWire.value === wire.id ? "" : wire.id;
+  else emit("wire", wire.id);
+}
 const invalid = computed(
   () =>
     new Set(props.state.diagnostics?.flatMap((item) => item.endpoints) ?? []),
@@ -250,17 +274,6 @@ const levels = [
           rx="9"
           :fill="paint('grain')"
         />
-        <text :x="chip.slotX + 18" :y="chip.slotY + 24" class="module-label">
-          {{ chip.id }} / DIP-{{ chip.pinCount }}
-        </text>
-        <text
-          :x="chip.slotX + chip.slotWidth - 18"
-          :y="chip.slotY + 24"
-          text-anchor="end"
-          class="module-caption"
-        >
-          芯片插座 · 顶视图
-        </text>
         <rect
           :x="chip.x - 9"
           :y="chip.y - 9"
@@ -273,32 +286,60 @@ const levels = [
       </g>
 
       <!-- Jumper jackets, soft shadows and highlights share the same hit path. -->
-      <g class="wires">
+      <g class="wires" :class="{ 'wires-tracing': activeWire }">
         <g
-          v-for="wire in board.wires"
+          v-for="wire in layout.routes"
           :key="wire.id"
           :data-wire="wire.id"
           class="wire"
+          :class="{ 'wire-active': activeWire?.id === wire.id }"
+          role="button"
+          tabindex="0"
+          :aria-label="`${endpointLabel(wire.from)} → ${endpointLabel(wire.to)}；${readonly ? '点击追踪' : '点击拆线'}`"
           :style="{ '--cable-color': cableColor(wire) }"
-          @click.stop="!readonly && emit('wire', wire.id)"
+          @mouseenter="hoveredWire = wire.id"
+          @mouseleave="hoveredWire = ''"
+          @focus="hoveredWire = wire.id"
+          @blur="hoveredWire = ''"
+          @click.stop="selectWire(wire)"
+          @keydown.enter.prevent="selectWire(wire)"
+          @keydown.space.prevent="selectWire(wire)"
         >
+          <path :d="wire.path" class="wire-shadow" transform="translate(0 2)" />
+          <path :d="wire.path" class="wire-isolation" />
+          <path :d="wire.path" class="wire-jacket" />
+          <path :d="wire.path" class="wire-shine" transform="translate(0 -1)" />
+          <path :d="wire.path" class="wire-hit" />
+          <title>{{ wire.from }} → {{ wire.to }}；关电后点击删除</title>
+        </g>
+        <g
+          v-if="activeWire"
+          class="wire-overlay"
+          :style="{ '--cable-color': cableColor(activeWire) }"
+          aria-hidden="true"
+        >
+          <path :d="activeWire.path" class="wire-isolation" />
+          <path :d="activeWire.path" class="wire-jacket" />
           <path
-            :d="wirePath(wire, layout.endpoints)"
-            class="wire-shadow"
-            transform="translate(0 2)"
-          />
-          <path :d="wirePath(wire, layout.endpoints)" class="wire-jacket" />
-          <path
-            :d="wirePath(wire, layout.endpoints)"
+            :d="activeWire.path"
             class="wire-shine"
             transform="translate(0 -1)"
           />
-          <path :d="wirePath(wire, layout.endpoints)" class="wire-hit" />
-          <title>{{ wire.from }} → {{ wire.to }}；关电后点击删除</title>
         </g>
       </g>
 
       <g v-for="chip in layout.chips" :key="chip.id" class="chip-package">
+        <text :x="chip.slotX + 18" :y="chip.slotY + 24" class="module-label">
+          {{ chip.id }} / DIP-{{ chip.pinCount }}
+        </text>
+        <text
+          :x="chip.slotX + chip.slotWidth - 18"
+          :y="chip.slotY + 24"
+          text-anchor="end"
+          class="module-caption"
+        >
+          芯片插座 · 顶视图
+        </text>
         <rect
           :x="chip.x"
           :y="chip.y"
@@ -371,6 +412,7 @@ const levels = [
           {
             'endpoint-selected': selected === point.id,
             'endpoint-invalid': invalid.has(point.id),
+            'endpoint-traced': tracedEndpoints.has(point.id),
           },
           `signal-${signal(point.id)}`,
         ]"
@@ -448,6 +490,35 @@ const levels = [
       </g>
     </svg>
   </div>
+  <div v-if="board.wires.length" class="wire-trace">
+    <label
+      >追踪导线
+      <select v-model="tracedWire" aria-label="追踪导线">
+        <option value="">显示全部导线</option>
+        <option v-for="wire in board.wires" :key="wire.id" :value="wire.id">
+          {{ endpointLabel(wire.from) }} → {{ endpointLabel(wire.to) }}
+        </option>
+      </select>
+    </label>
+    <span v-if="activeWire" class="wire-trace-endpoints" aria-live="polite"
+      >{{ endpointLabel(activeWire.from) }} →
+      {{ endpointLabel(activeWire.to) }}</span
+    >
+    <span v-else class="wire-trace-hint"
+      >悬停导线查看两端，列表选择可固定高亮。</span
+    >
+    <button
+      v-if="tracedWire"
+      type="button"
+      class="wire-trace-clear"
+      @click="
+        tracedWire = '';
+        hoveredWire = '';
+      "
+    >
+      取消追踪
+    </button>
+  </div>
   <p class="board-key">
     导线颜色用于区分接线，端点颜色表示电平。{{
       selected
@@ -510,6 +581,13 @@ const levels = [
 .module-caption {
   fill: #75837b;
   font-size: 10px;
+}
+.module-label,
+.module-caption {
+  paint-order: stroke;
+  stroke: #e2e9e3;
+  stroke-width: 3;
+  pointer-events: none;
 }
 .chip-reference {
   fill: #9aa9ad;
@@ -594,12 +672,12 @@ const levels = [
 .wire-shadow {
   stroke: #172d27;
   stroke-width: 7;
-  opacity: 0.14;
+  opacity: 0.1;
   pointer-events: none;
 }
 .wire-jacket {
   stroke: var(--cable-color);
-  stroke-width: 5;
+  stroke-width: 3.8;
 }
 .wire-shine {
   stroke: #fff;
@@ -609,17 +687,44 @@ const levels = [
 }
 .wire-hit {
   stroke: transparent;
-  stroke-width: 14;
+  stroke-width: 8;
 }
-.wire:hover .wire-jacket {
-  stroke-width: 7;
+.wire-isolation {
+  stroke: #f1f4ee;
+  stroke-width: 6.5;
+  pointer-events: none;
 }
-.board-readonly .wire,
+.wire-overlay {
+  pointer-events: none;
+}
+.wire-overlay path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.wire-overlay .wire-jacket {
+  stroke-width: 5;
+}
+.wire-overlay .wire-isolation {
+  stroke-width: 8;
+}
+.wires-tracing .wire {
+  opacity: 0.16;
+}
+.wires-tracing .wire-active {
+  opacity: 1;
+}
+.wire:focus-visible {
+  outline: none;
+}
+.wire:focus-visible .wire-jacket {
+  stroke-width: 5;
+}
 .board-readonly .endpoint {
   cursor: default;
 }
 .board-readonly .wire:hover .wire-jacket {
-  stroke-width: 5;
+  stroke-width: 3.8;
 }
 .board-readonly .endpoint:hover .socket-rim {
   stroke: #97a399;
@@ -638,5 +743,53 @@ const levels = [
   font-size: 0.75rem;
   line-height: 1.6;
   margin: 12px 0 0;
+}
+.endpoint.endpoint-traced .socket-rim {
+  stroke: #345ff1;
+  stroke-width: 3;
+}
+.endpoint-traced .pin-label {
+  fill: #244bd6;
+  font-weight: 700;
+}
+.wire-trace {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin-top: 16px;
+  font-size: 0.8rem;
+}
+.wire-trace label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+.wire-trace select {
+  max-width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: white;
+  color: var(--color-text-primary);
+  padding: 7px 10px;
+  font: inherit;
+}
+.wire-trace-endpoints {
+  color: var(--color-primary);
+  font-family: var(--font-mono);
+}
+.wire-trace-hint {
+  color: var(--color-text-secondary);
+}
+.wire-trace-clear {
+  border: 0;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font: inherit;
 }
 </style>

@@ -53,6 +53,8 @@ export function boardLayout(task) {
       slotY,
       slotWidth,
       pinCount: model.pin_count,
+      row: Math.floor(index / 2),
+      column: index % 2,
     });
     for (const pin of model.pins) {
       const left = pin.number <= model.pin_count / 2;
@@ -66,6 +68,8 @@ export function boardLayout(task) {
         x: left ? x - 22 : x + 210,
         y: y + 26 + order * 30,
         busY: slotY - 22,
+        row: Math.floor(index / 2),
+        column: index % 2,
         left,
       });
     }
@@ -78,26 +82,8 @@ export function boardLayout(task) {
   };
 }
 
-export function wirePath(wire, endpoints) {
-  const a = endpoints.find((p) => p.id === wire.from);
-  const b = endpoints.find((p) => p.id === wire.to);
-  if (!a || !b) return "";
-  const lane =
-    [...wire.id].reduce((sum, char) => sum + char.charCodeAt(0), 0) % 6;
-  const middle = Math.min(a.busY ?? Infinity, b.busY ?? Infinity);
-  const routeY = Number.isFinite(middle)
-    ? middle - lane * 4
-    : Math.max(a.y, b.y) + 40 + lane * 4;
-  const ax = a.chip ? a.x + (a.left ? -18 : 18) : a.x;
-  const bx = b.chip ? b.x + (b.left ? -18 : 18) : b.x;
-  const points = [
-    [a.x, a.y],
-    [ax, a.y],
-    [ax, routeY],
-    [bx, routeY],
-    [bx, b.y],
-    [b.x, b.y],
-  ].filter(
+export function roundedWirePath(vertices) {
+  const points = vertices.filter(
     (point, index, all) =>
       !index ||
       point[0] !== all[index - 1][0] ||

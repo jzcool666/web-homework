@@ -56,7 +56,7 @@ backend/migrations/       数据库迁移（SPEC-000 已建立，业务表由各
 tests/backend/            接口和领域测试（SPEC-000 已建立，358 条已收集用例，真实Java项需显式运行开关）
 tests/e2e/                系统集成验收脚本（D7，对真实运行的服务发 HTTP）
 tests/perf/               课堂负载脚本（D7，模拟数据）
-frontend/src/**/__tests__/ 前端组件与仿真逻辑测试（201 条用例）
+frontend/src/**/__tests__/ 前端组件与仿真逻辑测试（205 条用例）
 scripts/                  备份与恢复脚本（D7，OPS-02）
 docs/                     设计、规格、测试与检查材料
 ```
