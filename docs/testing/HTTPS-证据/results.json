@@ -1,0 +1,75 @@
+{
+  "base": "https://localhost:5443",
+  "checkedAt": "2026-10-03T16:08:41.245Z",
+  "checks": [
+    {
+      "name": "HTTPS login returns 200",
+      "passed": true
+    },
+    {
+      "name": "Set-Cookie has Secure, HttpOnly, SameSite=Lax",
+      "passed": true
+    },
+    {
+      "name": "Profile write through real UI carries CSRF and succeeds",
+      "passed": true
+    },
+    {
+      "name": "Write without CSRF is rejected",
+      "passed": true
+    },
+    {
+      "name": "Class creation through TLS with valid CSRF returns 201",
+      "passed": true
+    },
+    {
+      "name": "Secure session remains authenticated after reload",
+      "passed": true
+    },
+    {
+      "name": "Mobile page has no outer horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "Browser stores sid as Secure and HttpOnly",
+      "passed": true
+    },
+    {
+      "name": "IP SAN entry supports authenticated course API",
+      "passed": true
+    },
+    {
+      "name": "No mixed HTTP resources or browser exceptions",
+      "passed": true
+    },
+    {
+      "name": "HEAD passes through without response body",
+      "passed": true
+    },
+    {
+      "name": "Unknown Host is rejected by local proxy",
+      "passed": true
+    }
+  ],
+  "pageErrors": [],
+  "insecureRequests": [],
+  "setCookie": "sid=<redacted>; Expires=Sun, 04 Oct 2026 00:08:44 GMT; Max-Age=28800; Secure; HttpOnly; Path=/; SameSite=Lax",
+  "missingCsrf": {
+    "status": 403,
+    "body": {
+      "error": {
+        "code": "CSRF_FAILED",
+        "details": null,
+        "message": "CSRF 校验失败，请刷新页面后重试"
+      },
+      "meta": {
+        "server_time": "2026-10-03T16:08:45Z"
+      }
+    }
+  },
+  "classCreation": {
+    "status": 201,
+    "id": 2
+  },
+  "seedKnowledgeCount": 12
+}
