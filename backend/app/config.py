@@ -60,11 +60,16 @@ class BaseConfig:
     SQL_ECHO = False
     # SPEC-017：单张状态表图片的识别限时（秒）；超时返回 503 且不保留任务
     RECOGNITION_TIMEOUT_SECONDS = 5.0
+    LAB_JAVA = ""
+    LAB_JAR = ""
 
     @classmethod
     def from_env(cls) -> dict:
         """读取 README 约定的环境变量，缺省项不覆盖类默认值。"""
         values: dict[str, object] = {}
+        for key in ("LAB_JAVA", "LAB_JAR"):
+            if (v := os.environ.get(key)) is not None:
+                values[key] = v
         if (v := os.environ.get("DATABASE_URL")) is not None:
             values["DATABASE_URL"] = v
         if (v := os.environ.get("UPLOAD_DIR")) is not None:
@@ -148,6 +153,8 @@ def load_config(config_name: str | None = None, overrides: dict | None = None) -
         "COOKIE_SECURE",
         "SQL_ECHO",
         "RECOGNITION_TIMEOUT_SECONDS",
+        "LAB_JAVA",
+        "LAB_JAR",
     ):
         settings[key] = getattr(config_cls, key)
     if name == "testing":
