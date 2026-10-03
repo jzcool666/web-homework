@@ -175,6 +175,8 @@ AttendanceRecord 与 Leave 的 `student_display_name`、`student_no` 为只读�
 | E069 | POST /recognition-tasks | S/T | multipart image、class_id、kind:state_table | RecognitionTask；S仅本人有效班级、T仅本人任教班级；413/415；同步处理并限时 |
 | E070 | GET /recognition-tasks/{id} | 创建者/所属班T | 无 | RecognitionTask；以任务保存的class_id核对任课关系，跨班404，失败含格式原因 |
 
+E063/E064 缺省窗口（2026-10-04 修正）：省略 from/to 时使用最近30个UTC自然日，to为当前UTC日的下一日00:00，from=to-30天，与教师预警页的默认日期一致。同一UTC日内生成和稍后读取会使用同一窗口；换日后进入新窗口，无新批次时仍返回空。显式from/to保留原有精确时间范围，不要求整日，也不自动改写已有批次。
+
 统计模型：
 
 - AttendanceStats：`window, settled_tasks, counts:{present,late,leave,absent}, attendance_rate:number/null, students:[{student_id,student_no,display_name,counts,attendance_rate}], correlation:{coefficient:number/null,n:int,reason:string/null}`。相关仅用同窗口出勤和百分制平均测评分数均存在的学生，n≥5且两列非恒定才计算 Pearson，说明不代表因果。`students` 的 `student_no`/`display_name` 是只读联表字段：教师需要认出学生，而 GET /users 仅管理员可用（与 SPEC-002 同一理由）。

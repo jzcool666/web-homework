@@ -26,6 +26,7 @@ warning_snapshots及统计源表；快照带algorithm_version和窗口，教师�
 4. 使用Pandas/NumPy真实聚合和运算。有完整三因素的学生n≥10且不同向量≥3时，KMeans(k=3,random_state=42,n_init=10)分组；按中心平均风险排序编号0/1/2，不覆盖规则等级。否则cluster_label=null。
 5. 保存生成时间和证据；只读取最近同窗口完整批次。后续数据变化需再次生成，不称旧快照为实时数据。
 6. `available_factors` 是可用因素的名称数组，`sample_counts` 是各因素的实际样本量（出勤分母、进度记录条数、首答次数）；`factors` 里不可用的因素为 null，不按 0 计入。批次号与生成时的名单规模记在 `evidence_json`，E064 的「完整批次」即行数与生成时名单规模一致的那一批；没有完整批次时返回空数组。E064 支持分页并按 student_id 升序。
+7. 缺省from/to为最近30个UTC自然日，to取当前UTC日下一日00:00、from=to-30天，与页面筛选一致；同日重复读取不因秒数前进切换窗口。显式from/to保留精确窗口；已有批次不迁移，仍可通过其原窗口读取。
 7. 三张源表都引用既有统计口径：出勤复用 SPEC-003 的按学生出勤率、进度复用 SPEC-006 的完成率快照、首答正确率沿用 SPEC-010「全历史最早已提交作答、再按 submitted_at 落窗」的规则（按其学生分组保留 student_id）。本模块新增 `warning_snapshots` 表，其余表只读。
 
 ## 5 验收用例

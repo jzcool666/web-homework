@@ -78,11 +78,11 @@ def _window_param(raw, name: str) -> datetime:
 
 
 def _resolve_window(raw_from, raw_to) -> tuple[str, str]:
-    """窗口 [from,to)：两者同时给出或都省略，默认最近 30 天，最长 366 天。"""
+    """窗口 [from,to)：缺省为最近30个UTC自然日，最长366天。"""
     if (raw_from is None) != (raw_to is None):
         raise ApiError("INVALID_REQUEST", "from 与 to 必须同时给出或同时省略")
     if raw_from is None:
-        to_dt = _parse(_now().strftime(STAMP_FORMAT)) + timedelta(seconds=1)
+        to_dt = _now().replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
         from_dt = to_dt - timedelta(days=DEFAULT_WINDOW_DAYS)
     else:
         from_dt = _window_param(raw_from, "from")
