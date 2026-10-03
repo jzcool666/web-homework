@@ -27,6 +27,7 @@ KEY_TABLES = (
     "submissions", "submission_answers", "attendance_tasks", "attendance_records",
     "experiments", "experiment_attempts", "qa_entries", "recognition_tasks",
     "warning_snapshots", "learning_progress",
+    "lab_tasks", "lab_sessions", "lab_attempts",
 )
 
 

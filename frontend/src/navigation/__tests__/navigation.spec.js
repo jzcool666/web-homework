@@ -8,6 +8,10 @@ import { navigationFor } from '@/navigation'
 import { useAuthStore } from '@/stores/auth'
 
 const routes = [
+  { path: '/student/labs', name: 'student-labs', component: { template: '<div />' } },
+  { path: '/teacher/labs', name: 'teacher-labs', component: { template: '<div />' } },
+  { path: '/labs/sessions/1', name: 'lab-session', component: { template: '<div />' } },
+  { path: '/lab-attempts/1', name: 'lab-attempt', component: { template: '<div />' } },
   { path: '/', name: 'home', component: { template: '<div />' } },
   { path: '/login', name: 'login', component: { template: '<div />' } },
   { path: '/register', name: 'register', component: { template: '<div />' } },
@@ -74,6 +78,14 @@ async function setup(role, path = '/') {
 
 describe('role navigation and shell', () => {
   beforeEach(() => vi.restoreAllMocks())
+
+  it('实验箱入口在角色对应的接线和结果页高亮', async () => {
+    for (const role of ['student', 'teacher']) {
+      const { wrapper } = await setup(role, '/labs/sessions/1')
+      expect(wrapper.find('a.nav-item--active').text()).toContain('实验箱与电路测评')
+      wrapper.unmount()
+    }
+  })
 
   it('计划入口不可点击，学生看不到管理员入口', async () => {
     const { wrapper } = await setup('student')

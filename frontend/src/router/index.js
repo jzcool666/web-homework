@@ -4,6 +4,13 @@ import HomeView from '@/views/HomeView.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const routes = [
+  { path: '/student/labs', name: 'student-labs', component: () => import('@/views/LabTasksView.vue'), meta: { requiresAuth: true, roles: ['student'] } },
+  { path: '/teacher/labs', name: 'teacher-labs', component: () => import('@/views/LabTasksView.vue'), meta: { requiresAuth: true, roles: ['teacher'] } },
+  { path: '/labs/sessions/:id', name: 'lab-session', component: () => import('@/views/LabSessionView.vue'), meta: { requiresAuth: true, roles: ['student', 'teacher'] } },
+  { path: '/student/labs/:id/upload', name: 'lab-upload', component: () => import('@/views/LabUploadView.vue'), meta: { requiresAuth: true, roles: ['student'] } },
+  { path: '/student/lab-records', name: 'student-lab-records', component: () => import('@/views/LabRecordsView.vue'), meta: { requiresAuth: true, roles: ['student'] } },
+  { path: '/teacher/lab-records', name: 'teacher-lab-records', component: () => import('@/views/LabRecordsView.vue'), meta: { requiresAuth: true, roles: ['teacher'] } },
+  { path: '/lab-attempts/:id', name: 'lab-attempt', component: () => import('@/views/LabAttemptView.vue'), meta: { requiresAuth: true, roles: ['student', 'teacher'] } },
   { path: '/', name: 'home', component: HomeView },
   {
     path: '/login',
