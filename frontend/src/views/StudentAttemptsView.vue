@@ -63,7 +63,7 @@ onMounted(load)
 
 <template>
   <div class="attempts-page">
-    <PageHeader
+    <PageHeader icon="flask"
       eyebrow="学习空间"
       title="我的实验记录"
       description="这里只有你本人的提交记录，按提交时间倒序排列。"

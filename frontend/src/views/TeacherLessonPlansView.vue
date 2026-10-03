@@ -207,7 +207,7 @@ onMounted(load)
 
 <template>
   <div class="page">
-    <PageHeader
+    <PageHeader icon="calendar" :steps="['编排内容', '保存备课', '发布预习']"
       eyebrow="备课"
       title="备课与预习"
       description="备课单按顺序引用知识点、资源版本、题目与实验；发布到班级后条目与内容摘要冻结为不可变快照，题目只向学生显示题干。"

@@ -74,7 +74,7 @@ onMounted(load)
 
 <template>
   <div class="page">
-    <PageHeader eyebrow="基础管理" title="账号管理" description="管理员创建教师与学生账号，并可停用或调整角色。最后一名有效管理员不能被停用或降级。" />
+    <PageHeader icon="people" :steps="['创建账号', '检查角色', '维护状态']" eyebrow="基础管理" title="账号管理" description="管理员创建教师与学生账号，并可停用或调整角色。最后一名有效管理员不能被停用或降级。" />
 
     <SectionCard title="新建账号">
       <form class="admin-form" @submit.prevent="createUser">

@@ -72,7 +72,7 @@ onMounted(load)
 
 <template>
   <div class="page">
-    <PageHeader eyebrow="习题训练" title="作答结果">
+    <PageHeader icon="check" eyebrow="习题训练" title="作答结果">
       <template #actions>
         <RouterLink class="button button--secondary" :to="{ name: 'student-practice' }">
           返回练习列表

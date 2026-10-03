@@ -1,4 +1,4 @@
-/* 六页共用视觉规范：紧凑的教学工作区，布局以真实内容自适应。 */
+/* 共用视觉规范：紧凑的教学工作区，布局以真实内容自适应。 */
 body {
   font-size: 14px;
   background:
@@ -81,6 +81,32 @@ body {
   font-size: 13px;
   line-height: 1.6;
 }
+.page-header__content { min-width: 0; }
+.page-header__title { display: flex; align-items: center; gap: 12px; }
+.page-header__title h1 { overflow-wrap: anywhere; }
+.page-header__icon { display: grid; place-items: center; flex: none; width: 43px; height: 43px; border-radius: 12px; color: var(--color-primary); background: #eaf1ff; border: 1px solid #dce7fd; }
+.page-header__actions { display: flex; gap: 8px; flex-wrap: wrap; flex-shrink: 0; }
+.workflow-guide { display: flex; flex-wrap: wrap; gap: 8px 18px; list-style: none; margin: 12px 0 0; padding: 0; color: var(--color-text-secondary); font-size: 12px; }
+.workflow-guide li { display: flex; align-items: center; gap: 6px; }
+.workflow-guide li > span { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: white; border: 1px solid #d6e2f4; color: #4c6d9c; font-size: 11px; }
+.page > .card + .card,
+.page > .section-card + .section-card,
+.page > .card + .section-card,
+.page > .section-card + .card { margin-top: 16px; }
+.section-card__heading { display: flex; align-items: center; gap: 8px; padding-bottom: 10px; border-bottom: 1px solid #edf1f7; }
+.section-card__heading::before { content: ''; width: 3px; height: 14px; border-radius: 2px; background: #7e9fea; flex: none; }
+.page :is(input, select, textarea) { max-width: 100%; }
+.page textarea { font: inherit; line-height: 1.65; }
+.page :is(.table-wrap, .table-wrapper, .table-scroll) { border-radius: 8px; border: 1px solid var(--color-border); }
+.page :is(.table-wrap, .table-wrapper, .table-scroll) table { margin-bottom: 0; }
+.page table th { background: #f6f9fe; font-size: 12px; }
+.page table tbody tr:nth-child(even) { background: #fcfdff; }
+.page table tbody tr:hover { background: #f1f6ff; }
+.page table td { vertical-align: top; overflow-wrap: anywhere; }
+.page table td button { margin-block: 2px; }
+.field input:is([type='checkbox'], [type='radio']) { width: 18px; min-height: 18px; height: 18px; padding: 0; accent-color: var(--color-primary); vertical-align: middle; flex: none; }
+.page :is(.card, .section-card) { min-width: 0; }
+.page .table-scroll { scrollbar-color: #b5c8e4 #f1f5fb; }
 .card,
 .section-card {
   padding: 18px;
@@ -305,6 +331,12 @@ button.primary {
   }
 }
 @media (max-width: 520px) {
+  .page .table-scroll table { min-width: 560px; }
+  .page-header { flex-wrap: wrap; }
+  .page-header__actions { width: 100%; }
+  .page-header__actions .button { flex: 1 1 auto; text-align: center; }
+  .workflow-guide { gap: 8px 12px; font-size: 11px; }
+  .page-header__icon { width: 36px; height: 36px; border-radius: 10px; }
   .main-content {
     padding: calc(var(--topbar-height) + 16px) 12px 24px;
   }

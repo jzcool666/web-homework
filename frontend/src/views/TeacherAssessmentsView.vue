@@ -103,7 +103,7 @@ onMounted(async () => {
 
 <template>
   <div class="page">
-    <PageHeader
+    <PageHeader icon="check" :steps="['创建草稿', '选择题目', '进入发布与讲评']"
       eyebrow="测评"
       title="测评与讲评"
       description="发布时冻结题目版本、答案与名单；结束后可提前结束、公开反馈并查看统计。投屏统计只显示聚合结果，不含学生身份。"

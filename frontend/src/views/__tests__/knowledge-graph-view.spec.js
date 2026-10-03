@@ -16,6 +16,7 @@ import KnowledgeGraphView from '@/views/KnowledgeGraphView.vue'
 import {
   buildGraphOption,
   graphNotice,
+  graphLayout,
   nodeListLabel,
   pathSteps,
   summarize,
@@ -95,10 +96,9 @@ describe('图谱展示装配（纯函数）', () => {
       '模 6 计数器与 5→0 回卷 (#10)',
       '二进制计数器与模值 (#9)',
     ])
-    expect(series.data.map((item) => item.short)).toEqual([
-      '#10 模 6 计数器与 5→0 回卷',
-      '#9 二进制计数器与模值',
-    ])
+    expect(series.data[0].short).toContain('#10\n')
+    expect(series.data[0].title).toBe(GRAPH.nodes[0].title)
+    expect(series.data[0].short.split('\n').every(line => [...line].length <= 11)).toBe(true)
     expect(series.categories).toEqual([{ name: '章节 5' }])
     expect(series.edgeSymbol).toEqual(['none', 'arrow'])
     expect(series.links[0]).toMatchObject({ source: '9', target: '10' })
@@ -117,7 +117,7 @@ describe('图谱展示装配（纯函数）', () => {
     const links = option.series[0].links
     expect(links[0].lineStyle.width).toBe(3)
     expect(links[0].lineStyle.opacity).toBe(0.9)
-    expect(links[1].lineStyle.width).toBe(1)
+    expect(links[1].lineStyle.width).toBe(1.5)
     expect(links[1].lineStyle.opacity).toBe(0.25)
   })
 
@@ -150,6 +150,43 @@ describe('图谱展示装配（纯函数）', () => {
     expect(stats.nodeCount).toBe(3)
     expect(stats.roots).toBe(2)
     expect(stats.isolated).toBe(1)
+  })
+
+  it('API顺序变化时位置稳定，先修与后继方向一致，分支卡片互不覆盖', () => {
+    const nodes = [1, 2, 3, 4].map(knowledge_id => ({ knowledge_id }))
+    const edges = [{ prerequisite_id: 1, target_id: 2 }, { prerequisite_id: 1, target_id: 3 }, { prerequisite_id: 3, target_id: 4 }]
+    const original = graphLayout(nodes, edges)
+    expect([...graphLayout([...nodes].reverse(), [...edges].reverse()).positions]).toEqual([...original.positions])
+    for (const edge of edges) expect(original.positions.get(edge.target_id).x).toBeGreaterThan(original.positions.get(edge.prerequisite_id).x)
+    const points = [...original.positions.values()]
+    for (let i = 0; i < points.length; i++) for (let j = i + 1; j < points.length; j++) {
+      expect(Math.abs(points[i].x - points[j].x) >= 172 || Math.abs(points[i].y - points[j].y) >= 76).toBe(true)
+    }
+  })
+
+  it('环和超长链仍保留所有节点，卡片留在画布边界内', () => {
+    const nodes = Array.from({ length: 20 }, (_, i) => ({ knowledge_id: i + 1, title: '长标题'.repeat(20), chapter_id: 1 }))
+    const edges = nodes.slice(1).map((node, i) => ({ prerequisite_id: i + 1, target_id: node.knowledge_id }))
+    const layout = graphLayout(nodes, edges)
+    expect(layout.positions.size).toBe(20)
+    for (const point of layout.positions.values()) {
+      expect(point.x - 86).toBeGreaterThanOrEqual(0)
+      expect(point.x + 86).toBeLessThan(layout.width)
+      expect(point.y + 38).toBeLessThan(layout.height)
+    }
+    const cyclic = buildGraphOption({ nodes: nodes.slice(0, 2), edges: [{ prerequisite_id: 1, target_id: 2 }, { prerequisite_id: 2, target_id: 1 }] })
+    expect(cyclic.series[0].data).toHaveLength(2)
+    expect(cyclic.series[0].links).toHaveLength(2)
+    expect(cyclic.tooltip.renderMode).toBe('richText')
+  })
+
+  it('200个孤立节点不生成超长画布，文字卡片仍全部保留', () => {
+    const nodes = Array.from({ length: 200 }, (_, index) => ({ knowledge_id: index + 1 }))
+    const layout = graphLayout(nodes, [])
+    expect(layout.positions.size).toBe(200)
+    // 高DPI画布也应留在常见浏览器的单边像素限额以内。
+    expect(layout.height * 2).toBeLessThan(16384)
+    expect(new Set([...layout.positions.values()].map(p => `${p.x},${p.y}`)).size).toBe(200)
   })
 })
 

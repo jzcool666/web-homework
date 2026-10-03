@@ -4,7 +4,7 @@ defineProps({ title: { type: String, default: '' } })
 
 <template>
   <section class="section-card">
-    <h2 v-if="title">{{ title }}</h2>
+    <h2 v-if="title" class="section-card__heading">{{ title }}</h2>
     <slot />
   </section>
 </template>

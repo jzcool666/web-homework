@@ -48,7 +48,7 @@ async function ask() {
 
 <template>
   <div class="qa-page">
-    <PageHeader
+    <PageHeader icon="spark" :steps="['描述课程问题', '查看匹配', '核对知识来源']"
       eyebrow="学习空间"
       title="课程问答"
       description="在已发布的课程知识与问答语料中检索相近内容，返回来源摘要。它只做文本匹配，不生成未核实的答案。"

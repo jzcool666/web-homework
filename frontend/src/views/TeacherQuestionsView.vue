@@ -184,7 +184,7 @@ function rememberVersion(question) {
 
 <template>
   <div class="page">
-    <PageHeader
+    <PageHeader icon="check" :steps="['编辑题目', '核对答案', '发布共享']"
       eyebrow="题库"
       title="题库管理"
       description="单选、多选与判断题。选项 key 唯一，单选一个答案，多选至少两个正确项；每题 1—3 个知识点。已发布题目在全校教师间共享，只有本人能修改。"

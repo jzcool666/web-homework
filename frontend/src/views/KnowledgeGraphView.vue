@@ -114,7 +114,7 @@ onMounted(async () => {
 
 <template>
   <div class="page">
-    <PageHeader
+    <PageHeader icon="network" :steps="['选择知识范围', '查看先修方向', '查询学习路径']"
       eyebrow="智能工具"
       title="知识图谱"
       description="时序逻辑知识点的先修关系（先修 → 后继）。图由课程内容实时计算，只包含已发布知识点；本页是只读投影，先修关系仍由课程内容管理维护。"

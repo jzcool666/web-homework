@@ -97,7 +97,7 @@ onMounted(load)
 
 <template>
   <div class="experiment-management">
-    <PageHeader eyebrow="教师空间" title="实验管理" description="准备实验说明与输入流程，发布后供学生逐拍预测，也可用于课堂演示。">
+    <PageHeader icon="flask" eyebrow="教师空间" title="实验管理" description="准备实验说明与输入流程，发布后供学生逐拍预测，也可用于课堂演示。">
       <template #actions><RouterLink class="button button--secondary" :to="{ name: 'teacher-classroom' }"><AppIcon name="clock" :size="16" /> 前往课堂</RouterLink><button class="button button--primary" type="button" :disabled="state !== 'ready' || saving || loadingDetail" @click="startNew"><AppIcon name="flask" :size="16" /> 新建实验</button></template>
     </PageHeader>
     <StatePanel v-if="state === 'loading'" kind="loading" title="正在读取实验与知识点" />

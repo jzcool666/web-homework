@@ -62,7 +62,7 @@ onMounted(load)
 
 <template>
   <div class="page">
-    <PageHeader
+    <PageHeader icon="star" :steps="['获取本次推荐', '阅读推荐理由', '进入知识点复习']"
       eyebrow="学习"
       title="复习推荐"
       description="按你自己的错题、学习进度与实验表现排序，每条都说明为什么推荐。推荐只基于你本人的记录，教师端没有这个入口；不含题目答案。"

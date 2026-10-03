@@ -83,7 +83,7 @@ onMounted(load)
 
 <template>
   <div class="page">
-    <PageHeader eyebrow="基础管理" title="班级管理" description="每个班级一名任课教师。更换教师后，教学数据权限立即随之变化。" />
+    <PageHeader icon="people" :steps="['创建班级', '分配教师', '加入学生']" eyebrow="基础管理" title="班级管理" description="每个班级一名任课教师。更换教师后，教学数据权限立即随之变化。" />
 
     <SectionCard title="新建班级">
       <form class="admin-form" @submit.prevent="createClass">

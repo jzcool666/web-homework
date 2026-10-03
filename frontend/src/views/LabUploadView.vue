@@ -75,7 +75,7 @@ onMounted(load);
 
 <template>
   <div class="lab-upload">
-    <PageHeader
+    <PageHeader icon="flask" :steps="['核对文件端口', '上传电路', '等待测评与首错']"
       :title="`${task?.title || '实验'} · 上传电路`"
       description="用 Logisim-evolution 5.0.0 设计电路，保存为.circ文件，由真实仿真引擎按多拍输入测评。"
     >
