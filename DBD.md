@@ -116,3 +116,17 @@ erDiagram
 SQLite 单写约束下禁止在事务内执行文件下载、向量化或求解器。唯一约束冲突映射为业务错误，锁等待超时返回可重试 503，不泄露数据库异常。统计读取在一个一致快照事务内完成，避免分母和分子来自不同时间。
 
 迁移脚本纳入版本控制，初始迁移及 upgrade/downgrade 验证在 SPEC-000 实现阶段进行。演示数据至少两教师、两班、各两学生和一管理员，另以可选模拟数据生成 60 人课堂负载。固定种子生成的数据标记来源，初始化不得重置正式账号或提交记录。
+
+## 10 实验扩展（设计，待迁移）
+
+SPEC-018/019 新表独立于 experiments/experiment_attempts，按全表通用 id/created_at/version 规则维护，不改旧统计分母。由 LAB-0 一次新增三表；迁移接续实际最新单一 head，不能依据文档里的历史迁移号写死父版本。
+
+| 表 | 字段 | 约束与索引 |
+| --- | --- | --- |
+| lab_tasks | code TEXT、title TEXT(100)、knowledge_id FK knowledge_points、published BOOL、catalog_version TEXT、suite_version TEXT、engine_contract_version TEXT、public_profile_json TEXT、private_suite_json TEXT、template_key TEXT | UNIQUE(code)，code为LAB-D/C6/S4/FSM；任务修改递增version及suite_version，私有测试不在API投影；种子幂等，不删除历史引用任务 |
+| lab_sessions | task_id FK lab_tasks、owner_id FK users、class_id FK classes、kind TEXT(practice/demo)、task_version INTEGER、task_snapshot_json TEXT、board_json TEXT、event_log_json TEXT、request_key TEXT、request_hash TEXT、saved_at TEXT | UNIQUE(owner_id,request_key)，INDEX(class_id,owner_id)，kind从创建角色决定；事件含action_key/载荷指纹/序号/服务器时间，服务层保证会话内唯一，CAS更新version；动作日志最多512条 |
+| lab_attempts | task_id FK lab_tasks、student_id FK users、class_id FK classes、mode TEXT(wiring/circ)、session_id FK lab_sessions?、request_key TEXT、request_hash TEXT、task_snapshot_json TEXT、suite_snapshot_json TEXT、suite_version TEXT、engine_version TEXT、session_snapshot_json TEXT?、storage_key TEXT?、original_name TEXT?、size_bytes INTEGER?、sha256 TEXT?、status TEXT(queued/running/done/error)、started_at TEXT?、finished_at TEXT?、lease_until TEXT?、worker_token TEXT?、score REAL?、passed BOOL?、result_json TEXT?、error_json TEXT? | UNIQUE(student_id,request_key)，INDEX(status,created_at)，INDEX(class_id,task_id,student_id)，INDEX(lease_until)；wiring要求session_id及session_snapshot，circ要求文件四字段及hash，CHECK按mode限定；非done成绩/通过为null，done要求0—100及完整结果 |
+
+task_snapshot固定公开规则和任务version；suite_snapshot固定实际向量、计分标记和测试集版本。session_snapshot固定连线及过程，不从后续会话重建历史成绩。文件随机key在授权目录、路径不接受客户端输入，hash固定；source原文件不可覆盖。完成或error为终态，重试创建新key记录。
+
+worker领取queued时做原子条件更新status=running、token和60秒租约；计算与Java进程在事务外。只有同token且租约有效才能提交结果，重启后过期running标error/null且记录原因，不自动将其当通过或复制成绩。默认一个worker；并行扩容须验证原子领取。保留创建时class_id，退班不级联删除；班级换教师实时改变历史访问权限。读汇总在同一一致性快照完成，只算当前有效在册学生的done记录，队列和error另列。备份包含数据库、circ文件、固定模板/目录版本；不在恢复时重新判分改写原成绩。

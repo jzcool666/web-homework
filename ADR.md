@@ -55,7 +55,7 @@ flowchart LR
 
 ## ADR-008 文件与内容安全
 
-只允许 PDF、PPTX、PNG、JPEG，单文件不超过 20 MiB；视频使用外链，不自动抓取远程 URL。上传文件放不可直接执行的目录，以随机 storage_key 保存；下载接口验证权限，默认附件输出。Markdown 关闭原始 HTML，输出仍净化；外链仅允许 http/https。预习和题目内容变化用快照控制。
+课程资料上传只允许 PDF、PPTX、PNG、JPEG，单文件不超过 20 MiB；视频使用外链，不自动抓取远程 URL。上传文件放不可直接执行的目录，以随机 storage_key 保存；下载接口验证权限，默认附件输出。Markdown 关闭原始 HTML，输出仍净化；外链仅允许 http/https。预习和题目内容变化用快照控制。SPEC-019 的 circ 使用独立2MiB上传入口、XML/组件/属性白名单及受限worker，不能直接扩大课程资料白名单。
 
 ## ADR-009 运行和版本选择
 
@@ -64,3 +64,9 @@ flowchart LR
 ## ADR-010 设计变更流程
 
 PRD 定义范围，APIC 定义接口，DBD 定义数据，Spec 定义模块规则与验收，测试计划记录覆盖。发生冲突先修正文档再实现，记录到 CHG-RB。SPEC-000 建立工程骨架与迁移基线，其余 17 个 Spec 已在此基础上实现全部业务表与功能。运行性能与算法效果已在 D7 的受控环境实测（见 [D7 集成验收报告](docs/testing/D7-集成验收报告.md)）；真实课堂的用户使用效果仍待实际任课教师与全班反馈。
+
+## ADR-011 实验箱过程与真实文件测评
+
+2026-10-03教师补充要求由SPEC-018/019覆盖，旧18模块及D7验收结论仅对原范围有效。采用通用74系列实验箱与原厂DIP引脚，固定四个任务的器件范围和行为，网页后端唯一Python芯片引擎，避免前后端再维护两套真实芯片状态机。原SPEC-012为同步高有效复位的简化教学模型；芯片模型低有效异步控制单独实现，禁止替换旧模型导致既有实验改分。
+
+circ以Logisim-evolution5.0.0+Java21独立worker测评。当前Windows实际探测确认--test-vector顺序测试可用，但错误向量退出码仍0且纯headless路径失败；解析完整Passed/Failed与计分行，并冻结英文locale。部署JAR验证官方SHA-256，运行不下载；Windows为首个验收环境，无显示Linux支持待验证。queue/running/error与done错误电路明确区分，不引入Redis/Celery或通用网页电路编辑器。详细依据见[调研](docs/research/实验箱与Logisim测评调研.md)和[方案](docs/design/实验箱接线与电路测评方案.md)。
