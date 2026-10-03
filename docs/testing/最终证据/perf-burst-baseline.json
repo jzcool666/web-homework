@@ -1,0 +1,120 @@
+{
+  "marker": "SIMULATED_DATA",
+  "note": "全部客户端与作答为模拟数据，不代表真实课堂参与",
+  "environment": {
+    "os": "Windows-11-10.0.26200-SP0",
+    "python": "3.14.7",
+    "base": "http://127.0.0.1:5338",
+    "started_at": "2026-10-03T17:40:34Z",
+    "duration_s": 37.3,
+    "clients": 60,
+    "poll_interval_s": 3.0
+  },
+  "latency": {
+    "analytics_assessment": {
+      "count": 3,
+      "p50_ms": 30.6,
+      "p95_ms": 34.2,
+      "max_ms": 34.2,
+      "mean_ms": 29.4
+    },
+    "analytics_learning": {
+      "count": 3,
+      "p50_ms": 24.3,
+      "p95_ms": 26.1,
+      "max_ms": 26.1,
+      "mean_ms": 23.4
+    },
+    "knowledge_graph": {
+      "count": 3,
+      "p50_ms": 13.6,
+      "p95_ms": 30.0,
+      "max_ms": 30.0,
+      "mean_ms": 17.0
+    },
+    "paper_generation": {
+      "count": 3,
+      "p50_ms": 26.1,
+      "p95_ms": 32.8,
+      "max_ms": 32.8,
+      "mean_ms": 28.2
+    },
+    "poll_demo": {
+      "count": 576,
+      "p50_ms": 16.7,
+      "p95_ms": 207.0,
+      "max_ms": 304.6,
+      "mean_ms": 38.4
+    },
+    "start_submission": {
+      "count": 60,
+      "p50_ms": 175.4,
+      "p95_ms": 1332.3,
+      "max_ms": 1939.4,
+      "mean_ms": 349.7
+    },
+    "save_answer": {
+      "count": 60,
+      "p50_ms": 182.6,
+      "p95_ms": 782.4,
+      "max_ms": 1074.0,
+      "mean_ms": 265.1
+    },
+    "finalize": {
+      "count": 60,
+      "p50_ms": 137.4,
+      "p95_ms": 517.8,
+      "max_ms": 1534.9,
+      "mean_ms": 202.5
+    }
+  },
+  "errors": [],
+  "error_count": 0,
+  "consistency": {
+    "students_with_submission": 60,
+    "expected": 60,
+    "teacher_rounds": 3
+  },
+  "process_samples": [
+    {
+      "t": 1791049239.8551502,
+      "cpu_s": 173.265625,
+      "ws_bytes": 567332864
+    },
+    {
+      "t": 1791049245.2670372,
+      "cpu_s": 176.421875,
+      "ws_bytes": 239636480
+    },
+    {
+      "t": 1791049250.682838,
+      "cpu_s": 176.90625,
+      "ws_bytes": 239640576
+    },
+    {
+      "t": 1791049256.0851758,
+      "cpu_s": 177.328125,
+      "ws_bytes": 239640576
+    },
+    {
+      "t": 1791049261.5198925,
+      "cpu_s": 177.765625,
+      "ws_bytes": 239640576
+    },
+    {
+      "t": 1791049266.9302845,
+      "cpu_s": 178.015625,
+      "ws_bytes": 239640576
+    },
+    {
+      "t": 1791049272.344213,
+      "cpu_s": 180.421875,
+      "ws_bytes": 239775744
+    }
+  ],
+  "targets_met": {
+    "普通API p95 ≤ 1s": false,
+    "统计 p95 ≤ 2s": true,
+    "组卷 p95 ≤ 5s": true
+  }
+}

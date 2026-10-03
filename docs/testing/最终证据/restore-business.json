@@ -1,0 +1,14 @@
+{
+  "all_table_counts_match": true,
+  "uploads_hashes_match": true,
+  "uploaded_business_files": 4,
+  "runtime_not_restored": true,
+  "lab_attempts": [
+    {
+      "id": 1,
+      "task_id": 1,
+      "status": "done",
+      "score": 100.0
+    }
+  ]
+}

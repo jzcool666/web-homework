@@ -1,0 +1,941 @@
+{
+  "base": "http://127.0.0.1:5338",
+  "total": 82,
+  "passed": 82,
+  "failed": 0,
+  "results": [
+    {
+      "case": "bootstrap",
+      "check": "建立模6计数器测试题",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "case": "bootstrap",
+      "check": "预置实验包含 counter 与 shift",
+      "ok": true,
+      "detail": {
+        "shift": 4,
+        "counter": 3,
+        "jk": 2,
+        "d": 1
+      }
+    },
+    {
+      "case": "E2E-01",
+      "check": "教师甲为甲班发起模6计数器演示",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "case": "E2E-01",
+      "check": "演示初始隐藏下一状态（reveal_next=false）",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "case": "E2E-01",
+      "check": "甲班学生可读取本班演示",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "case": "E2E-01",
+      "check": "乙班学生读取甲班演示返回404",
+      "ok": true,
+      "detail": 404
+    },
+    {
+      "case": "E2E-01",
+      "check": "学生操作演示返回403",
+      "ok": true,
+      "detail": 403
+    },
+    {
+      "case": "E2E-01",
+      "check": "教师单步后版本递增且时钟翻转",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "case": "E2E-01",
+      "check": "同 expected_version 二次动作返回409",
+      "ok": true,
+      "detail": 409
+    },
+    {
+      "case": "E2E-01",
+      "check": "揭示后学生可读到 next_q",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "case": "E2E-01",
+      "check": "测评发布后 effective_state=open",
+      "ok": true,
+      "detail": "open"
+    },
+    {
+      "case": "E2E-01",
+      "check": "学生读取测评条目不含答案与解析",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "case": "E2E-01",
+      "check": "结束后 effective_state=closed",
+      "ok": true,
+      "detail": "closed"
+    },
+    {
+      "case": "E2E-01",
+      "check": "反馈未公开时学生结果 score=null",
+      "ok": true,
+      "detail": {
+        "feedback_available": false,
+        "items": [
+          {
+            "item_id": 1,
+            "selected": [
+              "A"
+            ]
+          }
+        ],
+        "score": null,
+        "submission_id": 1,
+        "total_score": 10
+      }
+    },
+    {
+      "case": "E2E-01",
+      "check": "公开反馈后学生可见分数与解析",
+      "ok": true,
+      "detail": {
+        "feedback_available": true,
+        "items": [
+          {
+            "answer": [
+              "A"
+            ],
+            "awarded_points": 10,
+            "correct": true,
+            "explanation_md": "模6计数器从0101（5）计数到最大值后回到0000。",
+            "item_id": 1,
+            "knowledge_ids": [
+              9
+            ],
+            "selected": [
+              "A"
+            ]
+          }
+        ],
+        "score": 10,
+        "submission_id": 1,
+        "total_score": 10
+      }
+    },
+    {
+      "case": "E2E-01",
+      "check": "统计：名单4人、已提交2人、白卷1份",
+      "ok": true,
+      "detail": {
+        "blank_count": 1,
+        "id": 1,
+        "mean_percent": 50.0,
+        "roster_count": 4,
+        "submission_rate": 0.5,
+        "submitted_count": 2
+      }
+    },
+    {
+      "case": "E2E-01",
+      "check": "统计：提交率=0.5",
+      "ok": true,
+      "detail": 0.5
+    },
+    {
+      "case": "E2E-01",
+      "check": "乙班学生访问甲班测评返回404",
+      "ok": true,
+      "detail": 404
+    },
+    {
+      "case": "E2E-01",
+      "check": "乙班教师访问甲班测评返回404",
+      "ok": true,
+      "detail": 404
+    },
+    {
+      "case": "E2E-02",
+      "check": "移位寄存器实验给出检查点（不含标准状态）",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "case": "E2E-02",
+      "check": "探针提交返回标准状态序列（长度与检查点一致）",
+      "ok": true,
+      "detail": [
+        13,
+        14,
+        7,
+        3,
+        3
+      ]
+    },
+    {
+      "case": "E2E-02",
+      "check": "错误预测得到首错位置 index=1",
+      "ok": true,
+      "detail": {
+        "actual": [
+          13,
+          15,
+          7,
+          3,
+          3
+        ],
+        "created_at": "2026-10-03T17:23:29Z",
+        "expected": [
+          13,
+          14,
+          7,
+          3,
+          3
+        ],
+        "experiment_id": 4,
+        "experiment_version": 1,
+        "explanations": [
+          "第 1 拍：EN=1 SI=1 RESET=0，Q 由 1010（10） 变为 1101（13）；预测正确。",
+          "第 2 拍：EN=1 SI=1 RESET=0，Q 由 1101（13） 变为 1110（14）；正确答案 1110（14），你填了 1111（15）。移位寄存器每个有效上升沿把串行输入移入 Q3 并向 Q0 方向移动；enable=0 时保持。",
+          "第 3 拍：EN=1 SI=0 RESET=0，Q 由 1110（14） 变为 0111（7）；预测正确。",
+          "第 4 拍：EN=1 SI=0 RESET=0，Q 由 0111（7） 变为 0011（3）；预测正确。",
+          "第 5 拍：EN=0 SI=0 RESET=0，Q 由 0011（3） 变为 0011（3）；预测正确。"
+        ],
+        "first_error_index": 1,
+        "id": 2,
+        "passed": false,
+        "simulator_type": "shift"
+      }
+    },
+    {
+      "case": "E2E-02",
+      "check": "错误预测保留失败记录",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "case": "E2E-02",
+      "check": "按标准状态重做后通过",
+      "ok": true,
+      "detail": {
+        "actual": [
+          13,
+          14,
+          7,
+          3,
+          3
+        ],
+        "created_at": "2026-10-03T17:23:29Z",
+        "expected": [
+          13,
+          14,
+          7,
+          3,
+          3
+        ],
+        "experiment_id": 4,
+        "experiment_version": 1,
+        "explanations": [
+          "第 1 拍：EN=1 SI=1 RESET=0，Q 由 1010（10） 变为 1101（13）；预测正确。",
+          "第 2 拍：EN=1 SI=1 RESET=0，Q 由 1101（13） 变为 1110（14）；预测正确。",
+          "第 3 拍：EN=1 SI=0 RESET=0，Q 由 1110（14） 变为 0111（7）；预测正确。",
+          "第 4 拍：EN=1 SI=0 RESET=0，Q 由 0111（7） 变为 0011（3）；预测正确。",
+          "第 5 拍：EN=0 SI=0 RESET=0，Q 由 0011（3） 变为 0011（3）；预测正确。"
+        ],
+        "first_error_index": null,
+        "id": 3,
+        "passed": true,
+        "simulator_type": "shift"
+      }
+    },
+    {
+      "case": "E2E-02",
+      "check": "实验统计：尝试+3、通过+1、通过率1.0",
+      "ok": true,
+      "detail": {
+        "baseline": {
+          "attempt_count": 0,
+          "experiment_id": 4,
+          "participants": 0,
+          "pass_rate": null,
+          "passed_students": 0,
+          "title": "4 位移位寄存器：串行输入右移"
+        },
+        "after": {
+          "attempt_count": 3,
+          "experiment_id": 4,
+          "participants": 1,
+          "pass_rate": 1.0,
+          "passed_students": 1,
+          "title": "4 位移位寄存器：串行输入右移"
+        }
+      }
+    },
+    {
+      "case": "E2E-02",
+      "check": "参与人数不重复：多拍重做后仍只计 1 人",
+      "ok": true,
+      "detail": {
+        "baseline_participants": 0,
+        "after_participants": 1
+      }
+    },
+    {
+      "case": "E2E-03",
+      "check": "首次保存成功并回执新版本",
+      "ok": true,
+      "detail": 2
+    },
+    {
+      "case": "E2E-03",
+      "check": "重连后服务器返回上次已保存的 my_submission_id",
+      "ok": true,
+      "detail": {
+        "class_id": 1,
+        "effective_state": "open",
+        "ends_at": "2026-10-03T17:24:10Z",
+        "feedback_released": false,
+        "id": 2,
+        "items": [
+          {
+            "id": 2,
+            "knowledge_ids": [
+              9
+            ],
+            "options": [
+              {
+                "key": "A",
+                "label": "0000"
+              },
+              {
+                "key": "B",
+                "label": "0110"
+              }
+            ],
+            "points": 10,
+            "position": 1,
+            "question_id": 1,
+            "stem_md": "模6计数器当前状态为0101，下一个有效时钟沿后的状态是什么？",
+            "type": "single"
+          }
+        ],
+        "kind": "quiz",
+        "my_submission_id": 3,
+        "starts_at": "2026-10-03T17:23:28Z",
+        "state": "published",
+        "title": "断线恢复用短测",
+        "total_score": 10,
+        "version": 2
+      }
+    },
+    {
+      "case": "E2E-03",
+      "check": "用陈旧版本号保存返回409（本地编辑不算已提交）",
+      "ok": true,
+      "detail": 409
+    },
+    {
+      "case": "E2E-03",
+      "check": "截止后保存返回409",
+      "ok": true,
+      "detail": [
+        409,
+        {
+          "error": {
+            "code": "DEADLINE_PASSED",
+            "details": null,
+            "message": "测评已结束，不能再保存答案"
+          },
+          "meta": {
+            "server_time": "2026-10-03T17:24:16Z"
+          }
+        }
+      ]
+    },
+    {
+      "case": "E2E-03",
+      "check": "截止错误码为 DEADLINE_PASSED",
+      "ok": true,
+      "detail": "DEADLINE_PASSED"
+    },
+    {
+      "case": "E2E-03",
+      "check": "截止后已开始草稿被最终化（feedback 未公开时 score=null）",
+      "ok": true,
+      "detail": {
+        "feedback_available": false,
+        "items": [
+          {
+            "item_id": 2,
+            "selected": [
+              "B"
+            ]
+          }
+        ],
+        "score": null,
+        "submission_id": 3,
+        "total_score": 10
+      }
+    },
+    {
+      "case": "E2E-03",
+      "check": "截止最终化后统计到1份提交、名单4人",
+      "ok": true,
+      "detail": {
+        "blank_count": 0,
+        "id": 2,
+        "mean_percent": 0.0,
+        "roster_count": 4,
+        "submission_rate": 0.25,
+        "submitted_count": 1
+      }
+    },
+    {
+      "case": "SEC-01",
+      "check": "匿名访问 /api/v1/analytics/attendance 返回401",
+      "ok": true,
+      "detail": 401
+    },
+    {
+      "case": "SEC-01",
+      "check": "匿名访问 /api/v1/me/recommendations 返回401",
+      "ok": true,
+      "detail": 401
+    },
+    {
+      "case": "SEC-01",
+      "check": "匿名访问 /api/v1/knowledge-graph 返回401",
+      "ok": true,
+      "detail": 401
+    },
+    {
+      "case": "SEC-01",
+      "check": "学生访问出勤统计被拒",
+      "ok": true,
+      "detail": 403
+    },
+    {
+      "case": "SEC-01",
+      "check": "乙班教师访问甲班统计返回404",
+      "ok": true,
+      "detail": 404
+    },
+    {
+      "case": "SEC-01",
+      "check": "乙班教师访问甲班实验统计返回404",
+      "ok": true,
+      "detail": 404
+    },
+    {
+      "case": "SEC-01",
+      "check": "乙班教师为甲班生成预警返回404",
+      "ok": true,
+      "detail": 404
+    },
+    {
+      "case": "SEC-01",
+      "check": "乙班教师为甲班组卷返回404",
+      "ok": true,
+      "detail": 404
+    },
+    {
+      "case": "SEC-01",
+      "check": "乙班学生读取甲班学生 submission 返回404",
+      "ok": true,
+      "detail": 404
+    },
+    {
+      "case": "SEC-01",
+      "check": "乙班教师读取甲班学生 submission 返回404",
+      "ok": true,
+      "detail": 404
+    },
+    {
+      "case": "SEC-01",
+      "check": "注册携带 role=admin 被拒（422/400）",
+      "ok": true,
+      "detail": 422
+    },
+    {
+      "case": "SEC-01",
+      "check": "实验提交携带 passed/score 被拒绝（422 未支持字段）",
+      "ok": true,
+      "detail": [
+        422,
+        {
+          "error": {
+            "code": "VALIDATION_ERROR",
+            "details": {
+              "unknown_fields": [
+                "passed",
+                "score"
+              ]
+            },
+            "message": "请求包含未支持的字段"
+          },
+          "meta": {
+            "server_time": "2026-10-03T17:24:17Z"
+          }
+        }
+      ]
+    },
+    {
+      "case": "SEC-01",
+      "check": "缺 CSRF 的登录写请求返回403",
+      "ok": true,
+      "detail": [
+        403,
+        {
+          "error": {
+            "code": "CSRF_FAILED",
+            "details": null,
+            "message": "CSRF 校验失败，请刷新页面后重试"
+          },
+          "meta": {
+            "server_time": "2026-10-03T17:24:18Z"
+          }
+        }
+      ]
+    },
+    {
+      "case": "SEC-01",
+      "check": "出勤统计 CSV 可导出（含 BOM）",
+      "ok": true,
+      "detail": "efbbbf7365637469"
+    },
+    {
+      "case": "SEC-01",
+      "check": "学生可读已发布知识图谱",
+      "ok": true,
+      "detail": 200
+    },
+    {
+      "case": "SEC-01",
+      "check": "推荐接口只返回本人条目",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "case": "SEC-01",
+      "check": "教师访问推荐接口返回403",
+      "ok": true,
+      "detail": 403
+    },
+    {
+      "case": "基础-课程知识",
+      "check": "学生可列出已发布章节",
+      "ok": true,
+      "detail": 6
+    },
+    {
+      "case": "基础-教学资源",
+      "check": "学生可见已发布资料",
+      "ok": true,
+      "detail": 2
+    },
+    {
+      "case": "基础-教学资源",
+      "check": "同人同版本同日打开事件去重（T-005-04）",
+      "ok": true,
+      "detail": {
+        "first": {
+          "recorded": true
+        },
+        "second": {
+          "recorded": false
+        }
+      }
+    },
+    {
+      "case": "基础-课程知识",
+      "check": "收藏幂等且出现在收藏列表（T-005-03）",
+      "ok": true,
+      "detail": {
+        "favorited": true,
+        "knowledge_id": 1
+      }
+    },
+    {
+      "case": "基础-课程知识",
+      "check": "完成标记写入并读回（T-005-03）",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "case": "基础-课前备课",
+      "check": "发布预习快照不含题目答案（T-008-03）",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "case": "基础-课前备课",
+      "check": "本班学生可见预习",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "case": "基础-课前备课",
+      "check": "他班学生查预习返回404（T-008-03）",
+      "ok": true,
+      "detail": 404
+    },
+    {
+      "case": "基础-考勤",
+      "check": "发布签到任务返回 6 位数字码",
+      "ok": true,
+      "detail": "034193"
+    },
+    {
+      "case": "基础-考勤",
+      "check": "学生签到成功且状态为 present",
+      "ok": true,
+      "detail": "present"
+    },
+    {
+      "case": "基础-考勤",
+      "check": "错误签到码返回422",
+      "ok": true,
+      "detail": 422
+    },
+    {
+      "case": "基础-考勤",
+      "check": "结算结果：present=1、absent=3",
+      "ok": true,
+      "detail": {
+        "absent": 3,
+        "late": 0,
+        "leave": 0,
+        "present": 1
+      }
+    },
+    {
+      "case": "基础-数据分析",
+      "check": "出勤统计出勤率=(1+0)/(1+0+3)=0.25（T-003-01）",
+      "ok": true,
+      "detail": 0.25
+    },
+    {
+      "case": "基础-数据分析",
+      "check": "学习统计含已发布知识点分母与学生进度",
+      "ok": true,
+      "detail": {
+        "published": 12,
+        "students": 4
+      }
+    },
+    {
+      "case": "基础-数据分析",
+      "check": "学习统计 CSV 含 summary 行",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "case": "基础-习题测评",
+      "check": "已结束未公开反馈的测评题目不进自练候选（T-009-04）",
+      "ok": true,
+      "detail": [
+        422,
+        {
+          "error": {
+            "code": "INFEASIBLE_PAPER",
+            "details": {
+              "available": 0,
+              "constraints": [
+                {
+                  "available": 0,
+                  "kind": "count",
+                  "required": 1
+                }
+              ],
+              "requested": 1
+            },
+            "message": "题库可用题目不足"
+          },
+          "meta": {
+            "server_time": "2026-10-03T17:24:28Z"
+          }
+        }
+      ]
+    },
+    {
+      "case": "基础-习题测评",
+      "check": "自练即时反馈含答案与解析（T-009-01）",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "case": "基础-习题测评",
+      "check": "错题本记录本次答错（T-009-04）",
+      "ok": true,
+      "detail": [
+        {
+          "knowledge_ids": [
+            9
+          ],
+          "last_wrong_at": "2026-10-03T17:24:28Z",
+          "latest_correct": false,
+          "question_id": 1,
+          "review_available": true
+        }
+      ]
+    },
+    {
+      "case": "MATRIX",
+      "check": "知识图谱拓扑序可用且无环",
+      "ok": true,
+      "detail": {
+        "has_cycle": false,
+        "n": 12
+      }
+    },
+    {
+      "case": "MATRIX",
+      "check": "图谱无路径时 matched=false 且不编造节点（T-016-03）",
+      "ok": true,
+      "detail": [
+        12,
+        1,
+        {
+          "edges": [],
+          "matched": false,
+          "nodes": []
+        }
+      ]
+    },
+    {
+      "case": "MATRIX",
+      "check": "图谱路径端点不存在返回404",
+      "ok": true,
+      "detail": 404
+    },
+    {
+      "case": "MATRIX",
+      "check": "图谱 depth=99 越界返回422",
+      "ok": true,
+      "detail": [
+        422,
+        {
+          "error": {
+            "code": "VALIDATION_ERROR",
+            "details": {
+              "fields": {
+                "depth": "必须是 1—3 的整数"
+              }
+            },
+            "message": "请求字段不合法"
+          },
+          "meta": {
+            "server_time": "2026-10-03T17:24:30Z"
+          }
+        }
+      ]
+    },
+    {
+      "case": "MATRIX",
+      "check": "图谱响应含 truncated 标记",
+      "ok": true,
+      "detail": [
+        "edges",
+        "has_cycle",
+        "nodes",
+        "truncated"
+      ]
+    },
+    {
+      "case": "MATRIX",
+      "check": "非状态表图片识别 status=failed 且给出格式原因（T-017-02）",
+      "ok": true,
+      "detail": {
+        "data": {
+          "class_id": 1,
+          "created_at": "2026-10-03T17:24:30Z",
+          "error": {
+            "code": "GRID_NOT_DETECTED",
+            "details": {
+              "col_lines": 0,
+              "row_lines": 0
+            },
+            "message": "未检测到网格"
+          },
+          "id": 1,
+          "kind": "state_table",
+          "result": null,
+          "status": "failed"
+        },
+        "meta": {
+          "server_time": "2026-10-03T17:24:30Z"
+        }
+      }
+    },
+    {
+      "case": "MATRIX",
+      "check": "GIF 上传返回415（T-017-03）",
+      "ok": true,
+      "detail": [
+        415,
+        {
+          "error": {
+            "code": "FILE_TYPE_UNSUPPORTED",
+            "details": {
+              "allowed": [
+                "png",
+                "jpeg"
+              ]
+            },
+            "message": "仅支持 PNG、JPEG 图片"
+          },
+          "meta": {
+            "server_time": "2026-10-03T17:24:30Z"
+          }
+        }
+      ]
+    },
+    {
+      "case": "MATRIX",
+      "check": "识别上传携带 passed 字段被忽略而非报错（T-017-03）",
+      "ok": true,
+      "detail": [
+        201,
+        {
+          "data": {
+            "class_id": 1,
+            "created_at": "2026-10-03T17:24:30Z",
+            "error": {
+              "code": "GRID_NOT_DETECTED",
+              "details": {
+                "col_lines": 0,
+                "row_lines": 0
+              },
+              "message": "未检测到网格"
+            },
+            "id": 2,
+            "kind": "state_table",
+            "result": null,
+            "status": "failed"
+          },
+          "meta": {
+            "server_time": "2026-10-03T17:24:30Z"
+          }
+        }
+      ]
+    },
+    {
+      "case": "MATRIX",
+      "check": "他班学生用本班 class_id 提交识别返回404（T-017-04）",
+      "ok": true,
+      "detail": [
+        404,
+        {
+          "error": {
+            "code": "NOT_FOUND",
+            "details": null,
+            "message": "班级不存在"
+          },
+          "meta": {
+            "server_time": "2026-10-03T17:24:30Z"
+          }
+        }
+      ]
+    },
+    {
+      "case": "MATRIX",
+      "check": "域外查询 matched=false 且不编造解释（T-007-02）",
+      "ok": true,
+      "detail": {
+        "corpus_version": "v1-7dcc659a213c",
+        "matched": false,
+        "matches": []
+      }
+    },
+    {
+      "case": "MATRIX",
+      "check": "过短查询返回422（T-007-02）",
+      "ok": true,
+      "detail": 422
+    },
+    {
+      "case": "MATRIX",
+      "check": "困难题不足时组卷返回422 INFEASIBLE_PAPER（T-011-03）",
+      "ok": true,
+      "detail": [
+        422,
+        {
+          "error": {
+            "code": "INFEASIBLE_PAPER",
+            "details": {
+              "constraints": [
+                {
+                  "available": 0,
+                  "difficulty": "hard",
+                  "kind": "difficulty",
+                  "required": 30
+                }
+              ]
+            },
+            "message": "题库无法满足当前条件"
+          },
+          "meta": {
+            "server_time": "2026-10-03T17:24:30Z"
+          }
+        }
+      ]
+    },
+    {
+      "case": "MATRIX",
+      "check": "未生成过的窗口预警返回空数组而非假造（E064）",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "case": "MATRIX",
+      "check": "冷启动推荐返回基础路径且 score=null（T-015-02）",
+      "ok": true,
+      "detail": {
+        "algorithm_version": "spec015-signals-v1",
+        "items": [
+          {
+            "kind": "knowledge",
+            "knowledge_id": 1,
+            "reasons": [
+              "按章节顺序的基础路径"
+            ],
+            "resource_id": 1,
+            "score": null,
+            "title": "组合逻辑与时序逻辑的区别"
+          },
+          {
+            "kind": "knowledge",
+            "knowledge_id": 2,
+            "reasons": [
+              "按章节顺序的基础路径"
+            ],
+            "resource_id": 2,
+            "score": null,
+            "title": "时钟信号与有效时钟沿"
+          },
+          {
+            "kind": "knowledge",
+            "knowledge_id": 3,
+            "reasons": [
+              "按章节顺序的基础路径"
+            ],
+            "resource_id": 3,
+            "score": null,
+            "title": "D 触发器与有效沿"
+          }
+        ]
+      }
+    }
+  ]
+}

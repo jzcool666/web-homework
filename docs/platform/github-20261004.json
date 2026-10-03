@@ -1,0 +1,817 @@
+{
+  "captured_at": "2026-10-03T17:55:33.880006+00:00",
+  "repo": "jzcool666/web-homework",
+  "note": "元数据阶段快照；不含正文、评论、附件和逐文件diff，技术细节见已入库的规格与执行报告。完整原始导出另留开发工作区。",
+  "issues": [
+    {
+      "closedAt": "2026-10-03T17:50:20Z",
+      "createdAt": "2026-10-03T16:46:30Z",
+      "number": 69,
+      "state": "CLOSED",
+      "title": "[UI] 全页面使用体验与视觉收口",
+      "updatedAt": "2026-10-03T17:50:20Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/69"
+    },
+    {
+      "closedAt": "2026-10-03T16:45:06Z",
+      "createdAt": "2026-10-03T16:31:50Z",
+      "number": 67,
+      "state": "CLOSED",
+      "title": "[修复] 预警默认窗口按秒变化导致已生成批次不可读取",
+      "updatedAt": "2026-10-03T16:45:06Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/67"
+    },
+    {
+      "closedAt": "2026-10-03T17:06:02Z",
+      "createdAt": "2026-10-03T16:15:28Z",
+      "number": 66,
+      "state": "CLOSED",
+      "title": "[交付] 完整演示数据与验收示例初始化",
+      "updatedAt": "2026-10-03T17:06:02Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/66"
+    },
+    {
+      "closedAt": "2026-10-03T12:06:37Z",
+      "createdAt": "2026-10-03T07:12:54Z",
+      "number": 59,
+      "state": "CLOSED",
+      "title": "[LAB-3] 实验扩展集成验收与交付材料补齐",
+      "updatedAt": "2026-10-03T12:06:37Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/59"
+    },
+    {
+      "closedAt": "2026-10-03T12:06:32Z",
+      "createdAt": "2026-10-03T07:12:52Z",
+      "number": 58,
+      "state": "CLOSED",
+      "title": "[LAB-2 / SPEC-019] Logisim电路上传与真实引擎在线测评",
+      "updatedAt": "2026-10-03T12:06:32Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/58"
+    },
+    {
+      "closedAt": "2026-10-03T12:06:27Z",
+      "createdAt": "2026-10-03T07:12:50Z",
+      "number": 57,
+      "state": "CLOSED",
+      "title": "[LAB-1 / SPEC-018] 虚拟实验箱接线、过程回放与教师查看",
+      "updatedAt": "2026-10-03T12:06:27Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/57"
+    },
+    {
+      "closedAt": "2026-10-03T12:06:21Z",
+      "createdAt": "2026-10-03T07:12:47Z",
+      "number": 56,
+      "state": "CLOSED",
+      "title": "[LAB-0 / SPEC-018] 实验扩展设计基线与芯片仿真共享基础",
+      "updatedAt": "2026-10-03T12:06:21Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/56"
+    },
+    {
+      "closedAt": "2026-10-03T16:13:16Z",
+      "createdAt": "2026-10-02T19:30:09Z",
+      "number": 55,
+      "state": "CLOSED",
+      "title": "[交付] HTTPS 部署演练（本地自签证书验证 Secure Cookie 链路）· 可选",
+      "updatedAt": "2026-10-03T16:13:16Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/55"
+    },
+    {
+      "closedAt": "2026-10-03T15:50:16Z",
+      "createdAt": "2026-10-02T19:30:06Z",
+      "number": 54,
+      "state": "CLOSED",
+      "title": "[交付] 独立用户手册（管理员/教师/学生）",
+      "updatedAt": "2026-10-03T15:50:16Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/54"
+    },
+    {
+      "closedAt": "2026-10-03T15:38:18Z",
+      "createdAt": "2026-10-02T19:15:21Z",
+      "number": 52,
+      "state": "CLOSED",
+      "title": "[UI-5] 教师实验管理页（接通教师「实验」入口）· 可选",
+      "updatedAt": "2026-10-03T15:38:18Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/52"
+    },
+    {
+      "closedAt": "2026-10-03T12:06:15Z",
+      "createdAt": "2026-10-02T18:40:54Z",
+      "number": 51,
+      "state": "CLOSED",
+      "title": "[UI-4] D7 UI 补证与发布准备",
+      "updatedAt": "2026-10-03T12:06:15Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/51"
+    },
+    {
+      "closedAt": "2026-10-03T12:06:10Z",
+      "createdAt": "2026-10-02T18:40:13Z",
+      "number": 50,
+      "state": "CLOSED",
+      "title": "[UI-3] 核心内容页统一（课程/习题/实验/分析）",
+      "updatedAt": "2026-10-03T12:06:10Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/50"
+    },
+    {
+      "closedAt": "2026-10-03T12:06:05Z",
+      "createdAt": "2026-10-02T18:39:22Z",
+      "number": 49,
+      "state": "CLOSED",
+      "title": "[UI-2] 学生/教师 角色化首页（Dashboard）",
+      "updatedAt": "2026-10-03T12:06:05Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/49"
+    },
+    {
+      "closedAt": "2026-10-03T12:05:59Z",
+      "createdAt": "2026-10-02T18:38:22Z",
+      "number": 48,
+      "state": "CLOSED",
+      "title": "[UI-1] App Shell 与角色化导航重构",
+      "updatedAt": "2026-10-03T12:05:59Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/48"
+    },
+    {
+      "closedAt": "2026-10-02T10:42:56Z",
+      "createdAt": "2026-09-28T07:11:34Z",
+      "number": 24,
+      "state": "CLOSED",
+      "title": "[SPEC-017] 时序逻辑识别辅助",
+      "updatedAt": "2026-10-02T10:42:56Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/24"
+    },
+    {
+      "closedAt": "2026-10-02T09:46:54Z",
+      "createdAt": "2026-09-28T07:11:25Z",
+      "number": 23,
+      "state": "CLOSED",
+      "title": "[SPEC-016] 时序逻辑知识图谱与可视化",
+      "updatedAt": "2026-10-02T09:46:54Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/23"
+    },
+    {
+      "closedAt": "2026-09-28T07:34:53Z",
+      "createdAt": "2026-09-28T06:37:23Z",
+      "number": 21,
+      "state": "CLOSED",
+      "title": "[范围校正] 时序逻辑课题覆盖全部功能模块",
+      "updatedAt": "2026-09-28T07:34:53Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/21"
+    },
+    {
+      "closedAt": null,
+      "createdAt": "2026-09-28T05:44:47Z",
+      "number": 19,
+      "state": "OPEN",
+      "title": "[D7] 系统集成验收与课程交付",
+      "updatedAt": "2026-10-03T12:06:45Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/19"
+    },
+    {
+      "closedAt": "2026-10-02T15:48:45Z",
+      "createdAt": "2026-09-28T05:44:45Z",
+      "number": 18,
+      "state": "CLOSED",
+      "title": "[SPEC-015] 个性化复习推荐",
+      "updatedAt": "2026-10-02T15:48:45Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/18"
+    },
+    {
+      "closedAt": "2026-10-02T07:19:32Z",
+      "createdAt": "2026-09-28T05:44:43Z",
+      "number": 17,
+      "state": "CLOSED",
+      "title": "[SPEC-011] 约束智能组卷",
+      "updatedAt": "2026-10-02T07:19:32Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/17"
+    },
+    {
+      "closedAt": "2026-10-02T07:57:31Z",
+      "createdAt": "2026-09-28T05:44:42Z",
+      "number": 16,
+      "state": "CLOSED",
+      "title": "[SPEC-007] 课程检索问答",
+      "updatedAt": "2026-10-02T07:57:31Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/16"
+    },
+    {
+      "closedAt": "2026-10-02T08:54:08Z",
+      "createdAt": "2026-09-28T05:44:40Z",
+      "number": 15,
+      "state": "CLOSED",
+      "title": "[SPEC-004] 学习预警与分组",
+      "updatedAt": "2026-10-02T08:54:08Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/15"
+    },
+    {
+      "closedAt": "2026-10-02T07:00:21Z",
+      "createdAt": "2026-09-28T05:44:38Z",
+      "number": 14,
+      "state": "CLOSED",
+      "title": "[SPEC-003] 出勤与风险因素统计",
+      "updatedAt": "2026-10-02T07:00:21Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/14"
+    },
+    {
+      "closedAt": "2026-09-29T07:49:25Z",
+      "createdAt": "2026-09-28T05:44:36Z",
+      "number": 13,
+      "state": "CLOSED",
+      "title": "[SPEC-014] 实验学习统计",
+      "updatedAt": "2026-09-29T07:49:25Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/13"
+    },
+    {
+      "closedAt": "2026-09-29T09:43:46Z",
+      "createdAt": "2026-09-28T05:44:34Z",
+      "number": 12,
+      "state": "CLOSED",
+      "title": "[SPEC-006] 学习进度与资源统计",
+      "updatedAt": "2026-09-29T09:43:46Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/12"
+    },
+    {
+      "closedAt": "2026-09-29T02:45:00Z",
+      "createdAt": "2026-09-28T05:44:32Z",
+      "number": 11,
+      "state": "CLOSED",
+      "title": "[SPEC-002] 考勤与请假",
+      "updatedAt": "2026-09-29T02:45:00Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/11"
+    },
+    {
+      "closedAt": "2026-09-29T08:18:30Z",
+      "createdAt": "2026-09-28T05:44:30Z",
+      "number": 10,
+      "state": "CLOSED",
+      "title": "[SPEC-008] 备课与预习发布",
+      "updatedAt": "2026-09-29T08:18:31Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/10"
+    },
+    {
+      "closedAt": "2026-09-29T07:03:35Z",
+      "createdAt": "2026-09-28T05:44:28Z",
+      "number": 9,
+      "state": "CLOSED",
+      "title": "[SPEC-013] 实验辅助与结果验证",
+      "updatedAt": "2026-09-29T07:03:35Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/9"
+    },
+    {
+      "closedAt": "2026-09-29T06:42:58Z",
+      "createdAt": "2026-09-28T05:44:26Z",
+      "number": 8,
+      "state": "CLOSED",
+      "title": "[SPEC-010] 随堂测与测评统计",
+      "updatedAt": "2026-09-29T06:42:58Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/8"
+    },
+    {
+      "closedAt": "2026-09-29T04:33:58Z",
+      "createdAt": "2026-09-28T05:44:25Z",
+      "number": 7,
+      "state": "CLOSED",
+      "title": "[SPEC-012] 课堂演示与时序仿真",
+      "updatedAt": "2026-09-29T04:33:58Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/7"
+    },
+    {
+      "closedAt": "2026-09-29T04:45:50Z",
+      "createdAt": "2026-09-28T05:44:23Z",
+      "number": 6,
+      "state": "CLOSED",
+      "title": "[SPEC-009] 题库练习与错题",
+      "updatedAt": "2026-09-29T04:45:50Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/6"
+    },
+    {
+      "closedAt": "2026-09-29T02:36:27Z",
+      "createdAt": "2026-09-28T05:44:21Z",
+      "number": 5,
+      "state": "CLOSED",
+      "title": "[SPEC-005] 课程知识与教学资源",
+      "updatedAt": "2026-09-29T02:36:27Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/5"
+    },
+    {
+      "closedAt": "2026-09-29T00:43:52Z",
+      "createdAt": "2026-09-28T05:44:19Z",
+      "number": 4,
+      "state": "CLOSED",
+      "title": "[SPEC-001] 账号角色与班级权限",
+      "updatedAt": "2026-09-29T00:44:57Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/4"
+    },
+    {
+      "closedAt": "2026-09-28T06:55:18Z",
+      "createdAt": "2026-09-28T05:44:17Z",
+      "number": 3,
+      "state": "CLOSED",
+      "title": "[SPEC-000] 公共工程与运行约定",
+      "updatedAt": "2026-09-28T06:55:18Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/3"
+    },
+    {
+      "closedAt": "2026-09-28T06:12:00Z",
+      "createdAt": "2026-09-28T05:44:15Z",
+      "number": 2,
+      "state": "CLOSED",
+      "title": "[D0] 设计基线入库与仓库初始化",
+      "updatedAt": "2026-09-28T06:12:18Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/2"
+    },
+    {
+      "closedAt": null,
+      "createdAt": "2026-09-28T05:44:11Z",
+      "number": 1,
+      "state": "OPEN",
+      "title": "[路线图] 时序逻辑课堂平台开发与验收",
+      "updatedAt": "2026-10-03T12:06:42Z",
+      "url": "https://github.com/jzcool666/web-homework/issues/1"
+    }
+  ],
+  "pull_requests": [
+    {
+      "baseRefName": "develop",
+      "headRefName": "ui/final-polish",
+      "headRefOid": "1bb04448e9b0ba4489bd38bc502bb4094c24ace4",
+      "mergeCommit": {
+        "oid": "cd2be306edfbf3ea4274700ca8253781e4c680ba"
+      },
+      "mergedAt": "2026-10-03T17:50:17Z",
+      "number": 71,
+      "state": "MERGED",
+      "title": "改善各角色页面操作层次与图谱和手机宽表",
+      "updatedAt": "2026-10-03T17:50:17Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/71"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feat/acceptance-demo",
+      "headRefOid": "6fa6dde1cbb903870b107315cab56dc851905860",
+      "mergeCommit": {
+        "oid": "4c3f846c81299c44d5d421591c829be1075949f7"
+      },
+      "mergedAt": "2026-10-03T17:06:00Z",
+      "number": 70,
+      "state": "MERGED",
+      "title": "提供完整模拟课堂与验收示例",
+      "updatedAt": "2026-10-03T17:06:00Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/70"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "fix/warning-window",
+      "headRefOid": "d68e66046e42bda4231ac03f6b6c0a9ad3436570",
+      "mergeCommit": {
+        "oid": "b08ce17b17a2aa1652e911c9b0c952dcd5a44f06"
+      },
+      "mergedAt": "2026-10-03T16:45:02Z",
+      "number": 68,
+      "state": "MERGED",
+      "title": "fix: 预警默认窗口稳定为 UTC 自然日",
+      "updatedAt": "2026-10-03T16:45:02Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/68"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "ops/https-drill",
+      "headRefOid": "6e3843d2f1db92419da26a85253f44deea3f1610",
+      "mergeCommit": {
+        "oid": "a67ec7822ee2a6f11675c22e9075ca3f5739063c"
+      },
+      "mergedAt": "2026-10-03T16:13:13Z",
+      "number": 65,
+      "state": "MERGED",
+      "title": "ops: 本地 HTTPS 部署演练与会话验证",
+      "updatedAt": "2026-10-03T16:13:13Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/65"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "docs/user-manual",
+      "headRefOid": "aa7138587ad5bfcae461a08a335645252adbdc39",
+      "mergeCommit": {
+        "oid": "6466876a2e041a739bf8e81e4a6a00311e4b8d38"
+      },
+      "mergedAt": "2026-10-03T15:50:11Z",
+      "number": 64,
+      "state": "MERGED",
+      "title": "docs: 三角色用户手册与完整实验操作说明",
+      "updatedAt": "2026-10-03T15:50:11Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/64"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/teacher-experiments",
+      "headRefOid": "7cc743cc2b9366323a930d8a62219f1f0ac8ca40",
+      "mergeCommit": {
+        "oid": "5848440e76baf5e776eb6482b1cfd20dcf0a6cc1"
+      },
+      "mergedAt": "2026-10-03T15:38:14Z",
+      "number": 63,
+      "state": "MERGED",
+      "title": "feat(ui): 教师实验管理与可视化输入序列编辑",
+      "updatedAt": "2026-10-03T15:38:14Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/63"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/classroom-visual",
+      "headRefOid": "e6187df1eadb56d366098085445527a783bb9dc3",
+      "mergeCommit": {
+        "oid": "9dd035107d67384e4cf2eef24fb93fafd54f688e"
+      },
+      "mergedAt": "2026-10-03T15:37:30Z",
+      "number": 62,
+      "state": "MERGED",
+      "title": "feat(ui): 课堂模型可视化与独立投屏",
+      "updatedAt": "2026-10-03T15:37:30Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/62"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/reference-ui",
+      "headRefOid": "2dd7100f904f5597d6fce667a4f4420d7a313681",
+      "mergeCommit": {
+        "oid": "a3f17dde87b6ec5438df6971a813f8e72fcb23a0"
+      },
+      "mergedAt": "2026-10-03T12:03:55Z",
+      "number": 61,
+      "state": "MERGED",
+      "title": "feat(ui): 完成六页参考效果与逐拍工作台联动",
+      "updatedAt": "2026-10-03T12:03:56Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/61"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/lab-extension",
+      "headRefOid": "d4d1e1ce696a6a25ed7619ae5722ee7330b2edd2",
+      "mergeCommit": {
+        "oid": "48bee9e0e93db7fd4e15d2d29af1084bf940726a"
+      },
+      "mergedAt": "2026-10-03T11:15:48Z",
+      "number": 60,
+      "state": "MERGED",
+      "title": "feat(labs): 增加虚拟实验箱接线与 Logisim 在线测评",
+      "updatedAt": "2026-10-03T11:15:48Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/60"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/final-ui-polish",
+      "headRefOid": "711752deaa0912964c047b6652b948b78029b6e4",
+      "mergeCommit": {
+        "oid": "066995efb468cc65ccd26b17857b27246d55b730"
+      },
+      "mergedAt": "2026-10-03T11:14:41Z",
+      "number": 53,
+      "state": "MERGED",
+      "title": "feat(ui): 按六页参考图完成学习平台界面重构",
+      "updatedAt": "2026-10-03T11:14:42Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/53"
+    },
+    {
+      "baseRefName": "main",
+      "headRefName": "develop",
+      "headRefOid": "cd2be306edfbf3ea4274700ca8253781e4c680ba",
+      "mergeCommit": null,
+      "mergedAt": null,
+      "number": 47,
+      "state": "OPEN",
+      "title": "release: 课程交付版本",
+      "updatedAt": "2026-10-03T17:50:18Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/47"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/integration-acceptance",
+      "headRefOid": "d0dd94e9e92b8cf20694d742c0c3c9e57eeb4787",
+      "mergeCommit": {
+        "oid": "c452c05e14973de184269a48b12eaf0a633dd886"
+      },
+      "mergedAt": "2026-10-02T17:41:57Z",
+      "number": 46,
+      "state": "MERGED",
+      "title": "test(integration): D7 系统集成验收",
+      "updatedAt": "2026-10-02T17:41:57Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/46"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/spec-015",
+      "headRefOid": "323d8bfa199f6b18dfcf82aef6e55c839276af27",
+      "mergeCommit": {
+        "oid": "e05981cc1a61bfadbb1aced65ff24afd8091c08d"
+      },
+      "mergedAt": "2026-10-02T15:48:36Z",
+      "number": 45,
+      "state": "MERGED",
+      "title": "feat(spec-015): 个性化复习推荐",
+      "updatedAt": "2026-10-02T15:48:36Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/45"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/spec-017",
+      "headRefOid": "144e992e63d6246424590aa9ac291c050904fa9b",
+      "mergeCommit": {
+        "oid": "b128f1a7a74c17d852a0238ffa25109917a5cf97"
+      },
+      "mergedAt": "2026-10-02T10:42:48Z",
+      "number": 44,
+      "state": "MERGED",
+      "title": "feat(spec-017): 时序逻辑识别辅助",
+      "updatedAt": "2026-10-02T10:42:48Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/44"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/spec-016",
+      "headRefOid": "fc1c690cb5d5644cc704107f60e5125977f2d14e",
+      "mergeCommit": {
+        "oid": "57f35bcade7623ba2986332444d252f549bec212"
+      },
+      "mergedAt": "2026-10-02T09:46:47Z",
+      "number": 43,
+      "state": "MERGED",
+      "title": "feat(spec-016): 时序逻辑知识图谱与可视化",
+      "updatedAt": "2026-10-02T09:46:47Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/43"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/spec-004",
+      "headRefOid": "57e40728aaeeb1f3b8eb4fc228537aa82a0bd3f8",
+      "mergeCommit": {
+        "oid": "221afcec0d9d20c9ea14a04c1ae9ede85560d74c"
+      },
+      "mergedAt": "2026-10-02T08:54:01Z",
+      "number": 42,
+      "state": "MERGED",
+      "title": "feat(spec-004): 学习预警与分组",
+      "updatedAt": "2026-10-02T08:54:01Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/42"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/spec-007",
+      "headRefOid": "77f91bc38704d91b614c4a338e8fadc0b9bb3a93",
+      "mergeCommit": {
+        "oid": "5c5eae74f950cf101526e5f337c771ca4360e133"
+      },
+      "mergedAt": "2026-10-02T07:57:23Z",
+      "number": 41,
+      "state": "MERGED",
+      "title": "feat(spec-007): 课程检索问答",
+      "updatedAt": "2026-10-02T07:57:23Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/41"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/spec-011",
+      "headRefOid": "7dcd5f405fc05915eaf0c8b4d1a5ee3d4a2afc1a",
+      "mergeCommit": {
+        "oid": "47630e49c641717514bd01a7ea09fa695377638b"
+      },
+      "mergedAt": "2026-10-02T07:19:21Z",
+      "number": 40,
+      "state": "MERGED",
+      "title": "feat(spec-011): 约束智能组卷",
+      "updatedAt": "2026-10-02T07:19:21Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/40"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/spec-003",
+      "headRefOid": "e47c4cb93c80cf6dfff8b19fa8d614feb73a5afa",
+      "mergeCommit": {
+        "oid": "53da372842ebf2a6ce2125fa8d8ff9bdc54cf41c"
+      },
+      "mergedAt": "2026-10-02T07:00:00Z",
+      "number": 39,
+      "state": "MERGED",
+      "title": "feat(spec-003): 出勤与风险因素统计",
+      "updatedAt": "2026-10-02T07:00:00Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/39"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/spec-006",
+      "headRefOid": "dd9706f94f09fe9c0b3bea94c0981cdebce843fe",
+      "mergeCommit": {
+        "oid": "a28fce4598653fd0895308d28b62b14bdf3744b5"
+      },
+      "mergedAt": "2026-09-29T09:43:32Z",
+      "number": 38,
+      "state": "MERGED",
+      "title": "feat(spec-006): 学习进度与资源统计",
+      "updatedAt": "2026-09-29T09:43:32Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/38"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/spec-008",
+      "headRefOid": "392f00e0a0d6ade483c7486637d139e312a26168",
+      "mergeCommit": {
+        "oid": "6411facd25f29b30787914786f5a27c2e9ac29d8"
+      },
+      "mergedAt": "2026-09-29T08:18:10Z",
+      "number": 37,
+      "state": "MERGED",
+      "title": "feat(spec-008): 备课与预习发布",
+      "updatedAt": "2026-09-29T08:18:10Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/37"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/spec-014",
+      "headRefOid": "986d64904a81321104ef87a67b3896274988ffc5",
+      "mergeCommit": {
+        "oid": "8e2705dc69fc6c3311c69418b411d1cdadc6c5b7"
+      },
+      "mergedAt": "2026-09-29T07:48:29Z",
+      "number": 36,
+      "state": "MERGED",
+      "title": "feat(spec-014): 实验学习统计",
+      "updatedAt": "2026-09-29T07:48:29Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/36"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/spec-013",
+      "headRefOid": "3937103018c30a57da6b9604770b96fa61ab34f1",
+      "mergeCommit": {
+        "oid": "f179b4c87e02772be7d1a63451a4a376a10236e1"
+      },
+      "mergedAt": "2026-09-29T07:02:14Z",
+      "number": 35,
+      "state": "MERGED",
+      "title": "feat(spec-013): 实验辅助与结果验证",
+      "updatedAt": "2026-09-29T07:02:14Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/35"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/spec-010",
+      "headRefOid": "baadb577adc3336480eae000f0575d756d8cae2b",
+      "mergeCommit": {
+        "oid": "57cc64bf609219109c94189b484832823d375fba"
+      },
+      "mergedAt": "2026-09-29T06:42:53Z",
+      "number": 34,
+      "state": "MERGED",
+      "title": "feat(spec-010): 随堂测与测评统计",
+      "updatedAt": "2026-09-29T06:42:53Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/34"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/spec-009",
+      "headRefOid": "6465bb9baef962a0e0cfa68ed72e7d48ce02ef99",
+      "mergeCommit": {
+        "oid": "3021f7234619f8cef3f36fad04405470dfc9e4b1"
+      },
+      "mergedAt": "2026-09-29T04:45:45Z",
+      "number": 33,
+      "state": "MERGED",
+      "title": "feat(spec-009): 题库练习与错题",
+      "updatedAt": "2026-09-29T04:45:45Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/33"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/spec-012",
+      "headRefOid": "0147cf21bb9c760b3c7f4e396370650b8938852f",
+      "mergeCommit": {
+        "oid": "259e6b5edeba96f52b2fcd40a484648e3a798c4c"
+      },
+      "mergedAt": "2026-09-29T04:33:52Z",
+      "number": 32,
+      "state": "MERGED",
+      "title": "feat(spec-012): 课堂演示与时序仿真",
+      "updatedAt": "2026-09-29T04:33:53Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/32"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/ui-baseline",
+      "headRefOid": "3dcd5f2c3a760e39629c17379bf929c4ad9cb9cb",
+      "mergeCommit": {
+        "oid": "74e47aea8be3f374845b71203f7eaecd4cd65629"
+      },
+      "mergedAt": "2026-09-29T02:52:26Z",
+      "number": 31,
+      "state": "MERGED",
+      "title": "feat(ui): establish UI baseline and design system",
+      "updatedAt": "2026-09-29T02:52:27Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/31"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/spec-002",
+      "headRefOid": "78a940106ef7c59b447827b1e9e339b6e0ec7eb5",
+      "mergeCommit": {
+        "oid": "76866314de9ebf7379138b1c01ce71afda8a2da8"
+      },
+      "mergedAt": "2026-09-29T02:44:50Z",
+      "number": 30,
+      "state": "MERGED",
+      "title": "feat(spec-002): 考勤与请假",
+      "updatedAt": "2026-09-29T02:44:50Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/30"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/spec-005",
+      "headRefOid": "7e3962fe5c113021ba5be010a538c5b7a598aeda",
+      "mergeCommit": {
+        "oid": "762b81943f071f7e7066ce63729333e26519b17f"
+      },
+      "mergedAt": "2026-09-29T02:36:08Z",
+      "number": 29,
+      "state": "MERGED",
+      "title": "feat(spec-005): 课程知识与教学资源",
+      "updatedAt": "2026-09-29T02:36:09Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/29"
+    },
+    {
+      "baseRefName": "feature/ui-dashboard-preview",
+      "headRefName": "cleanup/remove-ui-dashboard-preview",
+      "headRefOid": "c1e353062abbeaa57def1cbe5c6455cd84163564",
+      "mergeCommit": null,
+      "mergedAt": null,
+      "number": 28,
+      "state": "CLOSED",
+      "title": "chore(ui): remove dashboard preview changes",
+      "updatedAt": "2026-10-02T18:52:51Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/28"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/ui-dashboard-preview",
+      "headRefOid": "f8a3310e65f861c55d577c23665edf25f18b09e8",
+      "mergeCommit": null,
+      "mergedAt": null,
+      "number": 27,
+      "state": "CLOSED",
+      "title": "feat(ui): 学生学习首页效果图页面预览",
+      "updatedAt": "2026-09-29T01:18:51Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/27"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/spec-001",
+      "headRefOid": "3a9836b5335162a9ac3b1ed06195c91836faebc7",
+      "mergeCommit": {
+        "oid": "be65e1cc2a8bda784319e8c3414698e3e07e7ae6"
+      },
+      "mergedAt": "2026-09-29T00:43:25Z",
+      "number": 26,
+      "state": "MERGED",
+      "title": "feat(spec-001): 账号角色与班级权限",
+      "updatedAt": "2026-09-29T00:43:25Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/26"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/scope-correction",
+      "headRefOid": "9020f024b7e0b10bf0ef429395a906b7e613bbe8",
+      "mergeCommit": {
+        "oid": "d44bd9904fa65d724fc4d93db5416373347ff878"
+      },
+      "mergedAt": "2026-09-28T07:34:28Z",
+      "number": 25,
+      "state": "MERGED",
+      "title": "docs(scope): 范围校正补齐时序逻辑知识图谱与识别辅助规格",
+      "updatedAt": "2026-09-28T07:34:28Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/25"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/spec-000",
+      "headRefOid": "761135074116b05f0df8356894d21836a5dd7dff",
+      "mergeCommit": {
+        "oid": "f1d929a7b73cec360cbf268227e4c6d0b5f835c4"
+      },
+      "mergedAt": "2026-09-28T06:54:52Z",
+      "number": 22,
+      "state": "MERGED",
+      "title": "feat(spec-000): 公共工程与运行约定（工程骨架、迁移、健康检查）",
+      "updatedAt": "2026-09-28T06:54:52Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/22"
+    },
+    {
+      "baseRefName": "develop",
+      "headRefName": "feature/design-baseline",
+      "headRefOid": "e0595fc41e674e3d34645204608f2ee886bdb8cd",
+      "mergeCommit": {
+        "oid": "9879f1a8b3400b5590d5fbc90a69d290ea6d0946"
+      },
+      "mergedAt": "2026-09-28T06:11:14Z",
+      "number": 20,
+      "state": "MERGED",
+      "title": "docs(baseline): 设计基线1.0入库（六份主文档、16份Spec及配套材料）",
+      "updatedAt": "2026-09-28T06:11:14Z",
+      "url": "https://github.com/jzcool666/web-homework/pull/20"
+    }
+  ]
+}
