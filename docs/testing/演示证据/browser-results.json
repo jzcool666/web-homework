@@ -1,0 +1,118 @@
+{
+  "checkedAt": "2026-10-03T16:34:37.571Z",
+  "data": "隔离演示库，模拟记录",
+  "checks": [
+    {
+      "name": "/ is authorized route",
+      "passed": true
+    },
+    {
+      "name": "Teacher home shows simulated class and active quiz",
+      "passed": true
+    },
+    {
+      "name": "Seed includes published, closed and draft class assessments",
+      "passed": true
+    },
+    {
+      "name": "/teacher/assessments/1 is authorized route",
+      "passed": true
+    },
+    {
+      "name": "Released quiz uses real scored submissions",
+      "passed": true
+    },
+    {
+      "name": "/teacher/warnings is authorized route",
+      "passed": true
+    },
+    {
+      "name": "Teacher button generates warnings with real KMeans",
+      "passed": true
+    },
+    {
+      "name": "Insufficient sample remains unscored",
+      "passed": true
+    },
+    {
+      "name": "/teacher/analytics/learning is authorized route",
+      "passed": true
+    },
+    {
+      "name": "/teacher/experiment-stats is authorized route",
+      "passed": true
+    },
+    {
+      "name": "/teacher/lesson-plans is authorized route",
+      "passed": true
+    },
+    {
+      "name": "/teacher/demos/1 is authorized route",
+      "passed": true
+    },
+    {
+      "name": "/ is authorized route",
+      "passed": true
+    },
+    {
+      "name": "Student home shows frozen preview and real learning records",
+      "passed": true
+    },
+    {
+      "name": "/student/mistakes is authorized route",
+      "passed": true
+    },
+    {
+      "name": "Mistakes include corrected and unresolved history",
+      "passed": true
+    },
+    {
+      "name": "/student/attempts is authorized route",
+      "passed": true
+    },
+    {
+      "name": "Attempts show earlier failure and later pass",
+      "passed": true
+    },
+    {
+      "name": "/student/recommendations is authorized route",
+      "passed": true
+    },
+    {
+      "name": "/student/analytics is authorized route",
+      "passed": true
+    },
+    {
+      "name": "/knowledge-graph is authorized route",
+      "passed": true
+    },
+    {
+      "name": "Mobile demo home has no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "Other-class student cannot read A preview",
+      "passed": true
+    },
+    {
+      "name": "No browser page exceptions",
+      "passed": true
+    }
+  ],
+  "pageErrors": [],
+  "screens": [
+    "teacher-home.png",
+    "teacher-review.png",
+    "teacher-warning-empty.png",
+    "teacher-learning-stats.png",
+    "teacher-experiment-stats.png",
+    "teacher-lesson-plans.png",
+    "teacher-active-demo.png",
+    "student-home.png",
+    "student-mistakes.png",
+    "student-attempts.png",
+    "student-recommendations.png",
+    "student-analytics.png",
+    "student-graph.png"
+  ]
+}

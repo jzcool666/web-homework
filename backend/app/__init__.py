@@ -38,6 +38,7 @@ from .seed_content import register_content_cli
 from .seed_experiments import register_experiment_cli
 from .seed_qa import register_qa_cli
 from .seed_labs import register_lab_cli
+from .seed_demo import register_demo_cli
 from .lab_worker import register_worker_cli
 from .store import close_db_session
 
@@ -110,6 +111,7 @@ def create_app(config_name: str | None = None, overrides: dict | None = None) ->
     register_experiment_cli(app)
     register_qa_cli(app)
     register_lab_cli(app)
+    register_demo_cli(app)
     register_worker_cli(app)
     register_session_hooks(app)
     app.teardown_appcontext(close_db_session)
