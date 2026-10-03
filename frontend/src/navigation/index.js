@@ -65,7 +65,7 @@ export const navigation = {
       group: '内容与测评',
     },
     { label: '实验箱与电路测评', icon: 'flask', route: 'teacher-labs', activeRoutes: ['teacher-labs', 'lab-session', 'teacher-lab-records', 'lab-attempt'], group: '内容与测评' },
-    { label: '实验', icon: 'flask', planned: 'SPEC-013 教师端', group: '内容与测评' },
+    { label: '实验', icon: 'flask', route: 'teacher-experiments', group: '内容与测评' },
     {
       label: '学情分析',
       icon: 'chart',
