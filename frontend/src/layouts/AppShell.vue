@@ -4,6 +4,8 @@ import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import AppIcon from '@/components/ui/AppIcon.vue'
 import QuickSearch from '@/components/ui/QuickSearch.vue'
+import UserAvatar from '@/components/ui/UserAvatar.vue'
+import ClassroomUpdates from '@/components/ui/ClassroomUpdates.vue'
 import { groupedNavigationFor, navigationFor, roleLabels } from '@/navigation'
 import { useAuthStore } from '@/stores/auth'
 
@@ -68,9 +70,10 @@ async function signOut() {
         <template v-if="auth.user">
           <QuickSearch />
           <span class="topbar__context">{{ roleLabel }} / {{ pageLabel }}</span>
+          <ClassroomUpdates v-if="['student', 'teacher'].includes(auth.user.role)" />
           <RouterLink class="user-link" :to="{ name: 'profile' }">
-            <span class="user-avatar">{{ auth.user.display_name?.slice(0, 1) || '用' }}</span>
-            <span class="user-link__name">{{ auth.user.display_name }}</span>
+            <UserAvatar :role="auth.user.role" />
+            <span class="user-link__name">{{ auth.user.display_name }}<small>{{ { student: '学生', teacher: '教师', admin: '管理员' }[auth.user.role] }}</small></span>
           </RouterLink>
           <button class="text-button topbar__logout" type="button" @click="signOut">退出</button>
         </template>

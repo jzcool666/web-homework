@@ -24,6 +24,7 @@ const activeTab = ref('overview')
 const tabs = [
   { id: 'overview', title: '完成概览' },
   { id: 'chapters', title: '章节进度' },
+  { id: 'practice', title: '习题分析' },
   { id: 'experiments', title: '实验记录' },
   { id: 'review', title: '复习建议' },
 ]
@@ -188,6 +189,18 @@ function tabKey(event) {
             完成记录为自报；历史撤回知识点不计入当前比例。
           </p></SectionCard
         >
+      </section>
+      <section
+        v-show="activeTab === 'practice'" id="analysis-panel-practice" role="tabpanel" aria-labelledby="analysis-tab-practice"
+      >
+        <SectionCard title="我的习题记录">
+          <p class="hint">练习和班级测评分别保留作答记录；答案与得分以服务端结果页为准。</p>
+          <ul v-if="data.assessments?.some(row => row.my_submission_id)" class="overview-list">
+            <li v-for="row in data.assessments.filter(row => row.my_submission_id)" :key="row.id"><div><strong>{{ row.title }}</strong><small>{{ row.kind === 'practice' ? '自主练习' : '班级测评' }}</small></div><RouterLink class="button button--secondary" :to="{ name: 'student-assessment', params: { id: row.id } }">继续 / 查看</RouterLink></li>
+          </ul>
+          <p v-else class="chart-empty">暂无已开始的作答记录。</p>
+          <RouterLink class="button button--primary" :to="{ name: 'student-practice' }">开始习题训练 →</RouterLink>
+        </SectionCard>
       </section>
       <section
         v-show="activeTab === 'experiments'"

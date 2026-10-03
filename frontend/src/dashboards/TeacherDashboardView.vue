@@ -6,6 +6,7 @@ import { readAll } from '@/api/pagination'
 import { percent, recentAssessment } from '@/utils/overview'
 import { useAuthStore } from '@/stores/auth'
 import ConceptHero from '@/components/home/ConceptHero.vue'
+import CircuitPreview from '@/components/home/CircuitPreview.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import MetricCard from '@/components/ui/MetricCard.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
@@ -34,8 +35,6 @@ const quickActions = [
   { title: '创建测评', route: 'teacher-assessments', icon: 'check' },
   { title: '发起签到', route: 'teacher-attendance', icon: 'calendar' },
   { title: '新建备课', route: 'teacher-lesson-plans', icon: 'book' },
-  { title: '查看学情', route: 'teacher-learning-analytics', icon: 'chart' },
-  { title: '智能组卷', route: 'teacher-paper-generation', icon: 'spark' },
 ]
 async function loadClass() {
   const current = ++revision
@@ -142,8 +141,8 @@ onMounted(async () => {
         >
           {{ errors.demos || errors.assessments }}
         </p>
-        <template v-else
-          ><h3>
+        <div v-else class="current-classroom">
+          <div><h3>
             {{
               activeDemo?.experiment?.title ??
               openAssessment?.title ??
@@ -174,8 +173,9 @@ onMounted(async () => {
               }"
               >查看进行中的测评</RouterLink
             >
-          </div></template
-        ></SectionCard
+          </div></div>
+          <CircuitPreview v-if="activeDemo?.experiment?.simulator_type" :kind="activeDemo.experiment.simulator_type" />
+        </div></SectionCard
       ><SectionCard title="快捷操作"
         ><div class="quick-grid">
           <RouterLink
@@ -323,8 +323,14 @@ onMounted(async () => {
   display: none;
 }
 .quick-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
+.current-classroom { display: grid; grid-template-columns: minmax(0, 1fr) 145px; gap: 14px; align-items: center; }
+.current-classroom > div { min-width: 0; }
+.current-classroom :deep(.circuit-preview) { padding: 7px; border: 0; background: transparent; }
+.current-classroom :deep(figcaption) { font-size: 9px; }
+.current-classroom:not(:has(.circuit-preview)) { grid-template-columns: 1fr; }
+@media (max-width: 1050px) { .current-classroom { grid-template-columns: minmax(0, 1fr) 105px; gap: 8px; } }
 .quick-grid a {
   flex-direction: column;
   align-items: flex-start;
