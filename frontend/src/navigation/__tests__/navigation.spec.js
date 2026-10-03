@@ -8,6 +8,7 @@ import { navigationFor } from '@/navigation'
 import { useAuthStore } from '@/stores/auth'
 
 const routes = [
+  { path: '/teacher/experiments', name: 'teacher-experiments', component: { template: '<div />' } },
   { path: '/student/labs', name: 'student-labs', component: { template: '<div />' } },
   { path: '/teacher/labs', name: 'teacher-labs', component: { template: '<div />' } },
   { path: '/labs/sessions/1', name: 'lab-session', component: { template: '<div />' } },
@@ -99,15 +100,15 @@ describe('role navigation and shell', () => {
     }
   })
 
-  it('学生已实现入口可点击且看不到管理员入口，教师计划入口不可点击', async () => {
+  it('学生和教师已实现入口可点击且学生看不到管理员入口', async () => {
     const { wrapper } = await setup('student')
     expect(wrapper.find('a.nav-item--active').text()).toContain('学习首页')
     expect(wrapper.findAll('.nav-item--planned')).toHaveLength(0)
     expect(wrapper.findAll('a.nav-item').map((item) => item.text())).not.toContain('账号管理')
     wrapper.unmount()
     const teacher = await setup('teacher')
-    expect(teacher.wrapper.find('.nav-item--planned').attributes('aria-disabled')).toBe('true')
-    expect(teacher.wrapper.find('.nav-item--planned').text()).toContain('实验')
+    expect(teacher.wrapper.findAll('.nav-item--planned')).toHaveLength(0)
+    expect(teacher.wrapper.findAll('a.nav-item').map(item => item.text())).toContain('实验')
     teacher.wrapper.unmount()
   })
 
@@ -197,14 +198,22 @@ describe('role navigation and shell', () => {
   it('实验中心入口已接通，并在预测页与记录页高亮', async () => {
     expect(navigationFor('student').find((item) => item.route === 'student-experiments')).toBeTruthy()
     expect(navigationFor('student').find((item) => item.label === '实验中心').planned).toBeUndefined()
-    // 教师端实验管理页仍属计划入口
-    expect(navigationFor('teacher').find((item) => item.label === '实验').planned).toBeTruthy()
+    expect(navigationFor('teacher').find((item) => item.label === '实验').route).toBe('teacher-experiments')
+    expect(navigationFor('teacher').find((item) => item.label === '实验').planned).toBeUndefined()
 
     for (const path of ['/student/experiments', '/student/experiments/1', '/student/attempts']) {
       const { wrapper } = await setup('student', path)
       expect(wrapper.find('a.nav-item--active').text()).toContain('实验中心')
       wrapper.unmount()
     }
+  })
+
+  it('教师实验管理入口高亮，学生没有该管理入口', async () => {
+    const teacher = await setup('teacher', '/teacher/experiments')
+    expect(teacher.wrapper.find('a.nav-item--active').text()).toBe('实验')
+    expect(teacher.wrapper.find('.topbar__context').text()).toContain('实验')
+    expect(navigationFor('student').find(item => item.route === 'teacher-experiments')).toBeUndefined()
+    teacher.wrapper.unmount()
   })
 
   it('实验统计入口已接通并在统计页高亮', async () => {

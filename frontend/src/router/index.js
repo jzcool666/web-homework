@@ -4,6 +4,7 @@ import HomeView from '@/views/HomeView.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const routes = [
+  { path: '/teacher/experiments', name: 'teacher-experiments', component: () => import('@/views/TeacherExperimentsManageView.vue'), meta: { requiresAuth: true, roles: ['teacher'] } },
   {
     path: '/student/analytics',
     name: 'student-analytics',
