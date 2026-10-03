@@ -93,13 +93,19 @@ export function graphLayout(nodes = [], edges = []) {
     groups.get(level).push(id)
   }
   const positions = new Map()
+  const columns = []
+  for (const level of [...groups.keys()].sort((a, b) => a - b)) {
+    const group = groups.get(level)
+    // 同层很多节点也分列，避免200个孤立点生成超过浏览器上限的长canvas。
+    for (let offset = 0; offset < group.length; offset += 8) columns.push(group.slice(offset, offset + 8))
+  }
   let yOffset = 0, maxColumns = 1
   // 超过六列分成下一个区段，避免大图产生超宽canvas。
-  const bands = Math.ceil((Math.max(0, ...groups.keys()) + 1) / 6)
+  const bands = Math.max(1, Math.ceil(columns.length / 6))
   for (let band = 0; band < bands; band++) {
     let rows = 1
     for (let column = 0; column < 6; column++) {
-      const group = groups.get(band * 6 + column) ?? []
+      const group = columns[band * 6 + column] ?? []
       if (group.length) maxColumns = Math.max(maxColumns, column + 1)
       rows = Math.max(rows, group.length)
       group.forEach((id, row) => positions.set(id, { x: 120 + column * 220, y: 95 + yOffset + row * 112 }))

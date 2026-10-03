@@ -179,6 +179,15 @@ describe('图谱展示装配（纯函数）', () => {
     expect(cyclic.series[0].links).toHaveLength(2)
     expect(cyclic.tooltip.renderMode).toBe('richText')
   })
+
+  it('200个孤立节点不生成超长画布，文字卡片仍全部保留', () => {
+    const nodes = Array.from({ length: 200 }, (_, index) => ({ knowledge_id: index + 1 }))
+    const layout = graphLayout(nodes, [])
+    expect(layout.positions.size).toBe(200)
+    // 高DPI画布也应留在常见浏览器的单边像素限额以内。
+    expect(layout.height * 2).toBeLessThan(16384)
+    expect(new Set([...layout.positions.values()].map(p => `${p.x},${p.y}`)).size).toBe(200)
+  })
 })
 
 describe('知识图谱页面', () => {
