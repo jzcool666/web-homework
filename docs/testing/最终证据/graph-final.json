@@ -1,0 +1,14 @@
+{
+  "realCourse": {
+    "width": 1400,
+    "height": 496,
+    "canvas": true
+  },
+  "constructed200IsolatedNodes": {
+    "width": 1400,
+    "height": 4880,
+    "canvas": true,
+    "outsideOverflow": false
+  },
+  "errors": []
+}

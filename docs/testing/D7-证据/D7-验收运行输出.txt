@@ -1,0 +1,84 @@
+[PASS] bootstrap :: 预置实验包含 counter 与 shift
+[PASS] E2E-01 :: 教师甲为甲班发起模6计数器演示
+[PASS] E2E-01 :: 演示初始隐藏下一状态（reveal_next=false）
+[PASS] E2E-01 :: 甲班学生可读取本班演示
+[PASS] E2E-01 :: 乙班学生读取甲班演示返回404
+[PASS] E2E-01 :: 学生操作演示返回403
+[PASS] E2E-01 :: 教师单步后版本递增且时钟翻转
+[PASS] E2E-01 :: 同 expected_version 二次动作返回409
+[PASS] E2E-01 :: 揭示后学生可读到 next_q
+[PASS] E2E-01 :: 测评发布后 effective_state=open
+[PASS] E2E-01 :: 学生读取测评条目不含答案与解析
+[PASS] E2E-01 :: 结束后 effective_state=closed
+[PASS] E2E-01 :: 反馈未公开时学生结果 score=null
+[PASS] E2E-01 :: 公开反馈后学生可见分数与解析
+[PASS] E2E-01 :: 统计：名单4人、已提交2人、白卷1份
+[PASS] E2E-01 :: 统计：提交率=0.5
+[PASS] E2E-01 :: 乙班学生访问甲班测评返回404
+[PASS] E2E-01 :: 乙班教师访问甲班测评返回404
+[PASS] E2E-02 :: 移位寄存器实验给出检查点（不含标准状态）
+[PASS] E2E-02 :: 探针提交返回标准状态序列（长度与检查点一致）
+[PASS] E2E-02 :: 错误预测得到首错位置 index=1
+[PASS] E2E-02 :: 错误预测保留失败记录
+[PASS] E2E-02 :: 按标准状态重做后通过
+[PASS] E2E-02 :: 实验统计：尝试+3、通过+1、通过率1.0
+[PASS] E2E-02 :: 参与人数不重复：多拍重做后仍只计 1 人
+[PASS] E2E-03 :: 首次保存成功并回执新版本
+[PASS] E2E-03 :: 重连后服务器返回上次已保存的 my_submission_id
+[PASS] E2E-03 :: 用陈旧版本号保存返回409（本地编辑不算已提交）
+[E2E-03] 等待测评截止（约45秒）…
+[PASS] E2E-03 :: 截止后保存返回409
+[PASS] E2E-03 :: 截止错误码为 DEADLINE_PASSED
+[PASS] E2E-03 :: 截止后已开始草稿被最终化（feedback 未公开时 score=null）
+[PASS] E2E-03 :: 截止最终化后统计到1份提交、名单4人
+[PASS] SEC-01 :: 匿名访问 /api/v1/analytics/attendance 返回401
+[PASS] SEC-01 :: 匿名访问 /api/v1/me/recommendations 返回401
+[PASS] SEC-01 :: 匿名访问 /api/v1/knowledge-graph 返回401
+[PASS] SEC-01 :: 学生访问出勤统计被拒
+[PASS] SEC-01 :: 乙班教师访问甲班统计返回404
+[PASS] SEC-01 :: 乙班教师访问甲班实验统计返回404
+[PASS] SEC-01 :: 乙班教师为甲班生成预警返回404
+[PASS] SEC-01 :: 乙班教师为甲班组卷返回404
+[PASS] SEC-01 :: 乙班学生读取甲班学生 submission 返回404
+[PASS] SEC-01 :: 乙班教师读取甲班学生 submission 返回404
+[PASS] SEC-01 :: 注册携带 role=admin 被拒（422/400）
+[PASS] SEC-01 :: 实验提交携带 passed/score 被拒绝（422 未支持字段）
+[PASS] SEC-01 :: 缺 CSRF 的登录写请求返回403
+[PASS] SEC-01 :: 出勤统计 CSV 可导出（含 BOM）
+[PASS] SEC-01 :: 学生可读已发布知识图谱
+[PASS] SEC-01 :: 推荐接口只返回本人条目
+[PASS] SEC-01 :: 教师访问推荐接口返回403
+[PASS] 基础-课程知识 :: 学生可列出已发布章节
+[PASS] 基础-教学资源 :: 学生可见已发布资料
+[PASS] 基础-教学资源 :: 同人同版本同日打开事件去重（T-005-04）
+[PASS] 基础-课程知识 :: 收藏幂等且出现在收藏列表（T-005-03）
+[PASS] 基础-课程知识 :: 完成标记写入并读回（T-005-03）
+[PASS] 基础-课前备课 :: 发布预习快照不含题目答案（T-008-03）
+[PASS] 基础-课前备课 :: 本班学生可见预习
+[PASS] 基础-课前备课 :: 他班学生查预习返回404（T-008-03）
+[PASS] 基础-考勤 :: 发布签到任务返回 6 位数字码
+[PASS] 基础-考勤 :: 学生签到成功且状态为 present
+[PASS] 基础-考勤 :: 错误签到码返回422
+[基础-考勤] 等待签到截止与结算（约8秒）…
+[PASS] 基础-考勤 :: 结算结果：present=1、absent=3
+[PASS] 基础-数据分析 :: 出勤统计出勤率=(1+0)/(1+0+3)=0.25（T-003-01）
+[PASS] 基础-数据分析 :: 学习统计含已发布知识点分母与学生进度
+[PASS] 基础-数据分析 :: 学习统计 CSV 含 summary 行
+[PASS] 基础-习题测评 :: 已结束未公开反馈的测评题目不进自练候选（T-009-04）
+[PASS] 基础-习题测评 :: 自练即时反馈含答案与解析（T-009-01）
+[PASS] 基础-习题测评 :: 错题本记录本次答错（T-009-04）
+[PASS] MATRIX :: 知识图谱拓扑序可用且无环
+[PASS] MATRIX :: 图谱无路径时 matched=false 且不编造节点（T-016-03）
+[PASS] MATRIX :: 图谱路径端点不存在返回404
+[PASS] MATRIX :: 图谱 depth=99 越界返回422
+[PASS] MATRIX :: 图谱响应含 truncated 标记
+[PASS] MATRIX :: 非状态表图片识别 status=failed 且给出格式原因（T-017-02）
+[PASS] MATRIX :: GIF 上传返回415（T-017-03）
+[PASS] MATRIX :: 识别上传携带 passed 字段被忽略而非报错（T-017-03）
+[PASS] MATRIX :: 他班学生用本班 class_id 提交识别返回404（T-017-04）
+[PASS] MATRIX :: 域外查询 matched=false 且不编造解释（T-007-02）
+[PASS] MATRIX :: 过短查询返回422（T-007-02）
+[PASS] MATRIX :: 困难题不足时组卷返回422 INFEASIBLE_PAPER（T-011-03）
+[PASS] MATRIX :: 未生成过的窗口预警返回空数组而非假造（E064）
+[PASS] MATRIX :: 冷启动推荐返回基础路径且 score=null（T-015-02）
+== 合计 81/81 通过，0 失败 ==

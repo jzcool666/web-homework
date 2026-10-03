@@ -1,0 +1,50 @@
+# 依赖目录
+node_modules/
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+
+# 前端构建产物
+dist/
+dist-ssr/
+*.tsbuildinfo
+
+# 运行数据与数据库（见 README「环境和配置约定」）
+instance/
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+uploads/
+
+# 备份产物（OPS-02 演练在仓库外或本目录进行，不进入交付包）
+backups/
+backup-*/
+
+# 密钥与环境配置，模板不提交真实口令
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+
+# 日志与临时文件
+*.log
+tmp/
+
+# 编辑器与操作系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

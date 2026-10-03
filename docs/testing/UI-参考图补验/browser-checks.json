@@ -1,0 +1,139 @@
+{
+  "date": "2026-10-03",
+  "executedAtUtc": "2026-10-03T06:33:56.209Z",
+  "codeCommit": "1a05ffbd8a40470e29ece829d81e08740ed8c90f",
+  "source": "D7 独立模拟数据库，真实 Waitress + production build + Chromium",
+  "checks": [
+    {
+      "name": "teacher-home-1366",
+      "route": "/",
+      "viewport": 1366,
+      "document": 1366,
+      "hero": 153.1875
+    },
+    {
+      "name": "teacher-home-390",
+      "route": "/",
+      "viewport": 390,
+      "document": 390,
+      "hero": 171.890625
+    },
+    {
+      "name": "student-home-1366",
+      "route": "/",
+      "viewport": 1366,
+      "document": 1366,
+      "hero": null
+    },
+    {
+      "name": "student-home-390",
+      "route": "/",
+      "viewport": 390,
+      "document": 390,
+      "hero": null
+    },
+    {
+      "name": "student-knowledge-1366",
+      "route": "/student/knowledge/4",
+      "viewport": 1366,
+      "document": 1366,
+      "hero": null
+    },
+    {
+      "name": "student-knowledge-390",
+      "route": "/student/knowledge/4",
+      "viewport": 390,
+      "document": 390,
+      "hero": null
+    },
+    {
+      "name": "student-analytics-1366",
+      "route": "/student/analytics",
+      "viewport": 1366,
+      "document": 1366,
+      "hero": null
+    },
+    {
+      "name": "student-analytics-390",
+      "route": "/student/analytics",
+      "viewport": 390,
+      "document": 390,
+      "hero": null
+    },
+    {
+      "name": "student-experiments-1366",
+      "route": "/student/experiments",
+      "viewport": 1366,
+      "document": 1366,
+      "hero": null
+    },
+    {
+      "name": "student-experiment-result-1366",
+      "route": "/student/experiments",
+      "viewport": 1366,
+      "document": 1366,
+      "hero": null
+    },
+    {
+      "name": "student-experiment-result-390",
+      "route": "/student/experiments",
+      "viewport": 390,
+      "document": 390,
+      "hero": null
+    },
+    {
+      "name": "student-answer-1366",
+      "route": "/student/assessments/30",
+      "viewport": 1366,
+      "document": 1366,
+      "hero": null
+    },
+    {
+      "name": "student-answer-390",
+      "route": "/student/assessments/30",
+      "viewport": 390,
+      "document": 390,
+      "hero": null
+    },
+    {
+      "name": "student-result-390",
+      "route": "/student/results/36",
+      "viewport": 390,
+      "document": 390,
+      "hero": null
+    }
+  ],
+  "flows": [
+    {
+      "name": "knowledge-tabs",
+      "sixTabs": true,
+      "keyboard": true,
+      "submittedOutputAbsent": true
+    },
+    {
+      "name": "experiment-workspace",
+      "filter": true,
+      "draftRetained": true,
+      "hiddenBeforeSubmit": true,
+      "realServerResult": true
+    },
+    {
+      "name": "practice",
+      "generated": true,
+      "realAutosave": true,
+      "listNavigationRetainsAnswers": true,
+      "finalized": true
+    },
+    {
+      "name": "mobile-drawer",
+      "escape": true,
+      "focusReturn": true,
+      "navigationClose": true
+    },
+    {
+      "name": "search",
+      "realPublishedExperiment": true
+    }
+  ],
+  "pageErrors": []
+}

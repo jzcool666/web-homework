@@ -1,0 +1,34 @@
+db upgrade: exit=0
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001_baseline, 工程基线：建立 Alembic 版本锚点。
+INFO  [alembic.runtime.migration] Running upgrade 0001_baseline -> 0002_spec001, SPEC-001 业务表：users、sessions、classes、enrollments。
+INFO  [alembic.runtime.migration] Running upgrade 0002_spec001 -> 0003_spec005, SPEC-005 课程内容表：chapters、knowledge_points、knowledge_edges、resources、
+resource_versions、favorites、learning_progress、resource_events。
+INFO  [alembic.runtime.migration] Running upgrade 0003_spec005 -> 0004_spec002, SPEC-002 考勤表：attendance_tasks、attendance_records、leave_requests。
+INFO  [alembic.runtime.migration] Running upgrade 0004_spec002 -> 0005_spec012, SPEC-012 实验与演示表：experiments、demo_sessions。
+INFO  [alembic.runtime.migration] Running upgrade 0005_spec012 -> 0006_spec009, SPEC-009 题库与测评表。
+INFO  [alembic.runtime.migration] Running upgrade 0006_spec009 -> 0007_spec013, SPEC-013 实验尝试表：experiment_attempts。
+INFO  [alembic.runtime.migration] Running upgrade 0007_spec013 -> 0008_spec008, SPEC-008 备课与预习表：lesson_plans、lesson_plan_items、preview_assignments。
+INFO  [alembic.runtime.migration] Running upgrade 0008_spec008 -> 0009_spec007, SPEC-007 问答语料表：qa_entries。
+INFO  [alembic.runtime.migration] Running upgrade 0009_spec007 -> 0010_spec004, SPEC-004 学习预警表：warning_snapshots。
+INFO  [alembic.runtime.migration] Running upgrade 0010_spec004 -> 0011_spec017, SPEC-017 识别任务表：recognition_tasks。
+INFO  [alembic.runtime.migration] Running upgrade 0011_spec017 -> 0012_spec018, Physical wiring and Logisim grading facts; no runtime table creation.
+
+init-admin (password redacted): exit=0
+已创建管理员：id=1 login_name=https_admin
+
+seed-content: exit=0
+课程种子：章节 +6，知识点 +12，先修关系 +15，资源 +1（已存在的条目跳过）
+归属账号：https_teacher（id=2）
+
+seed-experiments: exit=0
+预置实验：新增 4 个（共 4 个，已存在的跳过）
+归属账号：https_teacher（id=2）
+
+seed-qa: exit=0
+问答语料：新增 16 条（共 16 条，已存在的跳过）
+归属账号：https_teacher（id=2）
+
+seed-labs: exit=0
+接线/电路任务新增4个，已有任务保持原版本

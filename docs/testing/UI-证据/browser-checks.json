@@ -1,0 +1,115 @@
+{
+  "date": "2026-10-03",
+  "executedAtUtc": "2026-10-03T05:23:56.455Z",
+  "codeCommit": "9429ddb58e0fcda289cefdf5248fe8097ce9de4f",
+  "source": "D7 模拟数据库的独立副本，真实 Waitress + production build + Chromium",
+  "checks": [
+    {
+      "name": "teacher-home-1366",
+      "route": "/",
+      "viewport": 1366,
+      "document": 1366,
+      "hero": 161.75,
+      "alerts": []
+    },
+    {
+      "name": "teacher-classroom-1366",
+      "route": "/teacher/classroom",
+      "viewport": 1366,
+      "document": 1366,
+      "hero": null,
+      "alerts": []
+    },
+    {
+      "name": "teacher-demo-waveform-1366",
+      "route": "/teacher/demos/7",
+      "viewport": 1366,
+      "document": 1366,
+      "hero": null,
+      "alerts": []
+    },
+    {
+      "name": "student-home-1366",
+      "route": "/",
+      "viewport": 1366,
+      "document": 1366,
+      "hero": 155.515625,
+      "alerts": []
+    },
+    {
+      "name": "student-home-390",
+      "route": "/",
+      "viewport": 390,
+      "document": 390,
+      "hero": 184.640625,
+      "alerts": []
+    },
+    {
+      "name": "student-course-390",
+      "route": "/student/learning",
+      "viewport": 390,
+      "document": 390,
+      "hero": null,
+      "alerts": []
+    },
+    {
+      "name": "student-knowledge-1366",
+      "route": "/student/knowledge/2",
+      "viewport": 1366,
+      "document": 1366,
+      "hero": null,
+      "alerts": []
+    },
+    {
+      "name": "student-analytics-390",
+      "route": "/student/analytics",
+      "viewport": 390,
+      "document": 390,
+      "hero": null,
+      "alerts": []
+    },
+    {
+      "name": "student-experiments-390",
+      "route": "/student/experiments",
+      "viewport": 390,
+      "document": 390,
+      "hero": null,
+      "alerts": []
+    },
+    {
+      "name": "student-result-390",
+      "route": "/student/results/33",
+      "viewport": 390,
+      "document": 390,
+      "hero": null,
+      "alerts": []
+    },
+    {
+      "name": "real-practice",
+      "generated": true,
+      "autosaved": true,
+      "navigationRetainsAnswer": true,
+      "submitted": true
+    },
+    {
+      "name": "student-experiment-result-390",
+      "route": "/student/experiments/4",
+      "viewport": 390,
+      "document": 390,
+      "hero": null,
+      "alerts": []
+    },
+    {
+      "name": "real-experiment",
+      "standardHiddenBeforeSubmission": true,
+      "serverResultComparison": true
+    },
+    {
+      "name": "drawer",
+      "escapeCloses": true,
+      "focusReturns": true,
+      "navigationCloses": true
+    }
+  ],
+  "pageErrors": []
+}

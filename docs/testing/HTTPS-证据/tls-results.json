@@ -1,0 +1,16 @@
+{
+  "checks": [
+    {
+      "host": "localhost",
+      "certificate_and_SAN_verified": true
+    },
+    {
+      "host": "127.0.0.1",
+      "certificate_and_SAN_verified": true
+    }
+  ],
+  "system_trust_rejects_self_signed": true,
+  "plain_http_me_without_secure_cookie": 401,
+  "loopback_http_health": 200,
+  "plain_http_limitation": "Loopback upstream remains reachable; no HTTP redirect listener. Real deployment must restrict upstream behind TLS."
+}
