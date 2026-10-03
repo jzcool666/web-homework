@@ -103,6 +103,48 @@ describe('教师演示控制台', () => {
     })
   })
 
+  it('高电平时前进一步串行发送下降沿和上升沿，采用每次回执版本', async () => {
+    api.get.mockImplementation((path) => path === '/classes?page_size=100' ? Promise.resolve([]) : Promise.resolve({ ...structuredClone(DEMO), state: { ...DEMO.state, clock: 1 } }))
+    api.post.mockResolvedValueOnce({ ...structuredClone(DEMO), version: 4, state: { ...DEMO.state, clock: 0 } })
+      .mockResolvedValueOnce({ ...structuredClone(DEMO), version: 5, state: { ...DEMO.state, clock: 1, q: 1, step_no: 1 } })
+    const wrapper = await setup()
+    await buttonWith(wrapper, '前进一步').trigger('click')
+    await flushPromises()
+    expect(api.post).toHaveBeenNthCalledWith(1, '/demo-sessions/1/actions', { expected_version: 3, event: { op: 'toggle_clock' } })
+    expect(api.post).toHaveBeenNthCalledWith(2, '/demo-sessions/1/actions', { expected_version: 4, event: { op: 'toggle_clock' } })
+    expect(wrapper.text()).toContain('版本 5')
+    expect(wrapper.find('.decimal-display strong').text()).toBe('1')
+  })
+
+  it('低电平时前进一步只发一个上升沿请求', async () => {
+    api.post.mockResolvedValue({ ...structuredClone(DEMO), version: 4, state: { ...DEMO.state, clock: 1, step_no: 1 } })
+    const wrapper = await setup()
+    await buttonWith(wrapper, '前进一步').trigger('click')
+    await flushPromises()
+    expect(api.post).toHaveBeenCalledTimes(1)
+  })
+
+  it('高电平前进的第一个请求冲突时停止，不继续或自动重放', async () => {
+    api.get.mockImplementation((path) => path === '/classes?page_size=100' ? Promise.resolve([]) : Promise.resolve({ ...structuredClone(DEMO), state: { ...DEMO.state, clock: 1 } }))
+    api.post.mockRejectedValue(new Error('演示已更新，请刷新后再操作'))
+    const wrapper = await setup()
+    await buttonWith(wrapper, '前进一步').trigger('click')
+    await flushPromises()
+    expect(api.post).toHaveBeenCalledTimes(1)
+    expect(wrapper.text()).toContain('演示已更新')
+  })
+
+  it('等待回执期间重复前进不会发送第二个请求', async () => {
+    let resolve
+    api.post.mockImplementation(() => new Promise(done => { resolve = done }))
+    const wrapper = await setup()
+    await buttonWith(wrapper, '前进一步').trigger('click')
+    await buttonWith(wrapper, '前进一步').trigger('click')
+    expect(api.post).toHaveBeenCalledTimes(1)
+    resolve(structuredClone(DEMO))
+    await flushPromises()
+  })
+
   it('预测未揭示时只显示待揭示，不显示下一状态', async () => {
     const wrapper = await setup()
     expect(wrapper.text()).toContain('待揭示')

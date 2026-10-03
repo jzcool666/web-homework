@@ -10,12 +10,12 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 
 import DemoHistoryTable from '@/components/demo/DemoHistoryTable.vue'
-import DemoStatePanel from '@/components/demo/DemoStatePanel.vue'
+import DemoVisualStage from '@/components/demo/DemoVisualStage.vue'
 import DemoWaveform from '@/components/demo/DemoWaveform.vue'
 import StatePanel from '@/components/ui/StatePanel.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
 import { api } from '@/api/client'
-import { formatInputs, modelLabel, risingCount } from '@/utils/demo'
+import { modelLabel, risingCount } from '@/utils/demo'
 
 const POLL_MS = 3000
 
@@ -25,6 +25,9 @@ const loadError = ref(null)
 const state = ref('loading')
 const connected = ref(true)
 const lastSync = ref('')
+const presentRoot = ref(null)
+const fullscreen = ref(false)
+const fullscreenError = ref('')
 
 const demoId = computed(() => Number(route.params.id))
 const simulatorType = computed(() => demo.value?.experiment?.simulator_type ?? 'd')
@@ -68,20 +71,31 @@ function onVisibilityChange() {
   }
 }
 
+function onFullscreenChange() { fullscreen.value = document.fullscreenElement === presentRoot.value }
+async function toggleFullscreen() {
+  fullscreenError.value = ''
+  try {
+    if (document.fullscreenElement) await document.exitFullscreen()
+    else await presentRoot.value.requestFullscreen()
+  } catch { fullscreenError.value = '当前浏览器无法进入全屏，可使用浏览器的全屏功能。' }
+}
+
 onMounted(() => {
   refresh()
   startPolling()
   document.addEventListener('visibilitychange', onVisibilityChange)
+  document.addEventListener('fullscreenchange', onFullscreenChange)
 })
 
 onBeforeUnmount(() => {
   stopPolling()
   document.removeEventListener('visibilitychange', onVisibilityChange)
+  document.removeEventListener('fullscreenchange', onFullscreenChange)
 })
 </script>
 
 <template>
-  <div class="present">
+  <div ref="presentRoot" class="present">
     <StatePanel v-if="state === 'loading'" kind="loading" title="正在读取演示状态" />
     <StatePanel v-else-if="state === 'error'" kind="error" title="演示无法读取" :description="loadError" />
 
@@ -97,32 +111,31 @@ onBeforeUnmount(() => {
           </StatusBadge>
           <span v-if="!connected" class="present__offline">连接中断 · 最后同步 {{ lastSync }}</span>
           <span v-else>版本 {{ demo.version }} · 同步于 {{ lastSync }}</span>
+          <button class="button button--secondary" type="button" @click="toggleFullscreen">{{ fullscreen ? '退出全屏' : '全屏展示' }}</button>
         </div>
       </header>
+      <p v-if="fullscreenError" role="alert">{{ fullscreenError }}</p>
 
-      <p class="present__inputs">
-        输入：
-        <strong>{{ formatInputs(demo.state.inputs, simulatorType) }}</strong>
-      </p>
-
-      <DemoStatePanel
+      <DemoVisualStage
         class="present__state"
         :state="demo.state"
+        :history="demo.history"
+        :config="demo.experiment?.config"
         :next-q="demo.next_q"
         :reveal-next="demo.reveal_next"
         :simulator-type="simulatorType"
         large
       />
 
-      <section class="present__block">
-        <h2>时序波形</h2>
+      <details class="present__block">
+        <summary>展开时序波形</summary>
         <DemoWaveform :history="demo.history" :simulator-type="simulatorType" />
-      </section>
+      </details>
 
-      <section class="present__block">
-        <h2>状态表（已执行 {{ risingCount(demo.history) }} 个有效上升沿）</h2>
+      <details class="present__block">
+        <summary>展开状态表（已执行 {{ risingCount(demo.history) }} 个有效上升沿）</summary>
         <DemoHistoryTable :history="demo.history" :simulator-type="simulatorType" :limit="10" />
-      </section>
+      </details>
 
       <p class="present__foot">
         离散逻辑演示，不包含传播延迟和亚稳态。
@@ -135,7 +148,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .present {
   width: 100%;
-  max-width: 72rem;
+  max-width: 86rem;
   margin: 0 auto;
 }
 
@@ -181,12 +194,15 @@ onBeforeUnmount(() => {
 }
 
 .present__state {
-  margin-bottom: var(--space-5);
+  margin: var(--space-5) 0;
 }
 
 .present__block {
-  margin-bottom: var(--space-5);
+  margin-bottom: 12px; border: 1px solid #dfe8f5; border-radius: 12px; padding: 15px 18px; background: #ffffffb0;
 }
+.present__block summary { cursor: pointer; color: #7187a8; font-size: .85rem; font-weight: 600; }.present__block[open] summary { margin-bottom: 15px; }
+.present:fullscreen { max-width: none; width: 100%; height: 100%; overflow-y: auto; padding: 24px 32px; background: #f2f7ff; box-sizing: border-box; }
+@media(max-width:600px) { .present h1 { font-size: 1.45rem; }.present__status { gap: 8px; font-size: .68rem; }.present:fullscreen { padding: 18px 12px; } }
 
 .present__block h2 {
   font-size: var(--font-size-lg);
