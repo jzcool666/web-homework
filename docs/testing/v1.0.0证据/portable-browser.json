@@ -1,0 +1,133 @@
+{
+  "checks": [
+    {
+      "role": "teacher",
+      "route": "/",
+      "width": 1366,
+      "scroll": 1366,
+      "title": "你好，演示教师A",
+      "screenshot": "teacher-_-1366.png"
+    },
+    {
+      "role": "teacher",
+      "route": "/",
+      "width": 390,
+      "scroll": 390,
+      "title": "你好，演示教师A",
+      "screenshot": "teacher-_-390.png"
+    },
+    {
+      "role": "teacher",
+      "route": "/teacher/assessments",
+      "width": 1366,
+      "scroll": 1366,
+      "title": "测评与讲评",
+      "screenshot": "teacher-_teacher_assessments-1366.png"
+    },
+    {
+      "role": "teacher",
+      "route": "/teacher/assessments",
+      "width": 390,
+      "scroll": 390,
+      "title": "测评与讲评",
+      "screenshot": "teacher-_teacher_assessments-390.png"
+    },
+    {
+      "role": "teacher",
+      "route": "/teacher/classroom",
+      "width": 1366,
+      "scroll": 1366,
+      "title": "把时序逻辑，讲得看得见",
+      "screenshot": "teacher-_teacher_classroom-1366.png"
+    },
+    {
+      "role": "teacher",
+      "route": "/teacher/classroom",
+      "width": 390,
+      "scroll": 390,
+      "title": "把时序逻辑，讲得看得见",
+      "screenshot": "teacher-_teacher_classroom-390.png"
+    },
+    {
+      "role": "student",
+      "route": "/",
+      "width": 1366,
+      "scroll": 1366,
+      "title": "你好，演示学生01 👋",
+      "screenshot": "student-_-1366.png"
+    },
+    {
+      "role": "student",
+      "route": "/",
+      "width": 390,
+      "scroll": 390,
+      "title": "你好，演示学生01 👋",
+      "screenshot": "student-_-390.png"
+    },
+    {
+      "role": "student",
+      "route": "/student/labs",
+      "width": 1366,
+      "scroll": 1366,
+      "title": "实验箱与电路测评",
+      "screenshot": "student-_student_labs-1366.png"
+    },
+    {
+      "role": "student",
+      "route": "/student/labs",
+      "width": 390,
+      "scroll": 390,
+      "title": "实验箱与电路测评",
+      "screenshot": "student-_student_labs-390.png"
+    },
+    {
+      "role": "student",
+      "route": "/student/practice",
+      "width": 1366,
+      "scroll": 1366,
+      "title": "习题训练",
+      "screenshot": "student-_student_practice-1366.png"
+    },
+    {
+      "role": "student",
+      "route": "/student/practice",
+      "width": 390,
+      "scroll": 390,
+      "title": "习题训练",
+      "screenshot": "student-_student_practice-390.png"
+    },
+    {
+      "role": "admin",
+      "route": "/",
+      "width": 1366,
+      "scroll": 1366,
+      "title": "你好，演示管理员",
+      "screenshot": "admin-_-1366.png"
+    },
+    {
+      "role": "admin",
+      "route": "/",
+      "width": 390,
+      "scroll": 390,
+      "title": "你好，演示管理员",
+      "screenshot": "admin-_-390.png"
+    },
+    {
+      "role": "admin",
+      "route": "/admin/users",
+      "width": 1366,
+      "scroll": 1366,
+      "title": "账号管理",
+      "screenshot": "admin-_admin_users-1366.png"
+    },
+    {
+      "role": "admin",
+      "route": "/admin/users",
+      "width": 390,
+      "scroll": 390,
+      "title": "账号管理",
+      "screenshot": "admin-_admin_users-390.png"
+    }
+  ],
+  "pageErrors": []
+}

@@ -202,6 +202,7 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.table-scroll td:first-child { min-width: 12rem; }
 .draft-form {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

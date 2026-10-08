@@ -78,7 +78,7 @@ def main():
 
 Python 与依赖的版权、许可证及版本信息保存在 runtime/python/LICENSE.txt 和 Lib/site-packages/*dist-info 中；NumPy、SciPy 等附带的第三方许可证随库保留。
 
-Microsoft Build of OpenJDK 的许可证保存在 runtime/java/legal/，版本见 runtime/java/release，Java 源码归档见 lib/src.zip。完整对应上游源码和构建资料：https://github.com/microsoft/openjdk 。本包使用 Microsoft OpenJDK 21.0.7，下载与源码入口：https://learn.microsoft.com/java/openjdk/download 。
+Microsoft Build of OpenJDK 的许可证保存在 runtime/java/legal/，版本见 runtime/java/release，Java 源码归档见 lib/src.zip。本包使用 Microsoft OpenJDK 21.0.7，完整对应源码和构建资料：https://github.com/microsoft/openjdk-jdk21u/tree/release/jdk-21.0.7_6 ，源码下载：https://github.com/microsoft/openjdk-jdk21u/archive/refs/heads/release/jdk-21.0.7_6.zip 。下载与源码索引：https://learn.microsoft.com/java/openjdk/older-releases 。
 
 Logisim-evolution 5.0.0 使用 GPL-3.0；许可及对应源码：https://github.com/logisim-evolution/logisim-evolution/tree/v5.0.0 ，源码下载：https://github.com/logisim-evolution/logisim-evolution/archive/refs/tags/v5.0.0.zip 。未修改其 JAR。本项目源码随运行包提供。
 """
