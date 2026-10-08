@@ -2481,7 +2481,7 @@ INFO  [alembic.runtime.migration] Running upgrade 0008_spec008 -> 0009_spec007, 
 INFO  [alembic.runtime.migration] Running upgrade 0009_spec007 -> 0010_spec004, SPEC-004 学习预警表：warning_snapshots。
 INFO  [alembic.runtime.migration] Running upgrade 0010_spec004 -> 0011_spec017, SPEC-017 识别任务表：recognition_tasks。
 INFO  [alembic.runtime.migration] Running upgrade 0011_spec017 -> 0012_spec018, Physical wiring and Logisim grading facts; no runtime table creation.
-tests/backend/test_spec007.py::test_T007_04_evaluation_set 
+tests/backend/test_spec007.py::test_T007_04_evaluation_set
 [SPEC-007 评价集] 阈值=0.2
 命中 | 组合逻辑和时序逻辑有什么不同 | 期望 组合逻辑与时序逻辑的区别 | 实际 ['组合逻辑与时序逻辑的区别']
 未命中 | 什么时候状态才会更新 | 期望 时钟信号与有效时钟沿 | 实际 []
