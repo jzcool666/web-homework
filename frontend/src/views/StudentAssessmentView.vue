@@ -373,7 +373,7 @@ onUnmounted(() => {
 
         <div
           v-if="!closed && assessment.effective_state !== 'upcoming'"
-          class="actions"
+          class="form-actions"
         >
           <button
             class="button button--secondary"

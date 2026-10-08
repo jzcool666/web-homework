@@ -1,0 +1,74 @@
+{
+  "archive_sha256": "76a47f30f7e5691a8ca820a7c9fece5acec248fffe60513ba72e769eb1aeb4f5",
+  "checks": [
+    "zip完整性与运行数据排除",
+    "包内Python解释器及科学计算依赖",
+    "仅系统PATH且下载代理不可达的中文目录首次离线启动",
+    "版本1.0.0健康及SPA深链接",
+    "新库迁移与18个模拟账号",
+    "教师学生管理员会话与CSRF登录",
+    "LAB-D正确文件由随包Java/Logisim真实判分",
+    "LAB-D错误文件由随包Java/Logisim真实判分",
+    "LAB-C6正确文件由随包Java/Logisim真实判分",
+    "LAB-C6错误文件由随包Java/Logisim真实判分",
+    "LAB-S4正确文件由随包Java/Logisim真实判分",
+    "LAB-S4错误文件由随包Java/Logisim真实判分",
+    "LAB-FSM正确文件由随包Java/Logisim真实判分",
+    "LAB-FSM错误文件由随包Java/Logisim真实判分",
+    "重复启动复用服务",
+    "停止入口关闭Web和worker并清理心跳",
+    "再次启动九张业务表全字段一致",
+    "全部验收进程已停止，测试数据留在独立解压目录"
+  ],
+  "circ": [
+    {
+      "code": "LAB-D",
+      "correct": true,
+      "status": "done",
+      "score": 100.0
+    },
+    {
+      "code": "LAB-D",
+      "correct": false,
+      "status": "done",
+      "score": 0.0
+    },
+    {
+      "code": "LAB-C6",
+      "correct": true,
+      "status": "done",
+      "score": 100.0
+    },
+    {
+      "code": "LAB-C6",
+      "correct": false,
+      "status": "done",
+      "score": 50.98
+    },
+    {
+      "code": "LAB-S4",
+      "correct": true,
+      "status": "done",
+      "score": 100.0
+    },
+    {
+      "code": "LAB-S4",
+      "correct": false,
+      "status": "done",
+      "score": 6.45
+    },
+    {
+      "code": "LAB-FSM",
+      "correct": true,
+      "status": "done",
+      "score": 100.0
+    },
+    {
+      "code": "LAB-FSM",
+      "correct": false,
+      "status": "done",
+      "score": 43.75
+    }
+  ],
+  "url": "http://127.0.0.1:5348"
+}

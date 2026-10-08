@@ -113,7 +113,7 @@ onMounted(load)
     <p v-if="error" class="error" role="alert">{{ error }}</p>
 
     <SectionCard title="错题列表">
-      <div class="filters">
+      <div class="filter-bar">
         <div class="field">
           <label for="m_knowledge">知识点</label>
           <select id="m_knowledge" v-model="filter.knowledge_id" @change="load">
@@ -131,9 +131,11 @@ onMounted(load)
             <option value="true">已纠正</option>
           </select>
         </div>
+        <div class="filter-actions">
         <button class="primary" type="button" @click="retrySelected">
           重练选中错题（{{ selectedReviewable.length }}）
         </button>
+        </div>
       </div>
 
       <StatePanel v-if="loading" kind="loading" title="正在读取错题" />
@@ -196,15 +198,5 @@ onMounted(load)
 </template>
 
 <style scoped>
-.filters {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-  gap: 0 var(--space-4);
-  align-items: end;
-  margin-bottom: var(--space-4);
-}
 
-.filters button {
-  justify-self: start;
-}
 </style>

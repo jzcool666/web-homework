@@ -278,7 +278,7 @@ function rememberVersion(question) {
           <p v-if="points.length === 0" class="hint">还没有知识点，请先在「课程内容」中创建。</p>
         </fieldset>
 
-        <div class="actions">
+        <div class="form-actions">
           <button class="primary" type="submit">
             {{ editing === null ? '创建题目' : '保存修改' }}
           </button>
@@ -290,7 +290,7 @@ function rememberVersion(question) {
     </SectionCard>
 
     <SectionCard title="题目列表">
-      <div class="filters">
+      <div class="filter-bar">
         <div class="field">
           <label for="f_type">题型</label>
           <select id="f_type" v-model="filter.type" @change="loadQuestions">
@@ -322,7 +322,9 @@ function rememberVersion(question) {
           <label for="f_q">题干关键词</label>
           <input id="f_q" v-model="filter.q" maxlength="100" @keyup.enter="loadQuestions" />
         </div>
+        <div class="filter-actions">
         <button class="button button--secondary" type="button" @click="loadQuestions">筛选</button>
+        </div>
       </div>
 
       <StatePanel v-if="loading" kind="loading" title="正在读取题目" />
@@ -455,18 +457,7 @@ textarea {
   font-size: var(--font-size-sm);
 }
 
-.actions {
-  display: flex;
-  gap: var(--space-3);
-}
 
-.filters {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-  gap: 0 var(--space-4);
-  align-items: end;
-  margin-bottom: var(--space-4);
-}
 
 .stem {
   max-width: 22rem;

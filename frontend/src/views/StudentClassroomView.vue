@@ -176,7 +176,7 @@ onMounted(load)
               required
             />
           </div>
-          <button class="primary" type="submit">签到</button>
+          <div class="form-actions"><button class="primary" type="submit">签到</button></div>
         </form>
         <p v-else-if="myRecord?.status === 'leave'" class="hint">已批准请假，无需签到。</p>
         <p v-else-if="myRecord && myRecord.status !== 'pending'" class="hint">
@@ -195,7 +195,7 @@ onMounted(load)
             <label for="leave_reason">请假理由（结束前提交，教师可在结束后审批）</label>
             <input id="leave_reason" v-model="reason" maxlength="300" required />
           </div>
-          <button class="primary" type="submit">提交请假申请</button>
+          <div class="form-actions"><button class="primary" type="submit">提交请假申请</button></div>
         </form>
       </section>
     </template>

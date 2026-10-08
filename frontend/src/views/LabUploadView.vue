@@ -152,12 +152,12 @@ onMounted(load);
             最多同时等待2个任务，两次上传至少间隔10秒。测评服务故障不计0分，可保留旧记录后重新提交。
           </p>
           <p v-if="error" class="error" role="alert">{{ error }}</p>
-          <button
+          <div class="form-actions"><button
             class="button button--primary"
             :disabled="busy || !file || !classId"
           >
             {{ busy ? "正在上传" : requestKey ? "重试上传" : "上传并测评" }}
-          </button>
+          </button></div>
         </form>
       </SectionCard>
     </template>

@@ -98,7 +98,7 @@ onMounted(async () => {
     />
 
     <SectionCard title="筛选">
-      <div class="filters">
+      <div class="filter-bar">
         <div class="field">
           <label for="a_class">班级</label>
           <select id="a_class" v-model="classId" @change="loadStats">
@@ -121,8 +121,10 @@ onMounted(async () => {
             <option v-for="item in chapters" :key="item.id" :value="item.id">{{ item.title }}</option>
           </select>
         </div>
+        <div class="filter-actions">
         <button class="button button--secondary" type="button" @click="loadStats">刷新</button>
         <a class="button button--secondary" :href="csvHref">导出 CSV</a>
+        </div>
       </div>
       <p class="hint">{{ STATS_TIMEZONE_NOTE }}</p>
       <p v-if="stats" class="hint">
@@ -210,18 +212,7 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.filters {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-  gap: 0 var(--space-4);
-  align-items: end;
-  margin-bottom: var(--space-3);
-}
 
-.filters button,
-.filters a {
-  justify-self: start;
-}
 
 .basis {
   margin: 0 0 var(--space-3);

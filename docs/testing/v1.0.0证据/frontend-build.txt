@@ -1,0 +1,109 @@
+
+> digital-logic-frontend@1.0.0 build
+> vite build
+
+vite v8.3.1 building client environment for production...
+transforming...
+✓ 785 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                            0.51 kB │ gzip:   0.36 kB
+dist/assets/StudentPracticeView-CBg8IgKJ.css               0.05 kB │ gzip:   0.07 kB
+dist/assets/StudentClassroomView-CIvsTuHn.css              0.05 kB │ gzip:   0.07 kB
+dist/assets/TeacherAssessmentsView-D0hjTLKG.css            0.26 kB │ gzip:   0.19 kB
+dist/assets/TeacherAttendanceView-DaCC8SR3.css             0.29 kB │ gzip:   0.19 kB
+dist/assets/TeacherAttendanceAnalyticsView-Bdt6mDC4.css    0.32 kB │ gzip:   0.21 kB
+dist/assets/TeacherWarningsView-yUJ2zHwN.css               0.35 kB │ gzip:   0.19 kB
+dist/assets/TeacherLearningAnalyticsView-DTKdfUbp.css      0.35 kB │ gzip:   0.22 kB
+dist/assets/StudentAttemptsView-DRn7M_gI.css               0.36 kB │ gzip:   0.20 kB
+dist/assets/LabUploadView-DuHoXofi.css                     0.38 kB │ gzip:   0.22 kB
+dist/assets/StudentLearningView-BDAnR9Ca.css               0.39 kB │ gzip:   0.23 kB
+dist/assets/LabTasksView-DBwUMCgK.css                      0.42 kB │ gzip:   0.24 kB
+dist/assets/LabRecordsView-BawHZuCP.css                    0.43 kB │ gzip:   0.25 kB
+dist/assets/TeacherExperimentStatsView-B2X_z3NR.css        0.50 kB │ gzip:   0.27 kB
+dist/assets/LabAttemptView-B_PGGEqr.css                    0.52 kB │ gzip:   0.28 kB
+dist/assets/LabSessionView-DvUO8eSK.css                    0.54 kB │ gzip:   0.27 kB
+dist/assets/StudentRecommendationsView-Bgc4pIRO.css        0.60 kB │ gzip:   0.29 kB
+dist/assets/StudentRecognitionView-DZwHZt1T.css            0.63 kB │ gzip:   0.29 kB
+dist/assets/StudentDemoView-BZF14fEO.css                   0.69 kB │ gzip:   0.29 kB
+dist/assets/QuestionPicker-Dp3q82Yo.css                    0.71 kB │ gzip:   0.33 kB
+dist/assets/StudentResultView-CNgy4-Jk.css                 0.71 kB │ gzip:   0.30 kB
+dist/assets/TeacherContentView-CwODiodQ.css                0.76 kB │ gzip:   0.34 kB
+dist/assets/StudentDemosView-D5WSD8_K.css                  0.86 kB │ gzip:   0.34 kB
+dist/assets/StudentExperimentsView-b_NPwntr.css            0.86 kB │ gzip:   0.40 kB
+dist/assets/KnowledgeGraphView-Dvmffilm.css                0.98 kB │ gzip:   0.47 kB
+dist/assets/StudentAnalyticsView-DRiNcbMu.css              1.10 kB │ gzip:   0.48 kB
+dist/assets/TeacherQaView-D1q2Jpk1.css                     1.12 kB │ gzip:   0.43 kB
+dist/assets/TeacherPaperGenerationView-Ct5CrPX3.css        1.14 kB │ gzip:   0.45 kB
+dist/assets/TeacherDemoView-DvY3UxZb.css                   1.21 kB │ gzip:   0.45 kB
+dist/assets/StudentQaView-C_e_pF7C.css                     1.55 kB │ gzip:   0.53 kB
+dist/assets/TeacherQuestionsView-h0oJy0MB.css              1.63 kB │ gzip:   0.57 kB
+dist/assets/TeacherDemoPresentView-BgeI5u2Z.css            1.70 kB │ gzip:   0.61 kB
+dist/assets/TeacherAssessmentDetailView-BCWgS0cu.css       1.81 kB │ gzip:   0.53 kB
+dist/assets/TeacherLessonPlansView-D_vhag3_.css            2.20 kB │ gzip:   0.65 kB
+dist/assets/StudentAssessmentView-BLgdz9U6.css             2.56 kB │ gzip:   0.78 kB
+dist/assets/StudentKnowledgeView-r0J59b4b.css              2.99 kB │ gzip:   0.88 kB
+dist/assets/LabBoard-BBxw-1BA.css                          4.89 kB │ gzip:   1.25 kB
+dist/assets/StudentExperimentView-DHVu6i3k.css             5.61 kB │ gzip:   1.40 kB
+dist/assets/TeacherClassroomView-BrNpS3_R.css              6.59 kB │ gzip:   1.71 kB
+dist/assets/TeacherExperimentsManageView-1ARFmUBx.css      9.58 kB │ gzip:   2.27 kB
+dist/assets/DemoWaveform-CaH4uOcq.css                     14.97 kB │ gzip:   3.56 kB
+dist/assets/index-Dgb333Lq.css                            40.23 kB │ gzip:   8.39 kB
+dist/assets/attempt--zLQUMKq.js                            0.78 kB │ gzip:   0.51 kB
+dist/assets/attendance-Bj6FRnIO.js                         1.22 kB │ gzip:   0.59 kB
+dist/assets/analytics-BuE6XxHx.js                          1.22 kB │ gzip:   0.83 kB
+dist/assets/LoginView-C_j60RHw.js                          1.57 kB │ gzip:   0.97 kB
+dist/assets/assessment-DyxDHuzh.js                         1.86 kB │ gzip:   1.04 kB
+dist/assets/lab-ydw5bD0u.js                                1.90 kB │ gzip:   1.12 kB
+dist/assets/RegisterView-D72Cbwwi.js                       2.13 kB │ gzip:   1.12 kB
+dist/assets/demoPresentation-CxTDFVDq.js                   2.38 kB │ gzip:   1.43 kB
+dist/assets/markdown-Ci-QBofv.js                           2.49 kB │ gzip:   1.15 kB
+dist/assets/QuestionPicker-BtL1Q8oV.js                     2.61 kB │ gzip:   1.37 kB
+dist/assets/ProfileView-CtQ9DxZG.js                        2.66 kB │ gzip:   1.25 kB
+dist/assets/StudentDemosView-C7FqO-r4.js                   3.00 kB │ gzip:   1.51 kB
+dist/assets/StudentExperimentsView-Sjk2oD8J.js             3.09 kB │ gzip:   1.67 kB
+dist/assets/StudentDemoView-C_eH5Eur.js                    3.09 kB │ gzip:   1.68 kB
+dist/assets/LabTasksView-BhaRC4xP.js                       3.23 kB │ gzip:   1.75 kB
+dist/assets/StudentResultView-C9zU64Uy.js                  3.29 kB │ gzip:   1.67 kB
+dist/assets/AdminEnrollmentsView-JktHw_AN.js               3.33 kB │ gzip:   1.73 kB
+dist/assets/StudentAttemptsView-DTT8bmZ2.js                3.33 kB │ gzip:   1.58 kB
+dist/assets/TeacherDemoPresentView-DcRXzODg.js             3.41 kB │ gzip:   1.78 kB
+dist/assets/StudentQaView-BnSIOUmP.js                      3.64 kB │ gzip:   2.11 kB
+dist/assets/StudentLearningView-BHiPvGS9.js                3.79 kB │ gzip:   1.84 kB
+dist/assets/AdminClassesView-DUM8Ra2D.js                   3.91 kB │ gzip:   1.83 kB
+dist/assets/StudentRecommendationsView-CW2oxcLu.js         4.13 kB │ gzip:   2.24 kB
+dist/assets/AdminUsersView-BZ-f2aWl.js                     4.50 kB │ gzip:   1.86 kB
+dist/assets/LabUploadView-CMiXsoDH.js                      4.55 kB │ gzip:   2.61 kB
+dist/assets/StudentMistakesView-DE19lHMG.js                4.75 kB │ gzip:   2.26 kB
+dist/assets/StudentRecognitionView-Cs8XmkLE.js             4.78 kB │ gzip:   2.60 kB
+dist/assets/TeacherDemoView-DqBPmzNe.js                    4.80 kB │ gzip:   2.24 kB
+dist/assets/StudentPracticeView-khIMpIXy.js                4.84 kB │ gzip:   2.42 kB
+dist/assets/TeacherAssessmentsView-DqqbnmUi.js             5.12 kB │ gzip:   2.49 kB
+dist/assets/LabAttemptView-mCkMW5rN.js                     5.20 kB │ gzip:   2.48 kB
+dist/assets/StudentClassroomView-DraTUqSE.js               5.26 kB │ gzip:   2.43 kB
+dist/assets/TeacherLearningAnalyticsView-CnEy63wh.js       5.39 kB │ gzip:   2.48 kB
+dist/assets/TeacherExperimentStatsView-Cx-Onkq1.js         5.65 kB │ gzip:   2.54 kB
+dist/assets/LabRecordsView-BGIMulxm.js                     5.73 kB │ gzip:   2.52 kB
+dist/assets/TeacherAttendanceAnalyticsView-CEX3CIkT.js     5.82 kB │ gzip:   2.71 kB
+dist/assets/TeacherQaView-BTLbhzIj.js                      5.90 kB │ gzip:   2.55 kB
+dist/assets/TeacherWarningsView-BqxofLiQ.js                5.94 kB │ gzip:   2.87 kB
+dist/assets/StudentAssessmentView-D2Q9Si6i.js              7.11 kB │ gzip:   3.14 kB
+dist/assets/LabSessionView-xQJL2H1T.js                     7.56 kB │ gzip:   3.11 kB
+dist/assets/TeacherClassroomView-D1slZ-hU.js               8.03 kB │ gzip:   3.58 kB
+dist/assets/TeacherAttendanceView-nhIN9Gya.js              8.33 kB │ gzip:   3.07 kB
+dist/assets/TeacherPaperGenerationView-CWaQNwws.js         8.97 kB │ gzip:   3.54 kB
+dist/assets/StudentAnalyticsView-iIjw1FEB.js               9.12 kB │ gzip:   3.89 kB
+dist/assets/TeacherLessonPlansView-BiW8aGYO.js             9.49 kB │ gzip:   3.69 kB
+dist/assets/TeacherQuestionsView-Zb5fzzhz.js               9.58 kB │ gzip:   3.58 kB
+dist/assets/TeacherAssessmentDetailView-RMjDMu0u.js       10.10 kB │ gzip:   3.92 kB
+dist/assets/StudentKnowledgeView-DlIJOAmL.js              10.25 kB │ gzip:   3.90 kB
+dist/assets/StudentExperimentView-CobzrqAh.js             11.58 kB │ gzip:   4.75 kB
+dist/assets/TeacherContentView-BhzI1lkv.js                12.49 kB │ gzip:   3.96 kB
+dist/assets/LabBoard-VS2lycSO.js                          13.83 kB │ gzip:   5.42 kB
+dist/assets/DemoWaveform-Cs3pH0rl.js                      16.54 kB │ gzip:   6.30 kB
+dist/assets/TeacherExperimentsManageView-CHpDrl-n.js      18.88 kB │ gzip:   7.33 kB
+dist/assets/client-VkB-Y6hh.js                            64.47 kB │ gzip:  25.46 kB
+dist/assets/index-CCjH85Eg.js                            110.18 kB │ gzip:  38.42 kB
+dist/assets/KnowledgeGraphView-4aOKrZfw.js               493.67 kB │ gzip: 166.72 kB
+
+✓ built in 930ms
