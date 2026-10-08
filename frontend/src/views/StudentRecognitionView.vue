@@ -89,7 +89,7 @@ onMounted(async () => {
     />
 
     <SectionCard title="上传">
-      <div class="filters">
+      <div class="filter-bar">
         <div class="field">
           <label for="r_class">班级</label>
           <select id="r_class" v-model="classId">
@@ -101,10 +101,12 @@ onMounted(async () => {
           <label for="r_image">状态表图片（PNG / JPEG，≤20MiB）</label>
           <input id="r_image" ref="fileInput" type="file" accept="image/png,image/jpeg" @change="onFileChange" />
         </div>
+        <div class="filter-actions">
         <button class="button button--primary" type="button" :disabled="uploading || !classId" @click="submit">
           {{ uploading ? '识别中…' : '开始识别' }}
         </button>
         <button class="button button--secondary" type="button" @click="reset">清空</button>
+        </div>
       </div>
       <p class="hint">{{ FORMAT_NOTE }}</p>
       <p v-if="classes.length === 0" class="hint">还没有分配班级，请联系教师或管理员。</p>
@@ -161,17 +163,7 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.filters {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
-  gap: 0 var(--space-4);
-  align-items: end;
-  margin-bottom: var(--space-3);
-}
 
-.filters button {
-  justify-self: start;
-}
 
 .basis {
   margin: 0 0 var(--space-3);

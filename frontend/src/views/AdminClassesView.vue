@@ -100,8 +100,8 @@ onMounted(load)
             </option>
           </select>
         </div>
-        <button class="primary" type="submit">创建</button>
         <p v-if="teachers.length === 0" class="hint">还没有教师账号，请先在「账号管理」中创建。</p>
+        <div class="form-actions"><button class="primary" type="submit">创建</button></div>
       </form>
     </SectionCard>
 

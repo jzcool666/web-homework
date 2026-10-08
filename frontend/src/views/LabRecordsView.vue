@@ -82,15 +82,15 @@ onMounted(init);
       >
     </PageHeader>
     <SectionCard title="筛选记录">
-      <div class="filters">
-        <label v-if="teacher"
+      <div class="filter-bar">
+        <label class="field" v-if="teacher"
           >班级<select v-model="classId" @change="load(true)">
             <option v-for="item in classes" :key="item.id" :value="item.id">
               {{ item.name }}
             </option>
           </select></label
         >
-        <label
+        <label class="field"
           >任务<select v-model="taskId" @change="load(true)">
             <option value="">全部</option>
             <option v-for="item in tasks" :key="item.id" :value="item.id">
@@ -98,14 +98,14 @@ onMounted(init);
             </option>
           </select></label
         >
-        <label
+        <label class="field"
           >方式<select v-model="mode" @change="load(true)">
             <option value="">全部</option>
             <option value="wiring">实验箱接线</option>
             <option value="circ">Logisim文件</option>
           </select></label
         >
-        <label
+        <label class="field"
           >状态<select v-model="status" @change="load(true)">
             <option value="">全部</option>
             <option
@@ -117,7 +117,7 @@ onMounted(init);
             </option>
           </select></label
         >
-        <button class="button" :disabled="busy" @click="load()">刷新</button>
+        <div class="filter-actions"><button class="button" :disabled="busy" @click="load()">刷新</button></div>
       </div>
       <p v-if="error" class="error" role="alert">{{ error }}</p>
     </SectionCard>
@@ -198,7 +198,7 @@ onMounted(init);
           </tbody>
         </table>
       </div>
-      <div class="filters">
+      <div class="inline-actions">
         <button
           class="button"
           :disabled="busy || page <= 1"
@@ -229,12 +229,6 @@ onMounted(init);
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 18px;
-}
-.filters {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  gap: 12px;
 }
 select {
   display: block;

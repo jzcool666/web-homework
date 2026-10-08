@@ -94,7 +94,7 @@ onMounted(load)
     <p v-if="error" class="error" role="alert">{{ error }}</p>
 
     <SectionCard title="开始新的自练">
-      <form class="practice-form" @submit.prevent="createPractice">
+      <form class="practice-form form-fields" @submit.prevent="createPractice">
         <div class="field">
           <label for="p_knowledge">知识点</label>
           <select id="p_knowledge" v-model="filter.knowledge_id">
@@ -117,7 +117,7 @@ onMounted(load)
           <label for="p_count">题目数量（1—20）</label>
           <input id="p_count" v-model.number="filter.count" type="number" min="1" max="20" />
         </div>
-        <button class="primary" type="submit">生成自练</button>
+        <div class="form-actions"><button class="primary" type="submit">生成自练</button></div>
       </form>
       <p class="hint">
         自练必须指定知识点或难度之一（错题重练在错题本里按题发起）。可用题目不足时服务端返回 422
@@ -178,16 +178,6 @@ onMounted(load)
 </template>
 
 <style scoped>
-.practice-form {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-  gap: 0 var(--space-4);
-  align-items: end;
-}
-
-.practice-form button {
-  justify-self: start;
-}
 
 .row-actions {
   white-space: nowrap;

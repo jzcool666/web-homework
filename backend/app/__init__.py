@@ -42,7 +42,7 @@ from .seed_demo import register_demo_cli
 from .lab_worker import register_worker_cli
 from .store import close_db_session
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"
 
 API_PREFIX = "/api/v1"
 DEFAULT_FRONTEND_DIST = REPO_ROOT / "frontend" / "dist"

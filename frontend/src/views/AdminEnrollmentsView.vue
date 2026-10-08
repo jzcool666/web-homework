@@ -82,7 +82,7 @@ onMounted(load)
             </option>
           </select>
         </div>
-        <button class="primary" type="submit">加入班级</button>
+        <div class="form-actions"><button class="primary" type="submit">加入班级</button></div>
       </form>
       <p v-if="notice" class="success">{{ notice }}</p>
       <p v-if="error" class="error" role="alert">{{ error }}</p>

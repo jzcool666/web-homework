@@ -117,7 +117,7 @@ onMounted(async () => {
 
     <SectionCard title="筛选条件">
       <StatePanel v-if="listError" kind="error" title="加载班级失败" :description="listError" />
-      <div class="filters">
+      <div class="filter-bar">
         <div class="field">
           <label for="es_class">班级</label>
           <select id="es_class" v-model="classId" @change="loadStats">
@@ -142,12 +142,12 @@ onMounted(async () => {
           <label for="es_to">截止（本地时间，可空）</label>
           <input id="es_to" v-model="toLocal" type="datetime-local" @change="loadStats" />
         </div>
-      </div>
-      <div class="actions">
+        <div class="filter-actions">
         <button class="button button--secondary" type="button" @click="resetWindow">
           最近 30 天
         </button>
         <a v-if="classId && data && !loading" class="button button--secondary" :href="csvHref">导出 CSV</a>
+      </div>
       </div>
       <p v-if="classes.length === 0" class="hint">还没有任教的班级，请联系管理员分配。</p>
       <p class="hint">{{ SUMMARY_HINT }}</p>
@@ -204,18 +204,7 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.filters {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
-  gap: 0 var(--space-4);
-}
 
-.actions {
-  display: flex;
-  gap: var(--space-3);
-  align-items: center;
-  margin-top: var(--space-3);
-}
 
 .tiles {
   display: grid;

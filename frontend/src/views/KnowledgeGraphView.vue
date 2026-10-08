@@ -123,7 +123,7 @@ onMounted(async () => {
     <p v-if="error" class="error" role="alert">{{ error }}</p>
 
     <SectionCard title="查询子图">
-      <form class="graph-form" @submit.prevent="loadGraph">
+      <form class="graph-form filter-bar" @submit.prevent="loadGraph">
         <div class="field">
           <label for="g_chapter">章节</label>
           <select id="g_chapter" v-model="chapterId" @change="resetPath">
@@ -148,15 +148,15 @@ onMounted(async () => {
             <option v-for="value in [1, 2, 3]" :key="value" :value="value">{{ value }} 层</option>
           </select>
         </div>
-        <button class="primary" type="submit" :disabled="loading">
+        <div class="filter-actions"><button class="primary" type="submit" :disabled="loading">
           {{ loading ? '查询中…' : '查询' }}
-        </button>
+        </button></div>
       </form>
       <p class="hint">未指定根节点时展示所选章节的全部已发布知识点，不做深度裁剪。</p>
     </SectionCard>
 
     <SectionCard title="先修路径">
-      <form class="graph-form" @submit.prevent="loadPath">
+      <form class="graph-form filter-bar" @submit.prevent="loadPath">
         <div class="field">
           <label for="g_from">起点</label>
           <select id="g_from" v-model="fromId" required>
@@ -171,7 +171,7 @@ onMounted(async () => {
             <option v-for="point in points" :key="point.id" :value="point.id">{{ point.title }}</option>
           </select>
         </div>
-        <button type="submit" :disabled="pathLoading || fromId === '' || toId === ''">查路径</button>
+        <div class="filter-actions"><button class="button button--secondary" type="submit" :disabled="pathLoading || fromId === '' || toId === ''">查路径</button></div>
       </form>
       <p v-if="pathError" class="error" role="alert">{{ pathError }}</p>
       <div v-else-if="path">
@@ -198,7 +198,7 @@ onMounted(async () => {
           已高亮查询到的先修链（{{ highlightEdges.length }} 条边）。
         </p>
         <KnowledgeGraphChart v-if="graph.nodes.length > 0" :graph="graph" :highlight-edges="highlightEdges" />
-        <button type="button" class="topology-button" @click="loadTopology">
+        <button type="button" class="topology-button button button--secondary" @click="loadTopology">
           查看拓扑序（同层按排序与编号）
         </button>
         <div v-if="topology" class="topology">
@@ -219,17 +219,7 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.graph-form {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
-  gap: 0 var(--space-4);
-  align-items: end;
-  margin-bottom: var(--space-2);
-}
 
-.graph-form button {
-  justify-self: start;
-}
 
 .stats {
   font-variant-numeric: tabular-nums;

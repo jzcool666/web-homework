@@ -102,7 +102,7 @@ onMounted(load)
           <label for="new_password">初始密码（10—128 个字符）</label>
           <input id="new_password" v-model="form.password" type="password" required />
         </div>
-        <button class="primary" type="submit">创建</button>
+        <div class="form-actions"><button class="primary" type="submit">创建</button></div>
       </form>
     </SectionCard>
 

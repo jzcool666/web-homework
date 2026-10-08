@@ -117,7 +117,7 @@ onMounted(async () => {
     />
 
     <SectionCard title="筛选与生成">
-      <div class="filters">
+      <div class="filter-bar">
         <div class="field">
           <label for="w_class">班级</label>
           <select id="w_class" v-model="classId" @change="loadWarnings">
@@ -133,10 +133,12 @@ onMounted(async () => {
           <label for="w_to">窗口止（UTC，不含）</label>
           <input id="w_to" v-model="window.to" type="date" @change="loadWarnings" />
         </div>
+        <div class="filter-actions">
         <button class="button button--primary" type="button" :disabled="!classId || generating" @click="generateSnapshot">
           {{ generating ? '生成中…' : '生成快照' }}
         </button>
         <button class="button button--secondary" type="button" @click="loadWarnings">刷新</button>
+        </div>
       </div>
       <p class="hint">{{ WARNING_NOTE }}</p>
       <p v-if="batch" class="hint">
@@ -201,17 +203,7 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.filters {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-  gap: 0 var(--space-4);
-  align-items: end;
-  margin-bottom: var(--space-3);
-}
 
-.filters button {
-  justify-self: start;
-}
 
 .basis {
   margin: 0 0 var(--space-3);

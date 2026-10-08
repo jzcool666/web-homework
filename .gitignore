@@ -17,6 +17,9 @@ dist-ssr/
 *.tsbuildinfo
 
 # 运行数据与数据库（见 README「环境和配置约定」）
+.local-run/
+runtime/
+portable.json
 instance/
 *.sqlite
 *.sqlite3

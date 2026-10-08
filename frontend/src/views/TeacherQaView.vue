@@ -173,7 +173,7 @@ onMounted(load)
               <label><input v-model="form.published" type="checkbox" /> 直接发布</label>
             </div>
           </div>
-          <div class="actions">
+          <div class="form-actions">
             <button class="button button--primary" type="submit" :disabled="busy">
               {{ editing === null ? '新增条目' : '保存修改' }}
             </button>
@@ -247,7 +247,6 @@ onMounted(load)
 .field input,
 .field textarea { padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-sm); font: inherit; }
 .field.check label { display: flex; align-items: center; gap: var(--space-2); font-size: var(--font-size-sm); }
-.actions { display: flex; gap: var(--space-3); flex-wrap: wrap; }
 .table-scroll { overflow-x: auto; }
 table { min-width: 44rem; }
 .question { max-width: 22rem; }
