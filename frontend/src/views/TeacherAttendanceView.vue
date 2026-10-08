@@ -181,7 +181,7 @@ onMounted(async () => {
 
     <section class="card">
       <h2>发起签到</h2>
-      <form class="attendance-create" @submit.prevent="createTask">
+      <form class="attendance-create form-fields" @submit.prevent="createTask">
         <div class="field">
           <label for="task_title">标题</label>
           <input id="task_title" v-model="form.title" maxlength="100" required />
@@ -198,8 +198,10 @@ onMounted(async () => {
           <label for="task_closes">结束时间（本地）</label>
           <input id="task_closes" v-model="form.closes_at" type="datetime-local" required />
         </div>
-        <button class="primary" type="submit" :disabled="!classId">发布签到</button>
-        <p class="hint">发布时会把该班当前有效名单复制为「待签到」。</p>
+        <div class="form-actions">
+          <p class="hint">发布时会把该班当前有效名单复制为「待签到」。</p>
+          <button class="primary" type="submit" :disabled="!classId">发布签到</button>
+        </div>
       </form>
     </section>
 
@@ -310,10 +312,7 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.attendance-create { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 16px; }
 .attendance-create > .field:first-child { grid-column: 1 / -1; }
-.attendance-create > button { justify-self: start; }
-@media (max-width: 650px) { .attendance-create { grid-template-columns: 1fr; } }
 h2 {
   font-size: 1.05rem;
   margin: 0 0 0.75rem;

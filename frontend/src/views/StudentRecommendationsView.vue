@@ -71,7 +71,7 @@ onMounted(load)
     <p v-if="error" class="error" role="alert">{{ error }}</p>
 
     <SectionCard title="推荐条数">
-      <div class="controls">
+      <div class="filter-bar">
         <div class="field">
           <label for="r_limit">最多显示</label>
           <select id="r_limit" v-model.number="limit">
@@ -80,9 +80,11 @@ onMounted(load)
             </option>
           </select>
         </div>
+        <div class="filter-actions">
         <button class="primary" type="button" :disabled="loading" @click="load">
           {{ loading ? '读取中…' : '重新获取' }}
         </button>
+        </div>
       </div>
       <p v-if="data" class="hint">
         共 {{ stats.total }} 条：个性化 {{ stats.personalized }} 条、基础路径 {{ stats.basePath }} 条。
@@ -131,11 +133,6 @@ onMounted(load)
 </template>
 
 <style scoped>
-.controls {
-  display: flex;
-  align-items: end;
-  gap: var(--space-4);
-}
 
 .recommendations {
   margin: 0;

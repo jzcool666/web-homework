@@ -63,7 +63,7 @@ async function changePassword() {
           <label for="display_name">姓名</label>
           <input id="display_name" v-model="displayName" required />
         </div>
-        <button class="primary" type="submit">保存</button>
+        <div class="form-actions"><button class="primary" type="submit">保存</button></div>
         <p v-if="profileOk" class="success">{{ profileOk }}</p>
         <p v-if="profileError" class="error" role="alert">{{ profileError }}</p>
       </form>
@@ -80,7 +80,7 @@ async function changePassword() {
           <label for="new_password">新密码（10—128 个字符）</label>
           <input id="new_password" v-model="passwordForm.new_password" type="password" required />
         </div>
-        <button class="primary" type="submit">修改密码</button>
+        <div class="form-actions"><button class="primary" type="submit">修改密码</button></div>
         <p v-if="passwordError" class="error" role="alert">{{ passwordError }}</p>
       </form>
     </SectionCard>

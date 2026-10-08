@@ -82,7 +82,7 @@ function stemOf(questionId) {
     </ol>
     <p v-else class="hint">还没有选题，从下面的题库里勾选。</p>
 
-    <div class="table-scroll">
+    <div class="table-scroll" tabindex="0" role="region" aria-label="题库，可纵向和横向滚动">
       <table>
         <thead>
           <tr>
@@ -116,6 +116,8 @@ function stemOf(questionId) {
 </template>
 
 <style scoped>
+.picker .table-scroll { max-height: 24rem; overflow: auto; }
+.picker thead { position: sticky; top: 0; z-index: 1; }
 .chosen {
   margin: 0 0 var(--space-3);
   padding: var(--space-3) var(--space-3) var(--space-3) var(--space-6);
@@ -127,11 +129,14 @@ function stemOf(questionId) {
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  flex-wrap: wrap;
   margin-bottom: var(--space-2);
 }
 
 .chosen__stem {
-  flex: 1;
+  flex: 1 1 14rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .chosen__points {

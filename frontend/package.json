@@ -1,9 +1,9 @@
 {
   "name": "digital-logic-frontend",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "学海通数字逻辑课程学习系统前端（SPEC-000 工程骨架）",
+  "description": "学海通数字逻辑课程学习系统前端",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

@@ -156,6 +156,7 @@ onMounted(async () => {
 
     <SectionCard title="组卷条件">
       <form class="generate-form" @submit.prevent="generate">
+        <div class="form-fields">
         <div class="field">
           <label for="g_class">班级</label>
           <select id="g_class" v-model="classId" required>
@@ -195,10 +196,7 @@ onMounted(async () => {
           <label for="g_seed">随机种子</label>
           <input id="g_seed" v-model.number="form.seed" type="number" required />
         </div>
-        <button class="primary" type="submit" :disabled="!classId || loading">
-          {{ loading ? '正在求解…' : '生成草稿' }}
-        </button>
-      </form>
+        </div>
       <p class="hint" :class="{ 'hint-error': !sumMatches }">
         难度配额之和 {{ difficultySum }} / 题量 {{ form.count }}
         <template v-if="!sumMatches">（必须相等）</template>
@@ -207,7 +205,7 @@ onMounted(async () => {
       <div class="minimums">
         <div class="minimums-head">
           <span>知识点下限量（最多 18 个）</span>
-          <button type="button" @click="addMinimum" :disabled="knowledgePoints.length === 0">
+          <button class="button button--secondary" type="button" @click="addMinimum" :disabled="knowledgePoints.length === 0">
             添加
           </button>
         </div>
@@ -230,9 +228,15 @@ onMounted(async () => {
             </option>
           </select>
           <input v-model.number="row.min_count" type="number" min="1" aria-label="最少覆盖题数" />
-          <button type="button" @click="removeMinimum(index)">移除</button>
+          <button class="button button--secondary" type="button" @click="removeMinimum(index)">移除</button>
         </div>
       </div>
+      <div class="form-actions">
+        <button class="primary" type="submit" :disabled="!classId || loading">
+          {{ loading ? '正在求解…' : '生成草稿' }}
+        </button>
+      </div>
+      </form>
     </SectionCard>
 
     <SectionCard v-if="result" title="生成结果">
@@ -290,17 +294,8 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.generate-form {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-  gap: 0 var(--space-4);
-  align-items: end;
-  margin-bottom: var(--space-2);
-}
+.generate-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
 
-.generate-form button {
-  justify-self: start;
-}
 
 .constraints {
   margin: 0 0 var(--space-3);
@@ -318,12 +313,14 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-bottom: var(--space-2);
 }
 
 .minimum-row {
   display: grid;
-  grid-template-columns: 1fr 6rem auto;
+  grid-template-columns: minmax(0, 1fr) 6rem auto;
   gap: var(--space-2);
   margin-bottom: var(--space-2);
   align-items: center;
@@ -349,5 +346,9 @@ onMounted(async () => {
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   word-break: break-all;
+}
+@media (max-width: 520px) {
+  .minimum-row { grid-template-columns: minmax(0, 1fr) 5rem; }
+  .minimum-row button { grid-column: 1 / -1; justify-self: end; }
 }
 </style>

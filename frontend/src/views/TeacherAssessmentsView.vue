@@ -103,7 +103,7 @@ onMounted(async () => {
 
 <template>
   <div class="page">
-    <PageHeader icon="check" :steps="['创建草稿', '选择题目', '进入发布与讲评']"
+    <PageHeader icon="check" :steps="['填写测评信息', '选择题目与分值', '创建草稿并进入讲评']"
       eyebrow="测评"
       title="测评与讲评"
       description="发布时冻结题目版本、答案与名单；结束后可提前结束、公开反馈并查看统计。投屏统计只显示聚合结果，不含学生身份。"
@@ -125,6 +125,7 @@ onMounted(async () => {
 
     <SectionCard title="新建测评草稿">
       <form class="draft-form" @submit.prevent="createDraft">
+        <div class="form-fields">
         <div class="field">
           <label for="a_kind">类型</label>
           <select id="a_kind" v-model="form.kind">
@@ -137,12 +138,15 @@ onMounted(async () => {
           <label for="a_title">标题</label>
           <input id="a_title" v-model="form.title" maxlength="100" required />
         </div>
-        <button class="primary" type="submit" :disabled="!classId">创建草稿</button>
-      </form>
-      <QuestionPicker v-model="form.items" :questions="bank" />
-      <p class="hint">
+        </div>
+        <QuestionPicker v-model="form.items" :questions="bank" />
+        <div class="form-actions">
+          <p class="hint">
         草稿总分 {{ totalPoints }}；发布前可以改题，发布后题目、答案与名单在一个事务里冻结。
-      </p>
+          </p>
+          <button class="primary" type="submit" :disabled="!classId">创建草稿</button>
+        </div>
+      </form>
     </SectionCard>
 
     <SectionCard title="我的测评">
@@ -200,14 +204,8 @@ onMounted(async () => {
 <style scoped>
 .draft-form {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
-  gap: 0 var(--space-4);
-  align-items: end;
-  margin-bottom: var(--space-4);
-}
-
-.draft-form button {
-  justify-self: start;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
 }
 
 .window {

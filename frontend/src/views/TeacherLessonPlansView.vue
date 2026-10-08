@@ -280,7 +280,7 @@ onMounted(load)
           </ol>
           <p v-else class="hint">还没有条目，从下面添加。</p>
 
-          <div class="items__add">
+          <div class="items__add filter-bar">
             <div class="field">
               <label for="l_type">目标类型</label>
               <select id="l_type" v-model="addTarget.type">
@@ -298,11 +298,11 @@ onMounted(load)
                 </option>
               </select>
             </div>
-            <button class="button button--secondary" type="button" @click="onAddTarget">添加条目</button>
+            <div class="filter-actions"><button class="button button--secondary" type="button" @click="onAddTarget">添加条目</button></div>
           </div>
         </fieldset>
 
-        <div class="actions">
+        <div class="form-actions">
           <button class="primary" type="button" @click="save">
             {{ isNew ? '创建备课单' : '保存修改' }}
           </button>
@@ -314,7 +314,7 @@ onMounted(load)
     </div>
 
     <SectionCard title="发布预习到班级">
-      <div class="publish">
+      <div class="publish form-fields">
         <div class="field">
           <label for="l_class">班级</label>
           <select id="l_class" v-model="publishForm.class_id" @change="loadPreviews">
@@ -326,7 +326,7 @@ onMounted(load)
           <label for="l_due">截止时间（本地，可空）</label>
           <input id="l_due" v-model="publishForm.due_at" type="datetime-local" />
         </div>
-        <button class="primary" type="button" :disabled="!form.title" @click="publish">保存并发布</button>
+        <div class="form-actions"><button class="primary" type="button" :disabled="!form.title" @click="publish">保存并发布</button></div>
       </div>
       <p class="hint">
         发布前会先保存当前编辑内容；发布后条目与内容摘要冻结，之后改备课单不会改变已发布的预习。
@@ -433,6 +433,7 @@ textarea,
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  flex-wrap: wrap;
   padding: var(--space-2) 0;
   border-bottom: 1px solid var(--color-border);
 }
@@ -445,26 +446,12 @@ textarea,
 }
 
 .items__label {
-  flex: 1;
+  flex: 1 1 12rem;
+  overflow-wrap: anywhere;
 }
 
-.items__add,
-.publish {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-  gap: 0 var(--space-4);
-  align-items: end;
-}
 
-.items__add button,
-.publish button {
-  justify-self: start;
-}
 
-.actions {
-  display: flex;
-  gap: var(--space-3);
-}
 
 .published {
   margin: 0;

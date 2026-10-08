@@ -86,6 +86,32 @@ body {
 .page-header__title h1 { overflow-wrap: anywhere; }
 .page-header__icon { display: grid; place-items: center; flex: none; width: 43px; height: 43px; border-radius: 12px; color: var(--color-primary); background: #eaf1ff; border: 1px solid #dce7fd; }
 .page-header__actions { display: flex; gap: 8px; flex-wrap: wrap; flex-shrink: 0; }
+/* 操作区与输入区分开：提交放在表单末尾，筛选动作与输入框底部对齐。 */
+:is(.page, .main-content__inner) .form-fields,
+:is(.page, .main-content__inner) .admin-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 16px; align-items: end; }
+:is(.page, .main-content__inner) .form-fields > .field,
+:is(.page, .main-content__inner) .admin-form > .field { margin-bottom: 0; min-width: 0; }
+:is(.page, .main-content__inner) .form-actions { display: flex; align-items: center; justify-content: flex-end; gap: 12px; flex-wrap: wrap; width: 100%; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--color-border); }
+:is(.page, .main-content__inner) .form-fields > .form-actions,
+:is(.page, .main-content__inner) .admin-form > .form-actions { grid-column: 1 / -1; margin-top: 0; }
+:is(.page, .main-content__inner) .form-actions > .hint { flex: 1 1 15rem; margin: 0; }
+:is(.page, .main-content__inner) .form-actions > :is(button, a) { flex: 0 1 auto; max-width: 100%; }
+:is(.page, .main-content__inner) .filter-bar { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; }
+:is(.page, .main-content__inner) .filter-bar > .field { flex: 1 1 11rem; min-width: min(100%, 11rem); margin-bottom: 0; }
+:is(.page, .main-content__inner) .filter-bar > .field.small { flex: 0 1 6.5rem; min-width: min(100%, 6.5rem); }
+:is(.page, .main-content__inner) :is(.filter-bar, .form-fields) > .field.check { flex: 0 1 auto; min-width: 0; min-height: 2.65rem; align-self: end; justify-content: center; margin-bottom: 0; }
+:is(.page, .main-content__inner) .filter-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; flex: 0 1 auto; max-width: 100%; }
+:is(.page, .main-content__inner) .filter-actions > :is(button, a) { min-height: 2.65rem; max-width: 100%; }
+:is(.page, .main-content__inner) .inline-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+:is(.page, .main-content__inner) :is(.form-actions, .filter-actions, .inline-actions) > :is(button, a) { white-space: normal; overflow-wrap: anywhere; }
+@media (max-width: 650px) {
+  :is(.page, .main-content__inner) .form-fields, :is(.page, .main-content__inner) .admin-form { grid-template-columns: 1fr; }
+  :is(.page, .main-content__inner) .filter-actions { flex-basis: 100%; justify-content: flex-end; }
+}
+@media (max-width: 520px) {
+  :is(.page, .main-content__inner) .form-actions > :is(button, a),
+  :is(.page, .main-content__inner) .filter-actions > :is(button, a) { flex: 1 1 auto; }
+}
 .workflow-guide { display: flex; flex-wrap: wrap; gap: 8px 18px; list-style: none; margin: 12px 0 0; padding: 0; color: var(--color-text-secondary); font-size: 12px; }
 .workflow-guide li { display: flex; align-items: center; gap: 6px; }
 .workflow-guide li > span { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: white; border: 1px solid #d6e2f4; color: #4c6d9c; font-size: 11px; }

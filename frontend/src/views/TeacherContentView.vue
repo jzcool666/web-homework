@@ -208,7 +208,7 @@ onMounted(() => {
 
     <section class="card">
       <h2>章节</h2>
-      <form class="inline" @submit.prevent="createChapter">
+      <form class="form-fields" @submit.prevent="createChapter">
         <div class="field">
           <label for="chapter_title">标题</label>
           <input id="chapter_title" v-model="chapterForm.title" maxlength="100" required />
@@ -223,7 +223,7 @@ onMounted(() => {
             直接发布
           </label>
         </div>
-        <button class="primary" type="submit">新建章节</button>
+        <div class="form-actions"><button class="primary" type="submit">新建章节</button></div>
       </form>
 
       <div class="table-scroll" tabindex="0" role="region" aria-label="课程内容数据表，可横向滚动">
@@ -262,7 +262,7 @@ onMounted(() => {
     <section class="card">
       <h2>知识点</h2>
       <form class="stack" @submit.prevent="createPoint">
-        <div class="inline">
+        <div class="filter-bar">
           <div class="field">
             <label for="point_chapter">所属章节</label>
             <select id="point_chapter" v-model="pointForm.chapter_id" required>
@@ -284,7 +284,7 @@ onMounted(() => {
           <label for="point_body">正文 Markdown</label>
           <textarea id="point_body" v-model="pointForm.body_md" rows="6" maxlength="20000" required></textarea>
         </div>
-        <div class="inline">
+        <div class="filter-bar">
           <div class="field">
             <label for="point_source">来源链接（http/https，可空）</label>
             <input id="point_source" v-model="pointForm.source_url" />
@@ -295,8 +295,8 @@ onMounted(() => {
               直接发布
             </label>
           </div>
-          <button class="primary" type="submit">新建知识点</button>
         </div>
+        <div class="form-actions"><button class="primary" type="submit">新建知识点</button></div>
       </form>
 
       <p class="hint">
@@ -304,7 +304,7 @@ onMounted(() => {
       </p>
       <div class="preview" v-html="renderMarkdown(pointForm.body_md)"></div>
 
-      <div class="inline">
+      <div class="filter-bar">
         <div class="field">
           <label for="filter_chapter">按章节筛选</label>
           <select id="filter_chapter" v-model="filterChapterId">
@@ -351,7 +351,7 @@ onMounted(() => {
 
     <section class="card">
       <h2>教学资源</h2>
-      <form class="inline" @submit.prevent="createResource">
+      <form class="form-fields" @submit.prevent="createResource">
         <div class="field">
           <label for="resource_title">标题</label>
           <input id="resource_title" v-model="resourceForm.title" maxlength="100" required />
@@ -378,7 +378,7 @@ onMounted(() => {
             直接发布
           </label>
         </div>
-        <button class="primary" type="submit">新建资源</button>
+        <div class="form-actions"><button class="primary" type="submit">新建资源</button></div>
       </form>
 
       <article v-for="resource in resources" :key="resource.id" class="resource">
@@ -412,7 +412,7 @@ onMounted(() => {
           <li v-if="resource.versions.length === 0" class="hint">还没有版本。</li>
         </ul>
 
-        <div v-if="isMine(resource)" class="inline">
+        <div v-if="isMine(resource)" class="filter-bar">
           <div class="field">
             <label :for="`file_${resource.id}`">追加文件版本（PDF/PPTX/PNG/JPEG，≤20 MiB）</label>
             <input
@@ -431,10 +431,10 @@ onMounted(() => {
               @input="setNote(resource.id, $event.target.value)"
             />
           </div>
-          <button class="primary" type="button" @click="uploadFileVersion(resource)">上传新版本</button>
+          <div class="filter-actions"><button class="primary" type="button" @click="uploadFileVersion(resource)">上传新版本</button></div>
         </div>
 
-        <div v-if="isMine(resource)" class="inline">
+        <div v-if="isMine(resource)" class="filter-bar">
           <div class="field">
             <label :for="`link_${resource.id}`">或追加外链版本（http/https）</label>
             <input
@@ -443,7 +443,7 @@ onMounted(() => {
               @input="setTarget(resource.id, $event.target.value)"
             />
           </div>
-          <button class="link" type="button" @click="addLinkVersion(resource)">追加外链</button>
+          <div class="filter-actions"><button class="link" type="button" @click="addLinkVersion(resource)">追加外链</button></div>
         </div>
       </article>
     </section>
@@ -455,17 +455,7 @@ onMounted(() => {
   max-width: 68rem;
 }
 
-.inline {
-  display: flex;
-  align-items: flex-end;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  margin-bottom: 0.75rem;
-}
 
-.stack .inline {
-  margin-bottom: 0.5rem;
-}
 
 .field.small input {
   width: 5.5rem;

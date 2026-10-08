@@ -230,7 +230,7 @@ onMounted(async () => {
           <span class="hint">版本 v{{ assessment.version }}</span>
         </div>
 
-        <form v-if="isDraft" class="publish-form" @submit.prevent="publish">
+        <form v-if="isDraft" class="publish-form form-fields" @submit.prevent="publish">
           <div class="field">
             <label for="p_starts">开始时间（本地）</label>
             <input id="p_starts" v-model="publishForm.starts_at" type="datetime-local" required />
@@ -239,10 +239,10 @@ onMounted(async () => {
             <label for="p_ends">结束时间（本地）</label>
             <input id="p_ends" v-model="publishForm.ends_at" type="datetime-local" required />
           </div>
-          <button class="primary" type="submit">发布并冻结</button>
+          <div class="form-actions"><button class="primary" type="submit">发布并冻结</button></div>
         </form>
 
-        <div class="actions">
+        <div class="inline-actions">
           <button v-if="isPublished" class="button button--secondary" type="button" @click="closeNow">
             提前结束
           </button>
@@ -265,7 +265,7 @@ onMounted(async () => {
 
       <SectionCard v-if="isDraft && editing" title="草稿选题">
         <QuestionPicker v-model="draftItems" :questions="bank" />
-        <button class="primary" type="button" @click="saveItems">保存草稿</button>
+        <div class="form-actions"><button class="primary" type="button" @click="saveItems">保存草稿</button></div>
       </SectionCard>
 
       <SectionCard v-if="projecting" title="投屏统计（匿名聚合）">
@@ -378,25 +378,9 @@ onMounted(async () => {
   margin-bottom: var(--space-4);
 }
 
-.publish-form {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
-  gap: 0 var(--space-4);
-  align-items: end;
-  margin-bottom: var(--space-4);
-}
+.publish-form { margin-bottom: 16px; }
 
-.publish-form button {
-  justify-self: start;
-}
 
-.actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  flex-wrap: wrap;
-  margin-bottom: var(--space-2);
-}
 
 .projection {
   display: grid;
